@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "build-release": "tsc -p tsconfig-build.json"
+    "build-release": "tsc -p tsconfig-build.json",
+    "copy-css": "mkdir dist/histograms/style && cp -r src/histograms/style/ ./dist/histograms/"
   },
   "repository": {
     "type": "git",
