@@ -32,11 +32,11 @@ export abstract class AbstractChart extends AbstractHistogram {
 
   public resize(): void {
     if (this.isWidthFixed === false) {
-      this.histogramParams.chartWidth = this.histogramParams.el.nativeElement.childNodes[0].offsetWidth;
+      this.histogramParams.chartWidth = (<HTMLElement>document.getElementById(this.histogramParams.id)).offsetWidth;
     }
 
     if (this.isHeightFixed === false) {
-      this.histogramParams.chartHeight = this.histogramParams.el.nativeElement.childNodes[0].offsetHeight;
+      this.histogramParams.chartHeight = (<HTMLElement>document.getElementById(this.histogramParams.id)).offsetHeight;
     }
   }
 
@@ -60,7 +60,7 @@ export abstract class AbstractChart extends AbstractHistogram {
       this.histogramParams.displaySvg = 'none';
     }
     this.initializeChartHeight();
-    const svg = d3.select(this.histogramParams.histogramNode).select('svg');
+    const svg = d3.select(this.histogramParams.histogramNode);
     const margin = this.histogramParams.margin;
     const width = Math.max(+this.histogramParams.chartWidth - this.histogramParams.margin.left - this.histogramParams.margin.right, 0);
     const height = Math.max(+this.histogramParams.chartHeight - this.histogramParams.margin.top - this.histogramParams.margin.bottom, 0);

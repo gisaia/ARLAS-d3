@@ -1,79 +1,75 @@
-import { Subject } from 'rxjs/Subject';
-
 import { ChartDimensions, ChartAxes, SwimlaneAxes, SelectedInputValues, SelectedOutputValues, HistogramUtils,
-  ChartType, DataType, Position, Tooltip, MarginModel, SwimlaneMode } from './utils/HistogramUtils';
+         ChartType, DataType, Position, Tooltip, MarginModel, SwimlaneMode } from './utils/HistogramUtils';
+import { Subject } from 'rxjs/Subject';
 
 export class HistogramParams {
   // ########################## Inputs ##########################
 
   /** Data */
   public data: Array<{ key: number, value: number }> | Map<string, Array<{ key: number, value: number }>>;
-  public dataType: DataType;
-  public dataUnit: string;
-  public chartType: ChartType;
-  public hoveredBucketEvent: Subject<Date | number>;
-
+  public dataType: DataType = DataType.numeric;
+  public dataUnit = '';
+  public chartType: ChartType = ChartType.area;
 
   /** Dimensions */
-  public chartWidth: number;
-  public chartHeight: number;
+  public chartWidth: number = null;
+  public chartHeight: number = null;
 
   /** Axes and ticks */
-  public xTicks: number;
-  public yTicks: number;
-  public xLabels: number;
-  public yLabels: number;
-  public showXTicks: boolean;
-  public showYTicks: boolean;
-  public showXLabels: boolean;
-  public showYLabels: boolean;
-  public showHorizontalLines: boolean;
-  public ticksDateFormat: string;
-  public xAxisPosition: Position;
+  public xTicks = 5;
+  public yTicks = 5;
+  public xLabels = 5;
+  public yLabels = 5;
+  public showXTicks = true;
+  public showYTicks = true;
+  public showXLabels = true;
+  public showYLabels = true;
+  public showHorizontalLines = true;
+  public ticksDateFormat: string = null;
+  public xAxisPosition: Position = Position.bottom;
+  public descriptionPosition: Position = Position.bottom;
 
   /** Desctiption */
-  public chartTitle: string;
-  public valuesDateFormat: string;
+  public chartTitle = '';
+  public valuesDateFormat: string = null;
 
   /** Bars */
-  public paletteColors: [number, number] | string;
-  public barWeight: number;
-  public multiselectable: boolean;
+  public paletteColors: [number, number] | string = null;
+  public barWeight = 0.6;
+  public multiselectable = false;
 
   /** Area */
-  public isSmoothedCurve: boolean;
+  public isSmoothedCurve = true;
 
   /** Selection & brush */
 
-  public brushHandlesHeightWeight;
+  public brushHandlesHeightWeight = 0.5;
   public intervalSelection: SelectedInputValues;
   public intervalListSelection: SelectedInputValues[];
   public topOffsetRemoveInterval: number;
-  public isHistogramSelectable;
+  public isHistogramSelectable = true;
 
   /** Swimlane */
-  public swimlaneBorderRadius;
-  public swimlaneMode: SwimlaneMode;
-  public swimLaneLabelsWidth: number;
-  public swimlaneHeight: number;
+  public swimlaneBorderRadius = 3;
+  public swimlaneMode: SwimlaneMode = SwimlaneMode.variableHeight;
+  public swimLaneLabelsWidth: number = null;
+  public swimlaneHeight: number = null;
 
   // ########################## Outputs ##########################
 
-  public valuesListChangedEvent: Subject<SelectedOutputValues[]>;
-
+  public valuesListChangedEvent: Subject<SelectedOutputValues[]> = new Subject<SelectedOutputValues[]>();;
+  public hoveredBucketEvent: Subject<Date | number> = new Subject<Date | number>();;
 
   // ########################## Parameter binded with HTML ##########################
 
   public histogramNode: any;
-  public viewContainerRef: any;
-  public el: any;
 
   public margin: MarginModel = { top: 4, right: 10, bottom: 20, left: 60 };
   public tooltip: Tooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
   public brushLeftTooltip: Tooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
   public brushRightTooltip: Tooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
-  public rightBrushElement;
-  public leftBrushElement;
+  public rightBrushElement: HTMLElement;
+  public leftBrushElement: HTMLElement;
 
   public displaySvg = 'none';
   public dataLength = 0;
@@ -95,4 +91,6 @@ export class HistogramParams {
   public uid: string;
   public displayHorizontal = 'hidden';
   public displayVertical = 'hidden';
+
+  public id;
 }

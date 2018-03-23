@@ -196,7 +196,7 @@ export abstract class AbstractHistogram {
   protected initializeChartDimensions(): void {
     // set chartWidth value equal to container width when it is not specified by the user
     if (this.histogramParams.chartWidth === null) {
-      this.histogramParams.chartWidth = this.histogramParams.el.nativeElement.childNodes[0].offsetWidth;
+      this.histogramParams.chartWidth = (<HTMLElement>document.getElementById(this.histogramParams.id)).offsetWidth;
     } else if (this.histogramParams.chartWidth !== null && this.plottingCount === 0) {
       this.isWidthFixed = true;
     }
@@ -204,7 +204,7 @@ export abstract class AbstractHistogram {
 
   protected initializeChartHeight(): void {
     if (this.histogramParams.chartHeight === null) {
-      this.histogramParams.chartHeight = this.histogramParams.el.nativeElement.childNodes[0].offsetHeight;
+      this.histogramParams.chartHeight = (<HTMLElement>document.getElementById(this.histogramParams.id)).offsetHeight;
     } else if (this.histogramParams.chartHeight !== null && this.plottingCount === 0) {
       this.isHeightFixed = true;
     }
@@ -389,9 +389,10 @@ export abstract class AbstractHistogram {
     const leftPosition = this.getAxes().xDomain(this.selectionInterval.startvalue);
     const rightPosition = this.getAxes().xDomain(this.selectionInterval.endvalue);
 
-    if (this.histogramParams.leftBrushElement !== undefined && this.histogramParams.rightBrushElement !== undefined) {
-      const leftOffset = this.histogramParams.leftBrushElement.nativeElement.offsetWidth;
-      const rightOffset = this.histogramParams.rightBrushElement.nativeElement.offsetWidth;
+    if (this.histogramParams.leftBrushElement !== undefined && this.histogramParams.leftBrushElement !== null &&
+      this.histogramParams.rightBrushElement !== undefined && this.histogramParams.rightBrushElement !== null) {
+      const leftOffset = this.histogramParams.leftBrushElement.offsetWidth;
+      const rightOffset = this.histogramParams.rightBrushElement.offsetWidth;
       if (leftOffset !== 0 && rightOffset !== 0) {
         if (leftPosition + leftOffset + 5 > rightPosition - rightOffset) {
           this.histogramParams.displayHorizontal = 'hidden';

@@ -1,8 +1,6 @@
-import * as d3 from 'd3';
-
 import { AbstractHistogram } from '../AbstractHistogram';
 import { SwimlaneAxes, HistogramData, HistogramUtils, DataType, Tooltip } from '../utils/HistogramUtils';
-
+import * as d3 from 'd3';
 
 export abstract class AbstractSwimlane extends AbstractHistogram {
 
@@ -46,12 +44,12 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
 
   public resize(): void {
     if (this.isWidthFixed === false) {
-      this.histogramParams.chartWidth = this.histogramParams.el.nativeElement.childNodes[0].offsetWidth;
+      this.histogramParams.chartWidth = (<HTMLElement>document.getElementById(this.histogramParams.id)).offsetWidth;
     }
 
     if (this.isHeightFixed === false) {
       if (this.isSwimlaneHeightFixed === false) {
-        this.histogramParams.chartHeight = this.histogramParams.el.nativeElement.childNodes[0].offsetHeight;
+        this.histogramParams.chartHeight = (<HTMLElement>document.getElementById(this.histogramParams.id)).offsetHeight;
       } else {
         this.nbSwimlanes = (<Map<string, Array<{ key: number, value: number }>>>this.histogramParams.data).size;
         this.histogramParams.chartHeight = this.histogramParams.swimlaneHeight * this.nbSwimlanes + this.histogramParams.margin.top +
@@ -162,7 +160,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
         + this.histogramParams.margin.top + this.histogramParams.margin.bottom;
       }
     }
-    const svg = d3.select(this.histogramParams.histogramNode).select('svg');
+    const svg = d3.select(this.histogramParams.histogramNode);
     const margin = this.histogramParams.margin;
     const width = Math.max(+this.histogramParams.chartWidth - this.histogramParams.margin.left - this.histogramParams.margin.right, 0);
     const height = Math.max(+this.histogramParams.chartHeight - this.histogramParams.margin.top - this.histogramParams.margin.bottom, 0);
