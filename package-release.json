@@ -1,12 +1,9 @@
 {
   "name": "arlas-d3",
-  "version": "0.0.1",
+  "version": "*updated by release script*",
   "description": "D3 components library for ARLAS Web App",
-  "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
-  "scripts": {
-    "build-release": "tsc -p tsconfig-build.json && mkdir dist/histograms/style && cp -r src/histograms/style/ ./dist/histograms/"
-  },
+  "main": "./index.js",
+  "typings": "./index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/gisaia/ARLAS-d3.git"
