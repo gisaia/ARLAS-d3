@@ -9,7 +9,7 @@
     "url": "https://github.com/gisaia/ARLAS-d3.git"
   },
   "author": "gisaia",
-  "license": "apache2",
+  "license": "Apache-2.0",
   "dependencies": {
     "@types/d3": "^4.10.0",
     "@types/tinycolor2": "^1.4.0",

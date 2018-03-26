@@ -61,7 +61,7 @@ export class HistogramParams {
 
   // ########################## Outputs ##########################
 
-  public valuesListChangedEvent: Subject<SelectedOutputValues[]> = new Subject<SelectedOutputValues[]>();;
+  public valuesListChangedEvent: Subject<SelectedOutputValues[]> = new Subject<SelectedOutputValues[]>();
   public hoveredBucketEvent: Subject<Date | number> = new Subject<Date | number>();
 
   // ########################## Parameter binded with HTML ##########################
