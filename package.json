@@ -6,7 +6,7 @@
   "typings": "dist/index.d.ts",
   "scripts": {
     "gulp": "gulp",
-    "build-release": "tsc -p tsconfig-build.json && gulp",
+    "build-release": "tsc -p tsconfig.json && gulp",
     "tslint": "tslint -c tslint.json 'src/**/*.ts?(x)'"
   },
   "repository": {
@@ -19,12 +19,12 @@
     "@types/d3": "^4.10.0",
     "@types/tinycolor2": "^1.4.0",
     "d3": "^4.9.1",
-    "rxjs": "^5.1.0",
+    "rxjs": "^5.4.2",
     "tinycolor2": "^1.4.1"
   },
   "devDependencies": {
     "gulp": "^3.9.1",
-    "gulp-flatten": "^0.4.0",    
+    "gulp-flatten": "^0.4.0",
     "run-sequence": "^2.0.0",
     "tslint": "^5.7.0",
     "typescript": "~2.4.2"
