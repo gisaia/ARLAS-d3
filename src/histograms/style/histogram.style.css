@@ -1,0 +1,303 @@
+/*
+ * Licensed to Gisaïa under one or more contributor
+ * license agreements. See the NOTICE.txt file distributed with
+ * this work for additional information regarding copyright
+ * ownership. Gisaïa licenses this file to you under
+ * the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+ 
+ .histogram{
+    background: rgba(0,0,255,0);
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.histogram text {
+    font-size: 0.8em;
+    fill-opacity: 1;
+    fill: black;
+}
+
+.histogram__description /*public*/ /*Sets the description part that includes title and start/end values*/
+{
+    font-family: "Roboto", "Helvetica Neue", sans-serif;
+    font-size: 0.9em;
+    line-height: 1.3;
+    color: deeppink;
+    opacity: 1;
+    z-index: 10000;
+}
+
+.histogram__description--display{
+    display: flex;
+}
+
+.histogram__description__title /*public*/ /*Sets title's style*/
+{
+    font-family: "Roboto", "Helvetica Neue", sans-serif;
+    font-size: 1.0em;
+    flex: 1 1 100%;
+    max-width: 40%;
+    color: dodgerblue;
+    opacity: 1;
+    text-align: center;
+    z-index: 8000;
+}
+
+.histogram__description__startvalue /*public*/ /*Sets startvalue part style*/
+{
+    flex: 1 1 100%;
+    max-width: 30%;
+}
+
+.histogram__description__endvalue /*public*/ /*Sets endvalue part style*/{
+    flex: 1 1 100%;
+    max-width: 30%;
+    text-align: right;
+}
+
+.histogram__description__startvalue--background, /*public*/ /*Sets startvalue background style*/
+.histogram__description__endvalue--background  /*public*/ /*Sets endvalue background style*/
+{
+    background: rgba(220, 220, 220, 0.8);
+}
+
+.histogram__ticks /*public*/ /*Sets the ticks style*/
+{
+  stroke: #757575;
+  stroke-width: 1px;
+}
+
+.histogram__axis /*public*/ /*Sets the axes style*/
+{
+  stroke: #757575;
+  stroke-width: 1px;
+}
+
+.tick text /*public*/ /*Sets the labels style*/
+{
+  fill: #BDBDBD;
+  font-size: 0.9em;
+}
+
+
+.histogram__no-chart__key, .histogram__no-chart__value {
+  display: block;
+  text-align: center;
+  padding: 5px;
+}
+
+.histogram__tooltip /*public*/ /*Sets the tooltip style*/
+{
+  position: absolute;
+  text-align: left;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: #043b53;
+  border: 0px;
+  border-radius: 2px;
+  pointer-events: none;
+  color: white;
+  z-index: 20000;
+}
+
+.histogram__brush-tooltip /*public*/ /*Sets all the brush tooltips styles*/
+{
+  font: 0.7em sans-serif;
+  text-align: center;
+  position: absolute;
+  padding: 2px;
+  background: white;
+  pointer-events: none;
+  color: #000;
+  z-index: 20000;
+}
+
+.histogram__brush-tooltip__horizontal--left, /*public*/ /*Sets the horizontal left brush tooltip style*/
+.histogram__brush-tooltip__horizontal--right, /*public*/ /*Sets the horizontal right brush tooltip style*/
+.histogram__brush-tooltip__vertical--left, /*public*/ /*Sets the vertical left brush tooltip style*/
+.histogram__brush-tooltip__vertical--right /*public*/ /*Sets the vertical right brush tooltip style*/
+{
+
+}
+
+.histogram__brush-tooltip__vertical--left__rotation {
+  transform: rotate(-90deg);
+  transform-origin: bottom right;
+}
+
+.histogram__brush-tooltip__vertical--right__rotation {
+  transform: rotate(90deg);
+  transform-origin: bottom left;}
+
+.histogram__remove /*public*/ /*Sets the remove tooltip's style*/
+{
+  position: absolute;
+  text-align: left;
+  padding: 2px;
+  font: 12px sans-serif;
+  border: 0px;
+  border-radius: 2px;
+  color: #043b53;
+  z-index: 20000;
+  cursor: pointer;
+}
+
+.histogram__tooltip-content {
+  display: block;
+}
+
+.histogram__ticks-axis text {
+  display: none;
+}
+
+.histogram__horizontal-axis__text {
+  display: none;
+}
+
+.histogram__horizontal-axis__line /* public */ /* Sets the horizontal lines style.*/
+{
+  stroke-opacity: 0.5;
+  stroke-width: 0.3px;
+  stroke-dasharray: 5
+}
+
+.histogram__horizontal-axis {
+  stroke-opacity: 0;
+}
+
+.histogram__only-axis text {
+  display: none;
+}
+
+.histogram__ticks-axis line {
+  stroke: #B3B1B1;
+}
+
+.histogram__line-separator text {
+  display: none;
+}
+
+.histogram__line-separator .domain {
+  stroke: #B3B1B1;
+}
+
+.histogram__ticks-axis__hidden {
+  display: none;
+}
+
+.histogram__labels-axis .domain {
+  stroke-opacity: 0;
+}
+
+.histogram__labels-axis__hidden {
+  display: none;
+}
+
+.brush .selection /*public*/ /*Sets the brush selection style*/
+{
+  opacity: 0.6;
+}
+
+.histogram__brush--handles /*public*/ /*Sets the brush handles style*/
+{
+  stroke: #868686;
+  fill: #868686;
+  opacity: 1;
+  z-index: 30000;
+}
+
+.histogram__chart--fixed-selected--area /*public*/ /*Sets the style of the area's selected parts*/
+{
+  fill: #FFC107;
+  fill-opacity: 1;
+  stroke: #C49D28;
+  stroke-width: 1px;
+  stroke-opacity: 1;
+}
+
+.histogram__chart--current-selected--area /*public*/ /*Sets the style of the area's selected parts*/
+{
+  fill: rgb(155, 116, 0);
+  fill-opacity: 1;
+  stroke: #C49D28;
+  stroke-width: 1px;
+  stroke-opacity: 1;
+}
+
+.histogram__chart--unselected--area /*public*/ /*Sets the style of the area's unselected parts*/
+{
+  fill: rgb(167, 166, 161);
+  fill-opacity: 1;
+  stroke: rgb(220, 220, 220);
+  stroke-width: 1px;
+  stroke-opacity: 1;
+}
+
+.histogram__chart--bar__fullyselected /*public*/ /*Sets the fixed selected bars style*/
+{
+  fill: #FFC107;
+  fill-opacity: 1;
+  stroke: none;
+  stroke-width: 0.5px;
+  stroke-opacity: 1;
+}
+
+.histogram__chart--bar__currentselection /*public*/ /*Sets the currently selected bars style*/
+{
+  fill: rgb(191, 143, 0);
+  fill-opacity: 1;
+  stroke: none;
+  stroke-width: 0.5px;
+  stroke-opacity: 1;
+}
+
+.histogram__chart--bar__partlyselected /*public*/ /*Sets the partly selected bars style*/
+{
+  fill: #FFC107;
+  fill-opacity: 1;
+  stroke: none;
+  stroke-width: 0.5px;
+  stroke-opacity: 1;
+}
+
+.histogram__chart--bar /*public*/ /*Sets the unselected selected bars style*/
+{
+  fill-opacity: 0.3;
+  stroke-opacity: 0.1;
+}
+
+.histogram__swimlane-height--tick /*public*/ /*Sets the horizontal tick on each bar bar in the case of fixedHeight swimlanes*/
+{
+  stroke-width: 1px;
+  stroke: #fff;
+  fill: none;
+  opacity: 1;
+}
+
+.histogram__swimlane--vertical-tooltip-line /*public*/ /*Sets the vertical line that's shown when hovering bars in swimlane*/
+{
+  stroke-width: 2px;
+  stroke: #000;
+  fill: none;
+}
+
+.selection {
+  opacity: 0.6;
+}
+
+
+
+

@@ -1,0 +1,36 @@
+{
+  "name": "arlas-d3",
+  "version": "0.0.1",
+  "description": "D3 components library for ARLAS Web App",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "gulp": "gulp",
+    "build-release": "tsc -p tsconfig.json && gulp",
+    "tslint": "tslint -c tslint.json 'src/**/*.ts?(x)'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gisaia/ARLAS-d3.git"
+  },
+  "author": "gisaia",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@types/d3": "^4.10.0",
+    "@types/tinycolor2": "^1.4.0",
+    "d3": "^4.9.1",
+    "rxjs": "^5.4.2",
+    "tinycolor2": "^1.4.1"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-flatten": "^0.4.0",
+    "run-sequence": "^2.0.0",
+    "tslint": "^5.7.0",
+    "typescript": "~2.4.2"
+  },
+  "bugs": {
+    "url": "https://github.com/gisaia/ARLAS-d3/issues"
+  },
+  "homepage": "https://github.com/gisaia/ARLAS-d3"
+}
