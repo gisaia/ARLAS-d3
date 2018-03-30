@@ -13,6 +13,12 @@ cache:
 
 jobs:
   include:
-    - script: npm run tslint
-    - script: npm run build-release
-    - script: ./mkDocs.sh
+    - env:
+        - job=lint
+      script: npm run tslint
+    - env:
+        - job=build_release
+      script: npm run build-release
+    - env:
+        - job=generate_documentation
+      script: ./mkDocs.sh
