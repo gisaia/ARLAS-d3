@@ -33,8 +33,8 @@ export class ChartArea extends AbstractChart {
     super.plot(inputData);
   }
 
-  public resize(): void {
-    super.resize();
+  public resize(histogramContainer: HTMLElement): void {
+    super.resize(histogramContainer);
     this.plot(<Array<{ key: number, value: number }>>this.histogramParams.data);
     if (this.histogramParams.multiselectable) {
       this.resizeSelectedIntervals(this.chartAxes);

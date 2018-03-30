@@ -85,7 +85,9 @@ export class HistogramParams {
 
   // ########################## Parameter binded with HTML ##########################
 
-  public histogramNode: any;
+  public histogramContainer: HTMLElement;
+  public svgNode: SVGElement;
+
 
   public margin: MarginModel = { top: 4, right: 10, bottom: 20, left: 60 };
   public tooltip: Tooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };

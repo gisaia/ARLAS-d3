@@ -50,8 +50,8 @@ export abstract class AbstractDonut {
    /**
    * @description Resizes donut on window resize event.
    */
-  public resizeDonut(e: Event): void {
-    this.donutParams.donutContainer = document.getElementById(this.donutParams.id);
+  public resize(donutContainer: HTMLElement): void {
+    this.donutParams.donutContainer = donutContainer;
     this.plot();
     this.reapplySelection();
     this.styleNodes();
