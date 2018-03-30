@@ -76,7 +76,7 @@ export abstract class AbstractHistogram {
     }
   }
 
-  public abstract resize(): void;
+  public abstract resize(histogramContainer: HTMLElement): void;
 
   public setSelectedInterval(selectedInputValues: SelectedInputValues): void {
     const axes = this.getAxes();
@@ -215,7 +215,7 @@ export abstract class AbstractHistogram {
   protected initializeChartDimensions(): void {
     // set chartWidth value equal to container width when it is not specified by the user
     if (this.histogramParams.chartWidth === null) {
-      this.histogramParams.chartWidth = (<HTMLElement>document.getElementById(this.histogramParams.id)).offsetWidth;
+      this.histogramParams.chartWidth = this.histogramParams.histogramContainer.offsetWidth;
     } else if (this.histogramParams.chartWidth !== null && this.plottingCount === 0) {
       this.isWidthFixed = true;
     }
@@ -223,7 +223,7 @@ export abstract class AbstractHistogram {
 
   protected initializeChartHeight(): void {
     if (this.histogramParams.chartHeight === null) {
-      this.histogramParams.chartHeight = (<HTMLElement>document.getElementById(this.histogramParams.id)).offsetHeight;
+      this.histogramParams.chartHeight = this.histogramParams.histogramContainer.offsetHeight;
     } else if (this.histogramParams.chartHeight !== null && this.plottingCount === 0) {
       this.isHeightFixed = true;
     }
