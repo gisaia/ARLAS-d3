@@ -20,6 +20,7 @@
 import { DonutArc, DonutNode } from './utils/DonutUtils';
 import { Subject } from 'rxjs/Subject';
 import { Tooltip } from '../histograms/utils/HistogramUtils';
+import { ColorGenerator } from '../utils/color-generator';
 
 export class DonutParams {
 
@@ -78,9 +79,13 @@ export class DonutParams {
    * @description The SVG element that's the donut is built on.
    */
   public svgElement: SVGElement;
-   /**
-   * @description The div element that wraps the donut component.
-   */
+  /**
+  * @description The div element that wraps the donut component.
+  */
   public donutContainer: HTMLElement;
+  /**
+   * @description an object that implements ColorGenerator interface.
+   */
+  public donutNodeColorizer: ColorGenerator;
 
 }

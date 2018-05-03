@@ -120,7 +120,7 @@ export abstract class AbstractDonut {
       .data(this.donutParams.donutNodes)
       .enter().append('path')
       .attr('class', 'donut__arc')
-      .style('fill', (d) => DonutUtils.getNodeColor(d))
+      .style('fill', (d) => DonutUtils.getNodeColor(d, this.donutParams.donutNodeColorizer))
       .style('opacity', 1)
       .attr('d', this.arc)
       .on('click', (d) => this.onClick(d))
@@ -306,7 +306,7 @@ export abstract class AbstractDonut {
       .style('opacity', 1);
     const arcColorMap = new Map<string, string>();
     hoveredNodeAncestors.forEach(node => {
-      arcColorMap.set(node.data.name, DonutUtils.getNodeColor(node));
+      arcColorMap.set(node.data.name, DonutUtils.getNodeColor(node, this.donutParams.donutNodeColorizer));
     });
     this.donutParams.hoveredNodesEvent.next(arcColorMap);
   }

@@ -19,6 +19,7 @@
 
 import * as d3 from 'd3';
 import { MarginModel } from '../../histograms/utils/HistogramUtils';
+import { ColorGenerator } from '../../utils/color-generator';
 
 export interface DonutDimensions {
   svg: d3.Selection< d3.BaseType, any, d3.BaseType, any>;
@@ -75,12 +76,16 @@ export class DonutUtils {
     return nodeToSelect;
   }
 
-  public static getNodeColor(d: DonutNode): string {
+  public static getNodeColor(d: DonutNode, donutNodeColorizer: ColorGenerator): string {
     if (d.depth > 0) {
       if (d.data.isOther) {
         return '#aaa';
       } else {
-        return this.getHexColorFromString(d.data.name + ':' + d.data.ringName);
+        if (donutNodeColorizer) {
+          return donutNodeColorizer.getColor(d.data.ringName, d.data.name);
+        } else {
+          this.getHexColorFromString(d.data.name + ':' + d.data.ringName);
+        }
       }
     } else {
       return '#fff';
