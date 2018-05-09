@@ -84,7 +84,7 @@ export class DonutUtils {
         if (donutNodeColorizer) {
           return donutNodeColorizer.getColor(d.data.ringName, d.data.name);
         } else {
-          this.getHexColorFromString(d.data.name + ':' + d.data.ringName);
+          return this.getHexColorFromString(d.data.name + ':' + d.data.ringName);
         }
       }
     } else {
