@@ -78,14 +78,10 @@ export class DonutUtils {
 
   public static getNodeColor(d: DonutNode, donutNodeColorizer: ColorGenerator): string {
     if (d.depth > 0) {
-      if (d.data.isOther) {
-        return '#aaa';
+      if (donutNodeColorizer) {
+        return donutNodeColorizer.getColor(d.data.name);
       } else {
-        if (donutNodeColorizer) {
-          return donutNodeColorizer.getColor(d.data.ringName, d.data.name);
-        } else {
-          return this.getHexColorFromString(d.data.name + ':' + d.data.ringName);
-        }
+        return this.getHexColorFromString(d.data.name + ':' + d.data.ringName);
       }
     } else {
       return '#fff';
