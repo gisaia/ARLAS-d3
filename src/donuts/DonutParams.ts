@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { DonutArc, DonutNode } from './utils/DonutUtils';
+import { DonutArc, DonutNode, DonutTooltip } from './utils/DonutUtils';
 import { Subject } from 'rxjs/Subject';
 import { Tooltip } from '../histograms/utils/HistogramUtils';
 import { ColorGenerator } from '../utils/color-generator';
@@ -66,6 +66,11 @@ export class DonutParams {
    * The key of the map is the node's name and the value is its color on the donut.
    */
   public hoveredNodesEvent: Subject<Map<string, string>> = new Subject<Map<string, string>>();
+
+  /**
+   * @description Emits the tooltip of the hovered node.
+   */
+  public hoveredNodeTooltipEvent: Subject<DonutTooltip> = new Subject<DonutTooltip>();
 
   /**
    * @description Tooltip displayed when a node is hovered.
