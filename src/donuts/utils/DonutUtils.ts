@@ -28,6 +28,15 @@ export interface DonutDimensions {
   radius: number;
 }
 
+export interface DonutTooltip {
+  xPosition: number;
+  yPosition: number;
+  nodeName: string;
+  nodeParents: Array<string>;
+  nodeCount: number;
+  nodeColor: string;
+}
+
 export interface DonutArc {
   name: string;
   id: string;

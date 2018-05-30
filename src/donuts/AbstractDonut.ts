@@ -18,7 +18,7 @@
  */
 
 import { DonutParams } from './DonutParams';
-import { DonutNode, DonutDimensions, DonutUtils, DonutArc } from './utils/DonutUtils';
+import { DonutNode, DonutDimensions, DonutUtils, DonutArc, DonutTooltip } from './utils/DonutUtils';
 
 import * as d3 from 'd3';
 
@@ -26,13 +26,14 @@ export abstract class AbstractDonut {
   public donutParams: DonutParams;
   public donutDimensions: DonutDimensions;
 
-
   protected donutContext: any;
   protected svgNode: any;
   protected lastSelectedNode: DonutNode = null;
   protected arc: d3.Arc<any, d3.DefaultArcObject>;
   protected x: d3.ScaleLinear<number, number>;
   protected y: d3.ScalePower<number, number>;
+  protected donutTooltip: DonutTooltip = {xPosition: null, yPosition: null, nodeName: null, nodeParents: null,
+     nodeCount: null, nodeColor: null};
 
   /**
    * @description Plots the donut
@@ -305,14 +306,20 @@ export abstract class AbstractDonut {
       .filter((node) => hoveredNodeAncestors.indexOf(node) >= 0)
       .style('opacity', 1);
     const arcColorMap = new Map<string, string>();
+    this.donutTooltip.nodeParents = new Array<string>();
     hoveredNodeAncestors.forEach(node => {
       arcColorMap.set(node.data.name, DonutUtils.getNodeColor(node, this.donutParams.donutNodeColorizer));
+      this.donutTooltip.nodeParents.unshift(node.data.name);
     });
     this.donutParams.hoveredNodesEvent.next(arcColorMap);
+    this.donutTooltip.nodeName = hoveredNode.data.name;
+    this.donutTooltip.nodeCount = hoveredNode.value;
+    this.donutTooltip.nodeColor = DonutUtils.getNodeColor(hoveredNode, this.donutParams.donutNodeColorizer);
   }
 
   protected onMouseOut(): void {
     this.donutParams.tooltip.isShown = false;
+    this.donutParams.hoveredNodeTooltipEvent.next(null);
     this.unhoverNodesButNotSelected();
   }
 
@@ -335,6 +342,11 @@ export abstract class AbstractDonut {
       this.donutParams.tooltip.xPosition = xPosition + 15;
     }
     this.donutParams.tooltip.yPosition = d3.mouse(<d3.ContainerElement>this.donutContext.node())[1] - 5 + (this.donutDimensions.height / 2);
+    this.donutTooltip.xPosition = xPosition;
+    this.donutTooltip.yPosition = this.donutParams.tooltip.yPosition;
+    if (this.donutParams.tooltip.isShown) {
+      this.donutParams.hoveredNodeTooltipEvent.next(this.donutTooltip);
+    }
   }
 
   protected abstract hoverNode(hoveredNode: DonutNode);
