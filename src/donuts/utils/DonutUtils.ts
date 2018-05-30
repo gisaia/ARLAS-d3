@@ -69,16 +69,20 @@ export class DonutUtils {
     count--;
     while (count >= 0 && nodeToSelect !== null ) {
       const children = nodeToSelect.children;
-      for (let i = 0; i < children.length; i++) {
-        if (children[i].data.name === nodePath[count].name &&
-          children[i].data.ringName === nodePath[count].ringName) {
-            nodeToSelect = children[i];
-            break;
-        } else {
-          if (i === children.length - 1) {
-            nodeToSelect = null;
+      if (children !== undefined) {
+        for (let i = 0; i < children.length; i++) {
+          if (children[i].data.name === nodePath[count].name &&
+            children[i].data.ringName === nodePath[count].ringName) {
+              nodeToSelect = children[i];
+              break;
+          } else {
+            if (i === children.length - 1) {
+              nodeToSelect = null;
+            }
           }
         }
+      } else {
+        nodeToSelect = null;
       }
       count--;
     }
