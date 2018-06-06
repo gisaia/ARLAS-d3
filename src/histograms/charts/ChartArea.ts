@@ -20,7 +20,7 @@
 import * as d3 from 'd3';
 
 import { AbstractChart } from './AbstractChart';
-import { HistogramData, HistogramUtils, ChartAxes, DataType, SelectedOutputValues } from '../utils/HistogramUtils';
+import { HistogramData, HistogramUtils, ChartAxes, DataType, SelectedOutputValues, Position } from '../utils/HistogramUtils';
 
 
 export class ChartArea extends AbstractChart {
@@ -118,9 +118,10 @@ export class ChartArea extends AbstractChart {
     xDataDomain.domain(d3.extent(data, (d: any) => d.key));
     this.chartAxes.xDataDomain = xDataDomain;
     this.chartAxes.xAxis = d3.axisBottom(this.chartAxes.xDomain).tickSize(0);
-    this.chartAxes.xTicksAxis = d3.axisBottom(this.chartAxes.xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 5);
+    this.chartAxes.xTicksAxis = d3.axisBottom(this.chartAxes.xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 4);
+    const labelPadding = (this.histogramParams.xAxisPosition === Position.bottom) ? 9 : -15;
     this.chartAxes.xLabelsAxis = d3.axisBottom(this.chartAxes.xDomain).tickSize(0)
-      .tickPadding(this.minusSign * 12).ticks(this.histogramParams.xLabels);
+      .tickPadding(labelPadding).ticks(this.histogramParams.xLabels);
     if (this.histogramParams.dataType === DataType.time && this.histogramParams.ticksDateFormat !== null) {
       this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(d3.timeFormat(this.histogramParams.ticksDateFormat));
     }
