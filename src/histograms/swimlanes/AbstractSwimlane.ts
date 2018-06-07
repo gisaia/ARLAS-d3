@@ -58,6 +58,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
       this.histogramParams.startValue = '';
       this.histogramParams.endValue = '';
       this.histogramParams.dataLength = 0;
+      this.histogramParams.displaySvg = 'none';
     }
   }
 

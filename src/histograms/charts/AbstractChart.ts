@@ -46,6 +46,7 @@ export abstract class AbstractChart extends AbstractHistogram {
       this.histogramParams.startValue = '';
       this.histogramParams.endValue = '';
       this.histogramParams.dataLength = 0;
+      this.histogramParams.displaySvg = 'none';
     }
   }
 
