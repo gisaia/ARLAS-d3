@@ -84,7 +84,8 @@ export abstract class AbstractChart extends AbstractHistogram {
     const svg = d3.select(this.histogramParams.svgNode);
     const margin = this.histogramParams.margin;
     const width = Math.max(+this.histogramParams.chartWidth - this.histogramParams.margin.left - this.histogramParams.margin.right, 0);
-    const height = Math.max(+this.histogramParams.chartHeight - this.histogramParams.margin.top - this.histogramParams.margin.bottom, 0);
+    const height = Math.max(+this.histogramParams.chartHeight - this.histogramParams.margin.top -
+      this.histogramParams.margin.bottom - 2, 0);
     this.chartDimensions = { svg, margin, width, height };
   }
 

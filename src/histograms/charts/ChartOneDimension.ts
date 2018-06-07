@@ -19,7 +19,7 @@
 
 import * as d3 from 'd3';
 
-import { HistogramData, HistogramUtils, ChartAxes, DataType, ChartDimensions } from '../utils/HistogramUtils';
+import { HistogramData, HistogramUtils, ChartAxes, DataType, ChartDimensions, Position } from '../utils/HistogramUtils';
 import { AbstractChart } from './AbstractChart';
 
 
@@ -64,16 +64,17 @@ export class ChartOneDimension extends AbstractChart {
     this.chartAxes.xDataDomain.domain(data.map((d) => d.key));
     const ticksPeriod = Math.max(1, Math.round(data.length / this.histogramParams.xTicks));
     const labelsPeriod = Math.max(1, Math.round(data.length / this.histogramParams.xLabels));
+    const labelPadding = (this.histogramParams.xAxisPosition === Position.bottom) ? 9 : -15;
     if (this.histogramParams.dataType === DataType.numeric) {
-      this.chartAxes.xTicksAxis = d3.axisBottom(this.chartAxes.xDomain).tickPadding(5).tickValues(this.chartAxes.xDataDomain.domain()
-        .filter((d, i) => !(i % ticksPeriod))).tickSize(this.minusSign * 5);
-      this.chartAxes.xLabelsAxis = d3.axisBottom(this.chartAxes.xDomain).tickSize(0).tickPadding(this.minusSign * 12)
+      this.chartAxes.xTicksAxis = d3.axisBottom(this.chartAxes.xDomain).tickValues(this.chartAxes.xDataDomain.domain()
+        .filter((d, i) => !(i % ticksPeriod))).tickSize(this.minusSign * 4);
+      this.chartAxes.xLabelsAxis = d3.axisBottom(this.chartAxes.xDomain).tickSize(0).tickPadding(labelPadding)
       .tickValues(this.chartAxes.xDataDomain.domain()
         .filter((d, i) => !(i % labelsPeriod)));
     } else {
-      this.chartAxes.xTicksAxis = d3.axisBottom(this.chartAxes.xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 5);
+      this.chartAxes.xTicksAxis = d3.axisBottom(this.chartAxes.xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 4);
       this.chartAxes.xLabelsAxis = d3.axisBottom(this.chartAxes.xDomain).tickSize(0)
-      .tickPadding(this.minusSign * 12).ticks(this.histogramParams.xLabels);
+      .tickPadding(labelPadding).ticks(this.histogramParams.xLabels);
     }
     this.chartAxes.xAxis = d3.axisBottom(this.chartAxes.xDomain).tickSize(0);
   }

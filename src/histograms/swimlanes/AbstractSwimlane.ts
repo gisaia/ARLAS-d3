@@ -18,7 +18,7 @@
  */
 
  import { AbstractHistogram } from '../AbstractHistogram';
-import { SwimlaneAxes, HistogramData, HistogramUtils, DataType, Tooltip } from '../utils/HistogramUtils';
+import { SwimlaneAxes, HistogramData, HistogramUtils, DataType, Tooltip, Position } from '../utils/HistogramUtils';
 import * as d3 from 'd3';
 
 export abstract class AbstractSwimlane extends AbstractHistogram {
@@ -222,14 +222,15 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
 
     const xAllDataDomain = d3.scaleBand().range([startAllDataRange, endAllDataRange]).paddingInner(0);
     xAllDataDomain.domain(this.dataDomain.map((d) => (d.key).toString()));
+    const labelPadding = (this.histogramParams.xAxisPosition === Position.bottom) ? 9 : -15;
     if (this.histogramParams.dataType === DataType.numeric) {
       xTicksAxis = d3.axisBottom(xDomain).tickPadding(5).tickValues(xAllDataDomain.domain()
-        .filter((d, i) => !(i % ticksPeriod))).tickSize(this.minusSign * 5);
-      xLabelsAxis = d3.axisBottom(xDomain).tickSize(0).tickPadding(this.minusSign * 12).tickValues(xAllDataDomain.domain()
+        .filter((d, i) => !(i % ticksPeriod))).tickSize(this.minusSign * 4);
+      xLabelsAxis = d3.axisBottom(xDomain).tickSize(0).tickPadding(labelPadding).tickValues(xAllDataDomain.domain()
         .filter((d, i) => !(i % labelsPeriod)));
     } else {
-      xTicksAxis = d3.axisBottom(xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 5);
-      xLabelsAxis = d3.axisBottom(xDomain).tickSize(0).tickPadding(this.minusSign * 12).ticks(this.histogramParams.xLabels);
+      xTicksAxis = d3.axisBottom(xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 4);
+      xLabelsAxis = d3.axisBottom(xDomain).tickSize(0).tickPadding(labelPadding).ticks(this.histogramParams.xLabels);
     }
     xAxis = d3.axisBottom(xDomain).tickSize(0);
 
