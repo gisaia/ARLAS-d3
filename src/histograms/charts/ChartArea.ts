@@ -70,6 +70,10 @@ export class ChartArea extends AbstractChart {
     }
   }
 
+  protected setDataInterval(data: Array<HistogramData>): void {
+    this.dataInterval = 0;
+  }
+
   protected plotChart(data: Array<HistogramData>): void {
     this.clipPathContext = this.context.append('defs').append('clipPath')
       .attr('id', this.histogramParams.uid);
@@ -250,10 +254,6 @@ export class ChartArea extends AbstractChart {
 
   protected setTooltipYposition(yPosition: number): number {
     return -10;
-  }
-
-  protected setDataInterval(data: Array<HistogramData>): void {
-    this.dataInterval = 0;
   }
 
   private getAppendedRectangle (start: Date | number, end: Date | number): any {

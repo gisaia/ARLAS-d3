@@ -116,35 +116,6 @@ export class ChartOneDimension extends AbstractChart {
     return this.chartAxes;
   }
 
-  protected setDataInterval(data: Array<HistogramData>): void {
-    let interval = Number.MAX_VALUE;
-    if (data.length > 1) {
-      for (let i = 0; i < (data.length - 1); i++) {
-        if (this.histogramParams.dataType === DataType.time) {
-          interval = Math.min(interval, +data[i + 1].key - +data[i].key);
-        } else {
-          interval = Math.min(interval, +data[i + 1].key - +data[i].key);
-        }
-      }
-      if (interval === Number.MAX_VALUE) {
-        interval = 0;
-      }
-    } else {
-      // three cases
-      if (data[0].key === this.selectionInterval.startvalue && data[0].key === this.selectionInterval.endvalue) {
-        interval = 1;
-      } else if (data[0].key === this.selectionInterval.startvalue || data[0].key === this.selectionInterval.endvalue) {
-        const isoInterval = Math.max(Math.abs(+data[0].key
-          - +this.selectionInterval.startvalue), Math.abs(+data[0].key - +this.selectionInterval.endvalue));
-        interval = Math.min(1, isoInterval);
-      } else {
-        interval = Math.min(1, Math.abs(+data[0].key
-          - +this.selectionInterval.startvalue), Math.abs(+data[0].key - +this.selectionInterval.endvalue));
-      }
-    }
-    this.dataInterval = interval;
-  }
-
   protected setVerticalTooltipsWidth() {
     this.histogramParams.brushLeftTooltip.width = 40;
     this.histogramParams.brushRightTooltip.width = 40;

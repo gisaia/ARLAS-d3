@@ -18,7 +18,7 @@
  */
 
 import { AbstractHistogram } from '../AbstractHistogram';
-import { HistogramData, HistogramUtils, ChartAxes } from '../utils/HistogramUtils';
+import { HistogramData, HistogramUtils, ChartAxes, DataType } from '../utils/HistogramUtils';
 import * as d3 from 'd3';
 
 
@@ -156,6 +156,8 @@ export abstract class AbstractChart extends AbstractHistogram {
     let dy;
     let startPosition;
     let endPosition;
+    const dataInterval = this.getDataInterval(<Array<HistogramData>>this.histogramParams.data);
+
     for (let i = 0; i < data.length; i++) {
       this.histogramParams.tooltip.isShown = true;
       startPosition = this.getStartPosition(data, i);
@@ -170,12 +172,12 @@ export abstract class AbstractChart extends AbstractHistogram {
             this.histogramParams.tooltip.yContent = 'to save this period';
           } else {
             this.histogramParams.tooltip.xContent = HistogramUtils.toString(data[i].key,
-              this.histogramParams.chartType, this.histogramParams.dataType, this.histogramParams.valuesDateFormat);
+              this.histogramParams.chartType, this.histogramParams.dataType, this.histogramParams.valuesDateFormat, dataInterval);
             this.histogramParams.tooltip.yContent = data[i].value.toString();
           }
         } else {
           this.histogramParams.tooltip.xContent = HistogramUtils.toString(data[i].key,
-            this.histogramParams.chartType, this.histogramParams.dataType, this.histogramParams.valuesDateFormat);
+            this.histogramParams.chartType, this.histogramParams.dataType, this.histogramParams.valuesDateFormat, dataInterval);
           this.histogramParams.tooltip.yContent = data[i].value.toString();
         }
         break;
@@ -212,6 +214,13 @@ export abstract class AbstractChart extends AbstractHistogram {
     return keys;
   }
 
+  protected setDataInterval(data: Array<HistogramData>): void {
+    this.dataInterval = this.getDataInterval(data);
+  }
+
+  protected getDataInterval(data: Array<HistogramData>): number {
+    return this.getHistogramDataInterval(data);
+  }
 
   protected getAxes() {
     return this.chartAxes;
