@@ -126,7 +126,7 @@ export class ChartArea extends AbstractChart {
     const labelPadding = (this.histogramParams.xAxisPosition === Position.bottom) ? 9 : -15;
     this.chartAxes.xLabelsAxis = d3.axisBottom(this.chartAxes.xDomain).tickSize(0)
       .tickPadding(labelPadding).ticks(this.histogramParams.xLabels);
-    if (this.histogramParams.dataType === DataType.time && this.histogramParams.ticksDateFormat !== null) {
+    if (this.histogramParams.dataType === DataType.time && this.histogramParams.ticksDateFormat) {
       this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(d3.timeFormat(this.histogramParams.ticksDateFormat));
     }
   }
