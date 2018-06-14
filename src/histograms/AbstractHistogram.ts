@@ -87,10 +87,11 @@ export abstract class AbstractHistogram {
       parsedSelectedValues.endvalue !== this.selectionInterval.endvalue) {
       this.selectionInterval.startvalue = parsedSelectedValues.startvalue;
       this.selectionInterval.endvalue = parsedSelectedValues.endvalue;
+      const dataInterval = this.getDataInterval(this.histogramParams.data);
       this.histogramParams.startValue = HistogramUtils.toString(this.selectionInterval.startvalue, this.histogramParams.chartType,
-        this.histogramParams.dataType, this.histogramParams.valuesDateFormat);
+        this.histogramParams.dataType, this.histogramParams.valuesDateFormat, dataInterval);
       this.histogramParams.endValue = HistogramUtils.toString(this.selectionInterval.endvalue, this.histogramParams.chartType,
-        this.histogramParams.dataType, this.histogramParams.valuesDateFormat);
+        this.histogramParams.dataType, this.histogramParams.valuesDateFormat, dataInterval);
       const data = this.dataDomain;
       if (data !== null) {
         if (HistogramUtils.isSelectionBeyondDataDomain(selectedInputValues, <Array<{ key: number, value: number }>>data,
@@ -202,12 +203,14 @@ export abstract class AbstractHistogram {
 
   protected initializeDescriptionValues(start: Date | number, end: Date | number) {
     if (!this.fromSetInterval && this.histogramParams.hasDataChanged) {
+      const dataInterval = this.getDataInterval(this.histogramParams.data);
+
       this.histogramParams.startValue = HistogramUtils.toString(start, this.histogramParams.chartType,
-        this.histogramParams.dataType, this.histogramParams.valuesDateFormat);
+        this.histogramParams.dataType, this.histogramParams.valuesDateFormat, dataInterval);
       this.selectionInterval.startvalue = start;
 
       this.histogramParams.endValue = HistogramUtils.toString(end, this.histogramParams.chartType,
-        this.histogramParams.dataType, this.histogramParams.valuesDateFormat);
+        this.histogramParams.dataType, this.histogramParams.valuesDateFormat, dataInterval);
       this.selectionInterval.endvalue = end;
     }
   }
@@ -469,8 +472,39 @@ export abstract class AbstractHistogram {
     this.histogramParams.brushRightTooltip.yPosition = this.histogramParams.brushLeftTooltip.yPosition;
   }
 
+  protected getHistogramDataInterval(data: Array<HistogramData>): number {
+    let interval = Number.MAX_VALUE;
+    if (data.length > 1) {
+      for (let i = 0; i < (data.length - 1); i++) {
+        if (this.histogramParams.dataType === DataType.time) {
+          interval = Math.min(interval, +data[i + 1].key - +data[i].key);
+        } else {
+          interval = Math.min(interval, +data[i + 1].key - +data[i].key);
+        }
+      }
+      if (interval === Number.MAX_VALUE) {
+        interval = 0;
+      }
+    } else {
+      // three cases
+      if (data[0].key === this.selectionInterval.startvalue && data[0].key === this.selectionInterval.endvalue) {
+        interval = 1;
+      } else if (data[0].key === this.selectionInterval.startvalue || data[0].key === this.selectionInterval.endvalue) {
+        const isoInterval = Math.max(Math.abs(+data[0].key - +this.selectionInterval.startvalue),
+        Math.abs(+data[0].key - +this.selectionInterval.endvalue));
+        interval = Math.min(1, isoInterval);
+      } else {
+        interval = Math.min(1, Math.abs(+data[0].key - +this.selectionInterval.startvalue),
+        Math.abs(+data[0].key - +this.selectionInterval.endvalue));
+      }
+    }
+    return interval;
+  }
+
   protected abstract applyStyleOnSelection();
   protected abstract setDataInterval(data: Array<HistogramData> | Map<string, Array<HistogramData>>): void;
+  protected abstract getDataInterval(data: Array<HistogramData> | Map<string, Array<HistogramData>>): number;
+
   protected abstract getAxes(): ChartAxes | SwimlaneAxes;
   protected abstract getSelectedBars(startvalue: number, endvalue: number): Array<number>;
   protected abstract getIntervalMiddlePositon(chartAxes: ChartAxes | SwimlaneAxes, startvalue: number, endvalue: number): number;
@@ -507,11 +541,12 @@ export abstract class AbstractHistogram {
       if (selection !== null) {
         this.selectionInterval.startvalue = selection.map(chartAxes.xDomain.invert, chartAxes.xDomain)[0];
         this.selectionInterval.endvalue = selection.map(chartAxes.xDomain.invert, chartAxes.xDomain)[1];
+        const dataInterval = this.getDataInterval(this.histogramParams.data);
         this.histogramParams.startValue = HistogramUtils.toString(this.selectionInterval.startvalue,
           this.histogramParams.chartType,
-          this.histogramParams.dataType, this.histogramParams.valuesDateFormat);
+          this.histogramParams.dataType, this.histogramParams.valuesDateFormat, dataInterval);
         this.histogramParams.endValue = HistogramUtils.toString(this.selectionInterval.endvalue, this.histogramParams.chartType,
-          this.histogramParams.dataType, this.histogramParams.valuesDateFormat);
+          this.histogramParams.dataType, this.histogramParams.valuesDateFormat, dataInterval);
         this.histogramParams.showTitle = false;
         this.setBrushTooltipsPositions();
         this.applyStyleOnSelection();
@@ -527,10 +562,12 @@ export abstract class AbstractHistogram {
         if (!this.fromSetInterval && this.isBrushing) {
           this.selectionInterval.startvalue = selection.map(chartAxes.xDomain.invert, chartAxes.xDomain)[0];
           this.selectionInterval.endvalue = selection.map(chartAxes.xDomain.invert, chartAxes.xDomain)[1];
+          const dataInterval = this.getDataInterval(this.histogramParams.data);
+
           this.histogramParams.startValue = HistogramUtils.toString(this.selectionInterval.startvalue, this.histogramParams.chartType,
-            this.histogramParams.dataType, this.histogramParams.valuesDateFormat);
+            this.histogramParams.dataType, this.histogramParams.valuesDateFormat, dataInterval);
           this.histogramParams.endValue = HistogramUtils.toString(this.selectionInterval.endvalue, this.histogramParams.chartType,
-            this.histogramParams.dataType, this.histogramParams.valuesDateFormat);
+            this.histogramParams.dataType, this.histogramParams.valuesDateFormat, dataInterval);
           const selectionListInterval = [];
           this.histogramParams.intervalSelectedMap.forEach((k, v) => selectionListInterval.push(k.values));
           this.histogramParams.valuesListChangedEvent.next(selectionListInterval.concat(this.selectionInterval));

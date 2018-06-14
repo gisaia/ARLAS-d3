@@ -304,6 +304,8 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     const xy = d3.mouse(container);
     let dx, dy, startPosition, endPosition, middlePosition;
     const tooltip: Tooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
+    const dataInterval = this.getHistogramDataInterval(data);
+
     for (let i = 0; i < data.length; i++) {
       startPosition = this.histogramParams.swimLaneLabelsWidth + this.swimlaneAxes.xDomain(data[i].key);
       endPosition = startPosition + this.swimlaneAxes.stepWidth * this.histogramParams.barWeight;
@@ -316,8 +318,9 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
         dy = this.setTooltipYposition(xy[1]);
         tooltip.xPosition = (xy[0] + dx);
         tooltip.yPosition = this.histogramParams.swimlaneHeight * (indexOfKey + 0.2);
+
         tooltip.xContent = HistogramUtils.toString(data[i].key, this.histogramParams.chartType,
-          this.histogramParams.dataType, this.histogramParams.valuesDateFormat);
+          this.histogramParams.dataType, this.histogramParams.valuesDateFormat, dataInterval);
         tooltip.yContent = data[i].value.toString();
         this.histogramParams.swimlaneXTooltip = tooltip;
         this.histogramParams.swimlaneTooltipsMap.set(key, tooltip);
@@ -362,13 +365,21 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
   }
 
   protected setSwimlaneDataInterval(swimlaneData: Map<string, Array<HistogramData>>): void {
+    this.dataInterval = this.getDataInterval(swimlaneData);
+  }
+
+  protected setDataInterval(swimlaneData: Map<string, Array<HistogramData>>): void {
+  }
+
+  protected getDataInterval(swimlaneData: Map<string, Array<HistogramData>>): number {
+    let dataInterval: number;
     const keys = swimlaneData.keys();
     for (let i = 0; i < swimlaneData.size; i++) {
       const key = keys.next().value;
       if (swimlaneData.get(key).length > 1) {
         this.swimlaneHasMoreThanTwoBuckets = true;
         this.histogramParams.displaySvg = 'block';
-        this.dataInterval =  (+swimlaneData.get(key)[1].key - +swimlaneData.get(key)[0].key);
+        dataInterval =  (+swimlaneData.get(key)[1].key - +swimlaneData.get(key)[0].key);
         break;
       }
     }
@@ -385,11 +396,9 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
           interval = Math.max(0, Math.min(interval, Math.abs(currentKeyPosition - previousKeyPosition)));
         }
       });
-      this.dataInterval = (interval === 0 || interval === Number.MAX_VALUE) ? 1 : interval;
+      dataInterval = (interval === 0 || interval === Number.MAX_VALUE) ? 1 : interval;
     }
-  }
-
-  protected setDataInterval(swimlaneData: Array<HistogramData> | Map<string, Array<HistogramData>>): void {
+    return dataInterval;
   }
 
   protected setSwimlaneMaxValue(swimlaneDataMap: Map<string, Array<{ key: number, value: number }>>) {

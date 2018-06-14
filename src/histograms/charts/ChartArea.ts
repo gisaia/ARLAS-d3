@@ -70,6 +70,10 @@ export class ChartArea extends AbstractChart {
     }
   }
 
+  protected setDataInterval(data: Array<HistogramData>): void {
+    this.dataInterval = 0;
+  }
+
   protected plotChart(data: Array<HistogramData>): void {
     this.clipPathContext = this.context.append('defs').append('clipPath')
       .attr('id', this.histogramParams.uid);
@@ -122,7 +126,7 @@ export class ChartArea extends AbstractChart {
     const labelPadding = (this.histogramParams.xAxisPosition === Position.bottom) ? 9 : -15;
     this.chartAxes.xLabelsAxis = d3.axisBottom(this.chartAxes.xDomain).tickSize(0)
       .tickPadding(labelPadding).ticks(this.histogramParams.xLabels);
-    if (this.histogramParams.dataType === DataType.time && this.histogramParams.ticksDateFormat !== null) {
+    if (this.histogramParams.dataType === DataType.time && this.histogramParams.ticksDateFormat) {
       this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(d3.timeFormat(this.histogramParams.ticksDateFormat));
     }
   }
@@ -250,10 +254,6 @@ export class ChartArea extends AbstractChart {
 
   protected setTooltipYposition(yPosition: number): number {
     return -10;
-  }
-
-  protected setDataInterval(data: Array<HistogramData>): void {
-    this.dataInterval = 0;
   }
 
   private getAppendedRectangle (start: Date | number, end: Date | number): any {

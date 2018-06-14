@@ -20,6 +20,7 @@
 
 import * as tinycolor from 'tinycolor2';
 import * as d3 from 'd3';
+import * as moment from 'moment';
 
 export interface MarginModel {
   top: number;
@@ -189,13 +190,19 @@ export class HistogramUtils {
     }
   }
 
-  public static toString(value: Date | number, chartType: ChartType, dataType: DataType, dateFormat?: string): string {
+  public static toString(value: Date | number, chartType: ChartType, dataType: DataType, dateFormat: string,
+     dateInterval?: number): string {
     if (value instanceof Date) {
       if (dateFormat && dateFormat !== null) {
         const timeFormat = d3.timeFormat(dateFormat);
         return timeFormat(value);
       } else {
-        return value.toDateString();
+        if (dateInterval) {
+          const timeFormat = d3.timeFormat(this.getFormatFromDateInterval(dateInterval));
+          return timeFormat(value);
+        } else {
+          return value.toDateString();
+        }
       }
     } else {
       if (chartType === ChartType.oneDimension) {
@@ -203,14 +210,50 @@ export class HistogramUtils {
       } else {
         if (dataType === DataType.time) {
           const date = new Date(this.round(value, 1));
-          return date.toDateString();
-
+          if (dateInterval) {
+            const timeFormat = d3.timeFormat(this.getFormatFromDateInterval(dateInterval));
+            return timeFormat(date);
+          } else {
+            return date.toDateString();
+          }
         } else {
           return this.round(value, 1).toString();
 
         }
       }
     }
+  }
+
+  public static getFormatFromDateInterval(dateInterval): string {
+    const duration: moment.Duration = moment.duration(dateInterval);
+    let format;
+    switch (true) {
+      case duration.asYears() >= 1 : {
+        format = '%Y';
+        break;
+      }
+      case duration.asMonths() >= 1 : {
+        format = '%B %Y';
+        break;
+      }
+      case duration.asDays() >= 1 : {
+        format = '%d %B %Y';
+        break;
+      }
+      case duration.asHours() >= 1 : {
+        format = '%d %B %Y %Hh';
+        break;
+      }
+      case duration.asMinutes() >= 1 : {
+        format = '%d %B %Y %H:%M';
+        break;
+      }
+      case duration.asSeconds() >= 1 : {
+        format = '%d %B %Y %H:%M:%s';
+        break;
+      }
+    }
+    return format;
   }
 
   public static generateUID(): string {
