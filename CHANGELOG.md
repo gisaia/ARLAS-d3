@@ -1,5 +1,20 @@
 # Change Log
 
+## [v4.0.5](https://github.com/gisaia/ARLAS-d3/tree/v4.0.5) (2018-06-14)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.0.4...v4.0.5)
+
+**New stuff:**
+
+- HISTOGRAM : make labels of ticks and tooltip clearer for timeline [\#23](https://github.com/gisaia/ARLAS-d3/issues/23)
+- Hide svg when there is no data to plot [\#22](https://github.com/gisaia/ARLAS-d3/pull/22) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
+
+**Fixed bugs:**
+
+- HISTOGRAM : labels of the horizontal axis positions [\#19](https://github.com/gisaia/ARLAS-d3/issues/19)
+- HISTOGRAM: if ticksDateFormat is undefined, the ticks values turn to be undefined [\#14](https://github.com/gisaia/ARLAS-d3/issues/14)
+- Add moment library in package-release.json [\#26](https://github.com/gisaia/ARLAS-d3/pull/26) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
+
 ## [v4.0.4](https://github.com/gisaia/ARLAS-d3/tree/v4.0.4) (2018-05-30)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.0.3...v4.0.4)
