@@ -64,11 +64,11 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
 
   public resize(histogramContainer: HTMLElement): void {
     this.histogramParams.histogramContainer = histogramContainer;
-    if (this.isWidthFixed === false) {
+    if (this.isWidthFixed === false && this.plottingCount > 0) {
       this.histogramParams.chartWidth = this.histogramParams.histogramContainer.offsetWidth;
     }
 
-    if (this.isHeightFixed === false) {
+    if (this.isHeightFixed === false && this.plottingCount > 0) {
       if (this.isSwimlaneHeightFixed === false) {
         this.histogramParams.chartHeight = this.histogramParams.histogramContainer.offsetHeight;
       } else {
