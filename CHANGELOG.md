@@ -1,5 +1,13 @@
 # Change Log
 
+## [v4.0.6](https://github.com/gisaia/ARLAS-d3/tree/v4.0.6) (2018-06-21)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.0.5...v4.0.6)
+
+**Fixed bugs:**
+
+- HISTOGRAM: Resizing a histogram should be applied after it was plotted [\#27](https://github.com/gisaia/ARLAS-d3/issues/27)
+
 ## [v4.0.5](https://github.com/gisaia/ARLAS-d3/tree/v4.0.5) (2018-06-14)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.0.4...v4.0.5)
