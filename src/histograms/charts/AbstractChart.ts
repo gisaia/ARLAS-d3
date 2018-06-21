@@ -52,11 +52,11 @@ export abstract class AbstractChart extends AbstractHistogram {
 
   public resize(histogramContainer: HTMLElement): void {
     this.histogramParams.histogramContainer = histogramContainer;
-    if (this.isWidthFixed === false) {
+    if (this.isWidthFixed === false && this.plottingCount > 0) {
       this.histogramParams.chartWidth = this.histogramParams.histogramContainer.offsetWidth;
     }
 
-    if (this.isHeightFixed === false) {
+    if (this.isHeightFixed === false && this.plottingCount > 0) {
       this.histogramParams.chartHeight = this.histogramParams.histogramContainer.offsetHeight;
     }
   }
