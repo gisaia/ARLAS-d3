@@ -273,17 +273,20 @@ export abstract class AbstractHistogram {
       .attr('class', 'context')
       .attr('transform', 'translate(' + this.chartDimensions.margin.left + ',' + marginTopBottom + ')');
     this.allAxesContext = this.context.append('g').attr('class', 'histogram__all-axes');
+    // leftOffset is the width of Y labels, so x axes are translated by leftOffset
+    // Y axis is translated to the left of 1px so that the chart doesn't hide it
+    // Therefore, we substruct 1px (leftOffset - 1) so that the first tick of xAxis will coincide with y axis
     this.xAxis = this.allAxesContext.append('g')
       .attr('class', 'histogram__only-axis')
-      .attr('transform', 'translate(' + leftOffset + ',' + this.chartDimensions.height + ')')
+      .attr('transform', 'translate(' + (leftOffset - 1) + ',' + this.chartDimensions.height + ')')
       .call(chartAxes.xAxis);
     this.xTicksAxis = this.allAxesContext.append('g')
       .attr('class', 'histogram__ticks-axis')
-      .attr('transform', 'translate(' + leftOffset + ',' + this.chartDimensions.height * this.histogramParams.xAxisPosition + ')')
+      .attr('transform', 'translate(' + (leftOffset - 1) + ',' + this.chartDimensions.height * this.histogramParams.xAxisPosition + ')')
       .call(chartAxes.xTicksAxis);
     this.xLabelsAxis = this.allAxesContext.append('g')
       .attr('class', 'histogram__labels-axis')
-      .attr('transform', 'translate(' + leftOffset + ',' + this.chartDimensions.height * this.histogramParams.xAxisPosition + ')')
+      .attr('transform', 'translate(' + (leftOffset - 1) + ',' + this.chartDimensions.height * this.histogramParams.xAxisPosition + ')')
       .call(chartAxes.xLabelsAxis);
     this.xTicksAxis.selectAll('path').attr('class', 'histogram__axis');
     this.xAxis.selectAll('path').attr('class', 'histogram__axis');

@@ -110,11 +110,14 @@ export abstract class AbstractChart extends AbstractHistogram {
   }
 
   protected drawYAxis(chartAxes: ChartAxes): void {
+    // yTicksAxis and yLabelsAxis are translated of 1px to the left so that they are not hidden by the histogram
     this.yTicksAxis = this.allAxesContext.append('g')
-    .attr('class', 'histogram__ticks-axis')
-    .call(chartAxes.yTicksAxis);
+      .attr('class', 'histogram__ticks-axis')
+      .attr('transform', 'translate(-1, 0)')
+      .call(chartAxes.yTicksAxis);
     this.yLabelsAxis = this.allAxesContext.append('g')
       .attr('class', 'histogram__labels-axis')
+      .attr('transform', 'translate(-1, 0)')
       .call(chartAxes.yLabelsAxis);
     // Define css classes for the ticks, labels and the axes
     this.yTicksAxis.selectAll('path').attr('class', 'histogram__axis');
