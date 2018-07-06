@@ -47,6 +47,8 @@ export class HistogramParams {
   public showYTicks = true;
   public showXLabels = true;
   public showYLabels = true;
+  public yAxisFromZero = false;
+  public showStripes = true;
   public showHorizontalLines = true;
   public ticksDateFormat: string = null;
   public xAxisPosition: Position = Position.bottom;

@@ -87,12 +87,15 @@ export class ChartArea extends AbstractChart {
       .attr('height', this.chartDimensions.height );
 
     const curveType: d3.CurveFactory = (this.histogramParams.isSmoothedCurve) ? d3.curveMonotoneX : d3.curveLinear;
+    const areaYPositon = (this.yStartsFromMin && this.histogramParams.showStripes) ?
+      (0.9 * this.chartDimensions.height) : this.chartDimensions.height;
     const area = d3.area()
       .curve(curveType)
       .x((d: any) => this.chartAxes.xDataDomain(d.key))
-      .y0(this.chartDimensions.height)
+      .y0(areaYPositon)
       .y1((d: any) => this.chartAxes.yDomain(d.value));
-      this.context.append('g').attr('class', 'histogram__area-data')
+
+    this.context.append('g').attr('class', 'histogram__area-data')
       .append('path')
       .datum(data)
       .attr('class', 'histogram__chart--unselected--area')
@@ -111,6 +114,35 @@ export class ChartArea extends AbstractChart {
       .datum(data)
       .attr('class', 'histogram__chart--current-selected--area')
       .attr('d', area);
+
+    // ADD STRIPPED AREAS
+    if (this.yStartsFromMin && this.histogramParams.showStripes) {
+      const id = this.histogramParams.uid;
+      this.addStrippedPattern('unselected-area-' + id, 'histogram__stripped-unselected-area');
+      this.addStrippedPattern('fixed-area-' + id, 'histogram__stripped-fixed-selected-area');
+      this.addStrippedPattern('current-area-' + id, 'histogram__stripped-current-selected-area');
+      this.context.append('g')
+        .append('rect')
+        .attr('x', '0')
+        .attr('y', this.chartDimensions.height * 0.9)
+        .attr('width', this.chartDimensions.width)
+        .attr('height', this.chartDimensions.height * 0.1)
+        .attr('fill', 'url(#unselected-area-' + id + ')');
+      this.context.append('g')
+        .append('rect').attr('clip-path', urlFixedSelection)
+        .attr('x', '0')
+        .attr('y', this.chartDimensions.height * 0.9)
+        .attr('width', this.chartDimensions.width)
+        .attr('height', this.chartDimensions.height * 0.1)
+        .attr('fill', 'url(#fixed-area-' + id + ')');
+      this.context.append('g')
+        .append('rect').attr('clip-path', urlCurrentSelection)
+        .attr('x', '0')
+        .attr('y', this.chartDimensions.height * 0.9)
+        .attr('width', this.chartDimensions.width)
+        .attr('height', this.chartDimensions.height * 0.1)
+        .attr('fill', 'url(#current-area-' + id + ')');
+    }
   }
 
   protected createChartAxes(data: Array<HistogramData>): void {
@@ -264,5 +296,4 @@ export class ChartArea extends AbstractChart {
     .attr('width', this.chartAxes.xDomain(end) - this.chartAxes.xDomain(start))
     .attr('height', this.chartDimensions.height );
   }
-
 }

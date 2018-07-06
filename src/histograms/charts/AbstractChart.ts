@@ -25,6 +25,7 @@ import * as d3 from 'd3';
 export abstract class AbstractChart extends AbstractHistogram {
 
   protected chartAxes: ChartAxes;
+  protected yStartsFromMin = false;
 
   public plot(inputData: Array<{ key: number, value: number }>) {
     super.plot(inputData);
@@ -101,12 +102,30 @@ export abstract class AbstractChart extends AbstractHistogram {
     const xTicksAxis = null;
     const xLabelsAxis = null;
     const stepWidth = null;
-
-    const yDomain = d3.scaleLinear().range([this.chartDimensions.height, 0]);
+    let yDomain = d3.scaleLinear().range([this.chartDimensions.height, 0]);
     yDomain.domain([0, d3.max(data, (d: any) => d.value)]);
-    const yTicksAxis = d3.axisLeft(yDomain).ticks(this.histogramParams.yTicks);
+    const yAllDomain = yDomain;
+    // IF WE WANT TO START THE HISTOGRAM FROM MIN OF DATA INSTEAD OF 0
+    if (!this.histogramParams.yAxisFromZero) {
+      // FIRST WE CHECK IF THE MINIMUM OF DATA IS GREATER THAN 30% OF THE CHART HEIGHT
+      // IF SO, THEN THE CHART WILL START FROM THE MINIMUM OF DATA INSTEAD OF 0
+      if (this.chartDimensions.height - yDomain(d3.min(data, (d: any) => d.value)) >= 0.3 * this.chartDimensions.height) {
+        // THE `showStripes` OPTION DECIDES WETHER WE ADD STIPPED AREA/BARS TO THE HISTOGRAMS
+        // IF `showStripes == TRUE` THEN STRIPES WILL OCCUPY 10% OF THE CHARTHEIGHT AND THE DATA VARIATION WILL OCCUPY 90% OF THE CHART
+        // IF `showStripes == FALSE` THEN NO STRIPES WILL BE DISPLAYED. HOWEVER, THE CHART STARTS FROM MIN OF DATA - A DOMAINOFFSET
+        const yMaxRange = this.histogramParams.showStripes ? (0.9 * this.chartDimensions.height ) : this.chartDimensions.height;
+        this.yStartsFromMin = true;
+        yDomain = d3.scaleLinear().range([yMaxRange, 0]);
+        const minOffset = this.histogramParams.showStripes ? 0 : 0.1 * (d3.max(data, (d) => d.value) - d3.min(data, (d) => d.value));
+        yDomain.domain([d3.min(data, (d: any) => d.value) - minOffset, d3.max(data, (d: any) => d.value)]);
+      } else {
+        this.yStartsFromMin = false;
+      }
+    }
+    const yTicksAxis = d3.axisLeft(yDomain).ticks(this.histogramParams.yTicks).tickSizeOuter(0);
     const yLabelsAxis = d3.axisLeft(yDomain).tickSize(0).tickPadding(10).ticks(this.histogramParams.yLabels);
-    this.chartAxes = { xDomain, xDataDomain, yDomain, xTicksAxis, yTicksAxis, stepWidth, xLabelsAxis, yLabelsAxis, xAxis };
+    const yAxis = d3.axisLeft(yAllDomain).tickSize(0).ticks(0);
+    this.chartAxes = { xDomain, xDataDomain, yDomain, xTicksAxis, yTicksAxis, stepWidth, xLabelsAxis, yLabelsAxis, xAxis, yAxis };
   }
 
   protected drawYAxis(chartAxes: ChartAxes): void {
@@ -119,6 +138,10 @@ export abstract class AbstractChart extends AbstractHistogram {
       .attr('class', 'histogram__labels-axis')
       .attr('transform', 'translate(-1, 0)')
       .call(chartAxes.yLabelsAxis);
+    this.yAxis = this.allAxesContext.append('g')
+      .attr('class', 'histogram__only-axis')
+      .attr('transform', 'translate(-1, 0)')
+      .call(chartAxes.yAxis);
     // Define css classes for the ticks, labels and the axes
     this.yTicksAxis.selectAll('path').attr('class', 'histogram__axis');
     this.yTicksAxis.selectAll('line').attr('class', 'histogram__ticks');
@@ -215,6 +238,18 @@ export abstract class AbstractChart extends AbstractHistogram {
       }
     });
     return keys;
+  }
+
+  protected addStrippedPattern(id: string, cssClass: string): void {
+    this.context.append('defs')
+      .append('pattern')
+        .attr('id', id)
+        .attr('patternUnits', 'userSpaceOnUse')
+        .attr('width', 4)
+        .attr('height', 4)
+      .append('path')
+        .attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
+        .attr('class', cssClass);
   }
 
   protected setDataInterval(data: Array<HistogramData>): void {
