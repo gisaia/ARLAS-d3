@@ -244,16 +244,16 @@ export abstract class AbstractHistogram {
     data.forEach(d => {
       dataKeyUnionSelectedValues.push(d.key);
     });
-
-    this.histogramParams.intervalSelectedMap.forEach(values => {
-      if (selectedStartValue > values.values.startvalue) {
-        selectedStartValue = values.values.startvalue;
-      }
-      if (selectedEndValue < values.values.endvalue) {
-        selectedEndValue = values.values.endvalue;
-      }
-    });
-
+    if (!this.histogramParams.displayOnlyIntervalsWithData) {
+      this.histogramParams.intervalSelectedMap.forEach(values => {
+        if (selectedStartValue > values.values.startvalue) {
+          selectedStartValue = values.values.startvalue;
+        }
+        if (selectedEndValue < values.values.endvalue) {
+          selectedEndValue = values.values.endvalue;
+        }
+      });
+    }
     dataKeyUnionSelectedValues.push(selectedStartValue);
     dataKeyUnionSelectedValues.push(selectedEndValue);
     if (this.histogramParams.dataType === DataType.time) {
