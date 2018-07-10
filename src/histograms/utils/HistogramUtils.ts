@@ -71,6 +71,7 @@ export interface ChartAxes {
   yLabelsAxis: d3.Axis<any>;
   stepWidth: number;
   xAxis: d3.Axis<any>;
+  yAxis: d3.Axis<any>;
 }
 
 export interface SwimlaneAxes {

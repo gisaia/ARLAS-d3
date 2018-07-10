@@ -60,6 +60,7 @@ export abstract class AbstractHistogram {
   protected xTicksAxis;
   protected xLabelsAxis;
   protected xAxis;
+  protected yAxis;
   protected yTicksAxis;
   protected yLabelsAxis;
 
