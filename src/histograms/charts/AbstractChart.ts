@@ -103,7 +103,8 @@ export abstract class AbstractChart extends AbstractHistogram {
     const xLabelsAxis = null;
     const stepWidth = null;
     let yDomain = d3.scaleLinear().range([this.chartDimensions.height, 0]);
-    yDomain.domain([0, d3.max(data, (d: any) => d.value)]);
+    let maxOffset = d3.max(data, (d: any) => d.value) * 0.05;
+    yDomain.domain([0, d3.max(data, (d: any) => d.value) + maxOffset]);
     const yAllDomain = yDomain;
     // IF WE WANT TO START THE HISTOGRAM FROM MIN OF DATA INSTEAD OF 0
     if (!this.histogramParams.yAxisFromZero) {
@@ -117,7 +118,8 @@ export abstract class AbstractChart extends AbstractHistogram {
         this.yStartsFromMin = true;
         yDomain = d3.scaleLinear().range([yMaxRange, 0]);
         const minOffset = this.histogramParams.showStripes ? 0 : 0.1 * (d3.max(data, (d) => d.value) - d3.min(data, (d) => d.value));
-        yDomain.domain([d3.min(data, (d: any) => d.value) - minOffset, d3.max(data, (d: any) => d.value)]);
+        maxOffset = 0.05 * (d3.max(data, (d) => d.value) - d3.min(data, (d) => d.value));
+        yDomain.domain([d3.min(data, (d: any) => d.value) - minOffset, d3.max(data, (d: any) => d.value) + maxOffset]);
       } else {
         this.yStartsFromMin = false;
       }
