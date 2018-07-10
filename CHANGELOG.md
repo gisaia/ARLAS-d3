@@ -1,5 +1,17 @@
 # Change Log
 
+## [v4.1.0](https://github.com/gisaia/ARLAS-d3/tree/v4.1.0) (2018-07-10)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.0.6...v4.1.0)
+
+**New stuff:**
+
+- HISTOGRAMS : Display only selections containing data  [\#33](https://github.com/gisaia/ARLAS-d3/issues/33)
+- HISTOGRAM: draw y-axis on top of plotted data [\#29](https://github.com/gisaia/ARLAS-d3/issues/29)
+- Feature/\#32 y axis from zero [\#35](https://github.com/gisaia/ARLAS-d3/pull/35) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
+- Histograms : Display only selections containing data [\#34](https://github.com/gisaia/ARLAS-d3/pull/34) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
+- Translate Y axes so that they're not hidden by histogram [\#31](https://github.com/gisaia/ARLAS-d3/pull/31) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
+
 ## [v4.0.6](https://github.com/gisaia/ARLAS-d3/tree/v4.0.6) (2018-06-21)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.0.5...v4.0.6)
@@ -7,6 +19,7 @@
 **Fixed bugs:**
 
 - HISTOGRAM: Resizing a histogram should be applied after it was plotted [\#27](https://github.com/gisaia/ARLAS-d3/issues/27)
+- Histogram: resize should not be applied before it's first plotted [\#28](https://github.com/gisaia/ARLAS-d3/pull/28) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 
 ## [v4.0.5](https://github.com/gisaia/ARLAS-d3/tree/v4.0.5) (2018-06-14)
 
