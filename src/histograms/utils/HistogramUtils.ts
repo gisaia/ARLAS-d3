@@ -250,7 +250,7 @@ export class HistogramUtils {
         break;
       }
       case duration.asSeconds() >= 1 : {
-        format = '%d %B %Y %H:%M:%s';
+        format = '%d %B %Y %H:%M:%S';
         break;
       }
     }
