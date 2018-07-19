@@ -74,6 +74,11 @@ export class ChartArea extends AbstractChart {
     this.dataInterval = 0;
   }
 
+  protected customizeData(data: Array<HistogramData>): void {
+    const followingLastBucket = this.getFollowingLastBucket(data);
+    data.push(followingLastBucket);
+  }
+
   protected plotChart(data: Array<HistogramData>): void {
     this.clipPathContext = this.context.append('defs').append('clipPath')
       .attr('id', this.histogramParams.uid);

@@ -33,10 +33,12 @@ export abstract class AbstractChart extends AbstractHistogram {
     if (inputData !== null && Array.isArray(inputData) && inputData.length > 0) {
       const data = HistogramUtils.parseDataKey(inputData, this.histogramParams.dataType);
       this.histogramParams.dataLength = data.length;
-      this.initializeDescriptionValues(data[0].key, data[data.length - 1].key);
+      const minMaxBorders = this.getHistogramMinMaxBorders(data);
+      this.initializeDescriptionValues(minMaxBorders[0], minMaxBorders[1]);
       this.initializeChartDimensions();
       this.createChartAxes(data);
       this.drawChartAxes(this.chartAxes, 0);
+      this.customizeData(data);
       this.plotChart(data);
       this.showTooltips(data);
       if (this.histogramParams.isHistogramSelectable) {
@@ -73,6 +75,8 @@ export abstract class AbstractChart extends AbstractHistogram {
       this.plot(<Array<{key: number, value: number}>>this.histogramParams.data);
     }
   }
+
+  protected customizeData(data: Array<HistogramData>): void {}
 
   protected initializeChartDimensions(): void {
     super.initializeChartDimensions();

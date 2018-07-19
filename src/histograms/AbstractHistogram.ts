@@ -237,6 +237,21 @@ export abstract class AbstractHistogram {
     return (this.histogramParams.dataType === DataType.time) ? d3.scaleTime() : d3.scaleLinear();
   }
 
+  protected getHistogramMinMaxBorders(data: Array<HistogramData>): [number | Date, number | Date] {
+    const minBorder = data[0].key;
+    const followingLastBucket = this.getFollowingLastBucket(data);
+    const maxBorder = followingLastBucket.key;
+    return [minBorder, maxBorder];
+  }
+
+  protected getFollowingLastBucket(data): HistogramData {
+    const dataInterval = this.getDataInterval(data);
+    const followingLastBucketKey =  +data[data.length - 1].key + dataInterval;
+    const followingLastBucket = {key: followingLastBucketKey, value: 0};
+    const parsedFollowingLastBucket = HistogramUtils.parseDataKey([followingLastBucket], this.histogramParams.dataType)[0];
+    return parsedFollowingLastBucket;
+  }
+
   protected getXDomainExtent(data: Array<HistogramData>, selectedStartValue: Date | number,
     selectedEndValue: Date | number): Array<Date | number | { valueOf(): number }> {
     this.setDataInterval(data);
@@ -245,6 +260,8 @@ export abstract class AbstractHistogram {
     data.forEach(d => {
       dataKeyUnionSelectedValues.push(d.key);
     });
+    // Include the end of the last bucket to the extent
+    dataKeyUnionSelectedValues.push(this.getHistogramMinMaxBorders(data)[1]);
     if (!this.histogramParams.displayOnlyIntervalsWithData) {
       this.histogramParams.intervalSelectedMap.forEach(values => {
         if (selectedStartValue > values.values.startvalue) {
@@ -258,11 +275,11 @@ export abstract class AbstractHistogram {
     dataKeyUnionSelectedValues.push(selectedStartValue);
     dataKeyUnionSelectedValues.push(selectedEndValue);
     if (this.histogramParams.dataType === DataType.time) {
-      xDomainExtent.push(new Date(d3.min(dataKeyUnionSelectedValues, (d: Date) => +d) - this.dataInterval));
-      xDomainExtent.push(new Date(d3.max(dataKeyUnionSelectedValues, (d: Date) => +d) + this.dataInterval));
+      xDomainExtent.push(new Date(d3.min(dataKeyUnionSelectedValues, (d: Date) => +d) - this.dataInterval / 5));
+      xDomainExtent.push(new Date(d3.max(dataKeyUnionSelectedValues, (d: Date) => +d)));
     } else {
-      xDomainExtent.push(d3.min(dataKeyUnionSelectedValues, (d: number) => d) * 1 - this.dataInterval * this.yDimension);
-      xDomainExtent.push(d3.max(dataKeyUnionSelectedValues, (d: number) => d) * 1 + this.dataInterval);
+      xDomainExtent.push(d3.min(dataKeyUnionSelectedValues, (d: number) => d) * 1 - this.dataInterval / 5 * this.yDimension);
+      xDomainExtent.push(d3.max(dataKeyUnionSelectedValues, (d: number) => d) * 1);
     }
     return xDomainExtent;
   }
@@ -302,7 +319,7 @@ export abstract class AbstractHistogram {
   }
 
   protected addSelectionBrush(chartAxes: ChartAxes | SwimlaneAxes, leftOffset: number): void {
-    this.selectionBrush = d3.brushX().extent([[chartAxes.stepWidth * this.yDimension, 0],
+    this.selectionBrush = d3.brushX().extent([[chartAxes.stepWidth / 5 * this.yDimension, 0],
     [(this.chartDimensions).width - leftOffset, (this.chartDimensions).height]]);
     const selectionBrushStart = Math.max(0, chartAxes.xDomain(this.selectionInterval.startvalue));
     const selectionBrushEnd = Math.min(chartAxes.xDomain(this.selectionInterval.endvalue), (this.chartDimensions).width);

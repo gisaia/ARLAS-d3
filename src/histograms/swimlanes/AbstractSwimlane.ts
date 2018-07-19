@@ -36,13 +36,12 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
 
   public plot(inputData: Map<string, Array<{ key: number, value: number }>>) {
     super.plot(inputData);
-    // this.dataDomain = inputData;
     let swimlanesMapData: Map<string, Array<HistogramData>> = null;
     if (inputData !== null && inputData.size > 0) {
       this.setSwimlaneMaxValue(inputData);
       swimlanesMapData = HistogramUtils.parseSwimlaneDataKey(inputData, this.histogramParams.dataType);
       this.nbSwimlanes = swimlanesMapData.size;
-      this.setSwimlaneMinMaxValues(swimlanesMapData);
+      this.setSwimlaneMinMaxBorders(swimlanesMapData);
       this.initializeDescriptionValues(this.swimlaneIntervalBorders[0], this.swimlaneIntervalBorders[1]);
       this.initializeChartDimensions();
       this.createSwimlaneAxes(swimlanesMapData);
@@ -193,7 +192,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     let bucketKey = +this.swimlaneIntervalBorders[0];
     this.setSwimlaneDataInterval(data);
     const swimlaneArray = new Array<any>();
-    while (bucketKey <= (+this.swimlaneIntervalBorders[1])) {
+    while (bucketKey < (+this.swimlaneIntervalBorders[1])) {
       swimlaneArray.push({ key: bucketKey, value: 0 });
       bucketKey = bucketKey + this.dataInterval;
     }
@@ -415,7 +414,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     });
   }
 
-  protected setSwimlaneMinMaxValues(swimlanesMapData: Map<string, Array<HistogramData>>) {
+  protected setSwimlaneMinMaxBorders(swimlanesMapData: Map<string, Array<HistogramData>>) {
     const firstKey = swimlanesMapData.keys().next().value;
     const firstArrayLength = swimlanesMapData.get(firstKey).length;
     let minInterval = swimlanesMapData.get(firstKey)[0].key;
@@ -428,7 +427,15 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
         maxInterval = swimlane[swimlane.length - 1].key;
       }
     });
+    const dataInterval = this.getDataInterval(swimlanesMapData);
+    maxInterval =  +maxInterval + dataInterval;
+    const lastBucket = {key: maxInterval, value: 0};
+    maxInterval = HistogramUtils.parseDataKey([lastBucket], this.histogramParams.dataType)[0].key;
     this.swimlaneIntervalBorders = [minInterval, maxInterval];
+  }
+
+  protected getHistogramMinMaxBorders(data: Array<HistogramData>): [number | Date, number | Date] {
+    return this.swimlaneIntervalBorders;
   }
 
   protected getAxes() {
