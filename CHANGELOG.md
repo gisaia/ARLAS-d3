@@ -1,5 +1,13 @@
 # Change Log
 
+## [v4.2.0](https://github.com/gisaia/ARLAS-d3/tree/v4.2.0) (2018-07-20)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.1.0...v4.2.0)
+
+**Fixed bugs:**
+
+- Fix second value in tooltip [\#36](https://github.com/gisaia/ARLAS-d3/pull/36) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
+
 ## [v4.1.0](https://github.com/gisaia/ARLAS-d3/tree/v4.1.0) (2018-07-10)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.0.6...v4.1.0)
@@ -7,6 +15,8 @@
 **New stuff:**
 
 - HISTOGRAMS : Display only selections containing data  [\#33](https://github.com/gisaia/ARLAS-d3/issues/33)
+- HISTOGRAMS : Add an option to start y axis from min of data  [\#32](https://github.com/gisaia/ARLAS-d3/issues/32)
+- HISTOGRAMS: Add an offset in the top of y axis domain [\#30](https://github.com/gisaia/ARLAS-d3/issues/30)
 - HISTOGRAM: draw y-axis on top of plotted data [\#29](https://github.com/gisaia/ARLAS-d3/issues/29)
 - Feature/\#32 y axis from zero [\#35](https://github.com/gisaia/ARLAS-d3/pull/35) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 - Histograms : Display only selections containing data [\#34](https://github.com/gisaia/ARLAS-d3/pull/34) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
