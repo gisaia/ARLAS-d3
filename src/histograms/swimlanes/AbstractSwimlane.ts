@@ -319,7 +319,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
         tooltip.yPosition = this.histogramParams.swimlaneHeight * (indexOfKey + 0.2);
 
         tooltip.xContent = HistogramUtils.toString(data[i].key, this.histogramParams.chartType,
-          this.histogramParams.dataType, this.histogramParams.valuesDateFormat, dataInterval);
+          this.histogramParams.dataType, false, this.histogramParams.valuesDateFormat, dataInterval);
         tooltip.yContent = data[i].value.toString();
         this.histogramParams.swimlaneXTooltip = tooltip;
         this.histogramParams.swimlaneTooltipsMap.set(key, tooltip);

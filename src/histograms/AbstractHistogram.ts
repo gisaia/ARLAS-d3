@@ -90,9 +90,9 @@ export abstract class AbstractHistogram {
       this.selectionInterval.endvalue = parsedSelectedValues.endvalue;
       const dataInterval = this.getDataInterval(this.histogramParams.data);
       this.histogramParams.startValue = HistogramUtils.toString(this.selectionInterval.startvalue, this.histogramParams.chartType,
-        this.histogramParams.dataType, this.histogramParams.valuesDateFormat, dataInterval);
+        this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval, this.histogramParams.valuesDateFormat, dataInterval);
       this.histogramParams.endValue = HistogramUtils.toString(this.selectionInterval.endvalue, this.histogramParams.chartType,
-        this.histogramParams.dataType, this.histogramParams.valuesDateFormat, dataInterval);
+        this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval, this.histogramParams.valuesDateFormat, dataInterval);
       const data = this.dataDomain;
       if (data !== null) {
         if (HistogramUtils.isSelectionBeyondDataDomain(selectedInputValues, <Array<{ key: number, value: number }>>data,
@@ -207,11 +207,11 @@ export abstract class AbstractHistogram {
       const dataInterval = this.getDataInterval(this.histogramParams.data);
 
       this.histogramParams.startValue = HistogramUtils.toString(start, this.histogramParams.chartType,
-        this.histogramParams.dataType, this.histogramParams.valuesDateFormat, dataInterval);
+        this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval, this.histogramParams.valuesDateFormat, dataInterval);
       this.selectionInterval.startvalue = start;
 
       this.histogramParams.endValue = HistogramUtils.toString(end, this.histogramParams.chartType,
-        this.histogramParams.dataType, this.histogramParams.valuesDateFormat, dataInterval);
+        this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval, this.histogramParams.valuesDateFormat, dataInterval);
       this.selectionInterval.endvalue = end;
     }
   }
@@ -565,9 +565,9 @@ export abstract class AbstractHistogram {
         const dataInterval = this.getDataInterval(this.histogramParams.data);
         this.histogramParams.startValue = HistogramUtils.toString(this.selectionInterval.startvalue,
           this.histogramParams.chartType,
-          this.histogramParams.dataType, this.histogramParams.valuesDateFormat, dataInterval);
+          this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval, this.histogramParams.valuesDateFormat, dataInterval);
         this.histogramParams.endValue = HistogramUtils.toString(this.selectionInterval.endvalue, this.histogramParams.chartType,
-          this.histogramParams.dataType, this.histogramParams.valuesDateFormat, dataInterval);
+          this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval, this.histogramParams.valuesDateFormat, dataInterval);
         this.histogramParams.showTitle = false;
         this.setBrushTooltipsPositions();
         this.applyStyleOnSelection();
@@ -584,11 +584,12 @@ export abstract class AbstractHistogram {
           this.selectionInterval.startvalue = selection.map(chartAxes.xDomain.invert, chartAxes.xDomain)[0];
           this.selectionInterval.endvalue = selection.map(chartAxes.xDomain.invert, chartAxes.xDomain)[1];
           const dataInterval = this.getDataInterval(this.histogramParams.data);
-
           this.histogramParams.startValue = HistogramUtils.toString(this.selectionInterval.startvalue, this.histogramParams.chartType,
-            this.histogramParams.dataType, this.histogramParams.valuesDateFormat, dataInterval);
+            this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval,
+            this.histogramParams.valuesDateFormat, dataInterval);
           this.histogramParams.endValue = HistogramUtils.toString(this.selectionInterval.endvalue, this.histogramParams.chartType,
-            this.histogramParams.dataType, this.histogramParams.valuesDateFormat, dataInterval);
+            this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval,
+            this.histogramParams.valuesDateFormat, dataInterval);
           const selectionListInterval = [];
           this.histogramParams.intervalSelectedMap.forEach((k, v) => selectionListInterval.push(k.values));
           this.histogramParams.valuesListChangedEvent.next(selectionListInterval.concat(this.selectionInterval));

@@ -31,6 +31,7 @@ export abstract class AbstractChart extends AbstractHistogram {
     super.plot(inputData);
     this.dataDomain = inputData;
     if (inputData !== null && Array.isArray(inputData) && inputData.length > 0) {
+      this.moveDataByHalfInterval(inputData);
       const data = HistogramUtils.parseDataKey(inputData, this.histogramParams.dataType);
       this.histogramParams.dataLength = data.length;
       const minMaxBorders = this.getHistogramMinMaxBorders(data);
@@ -75,6 +76,8 @@ export abstract class AbstractChart extends AbstractHistogram {
       this.plot(<Array<{key: number, value: number}>>this.histogramParams.data);
     }
   }
+
+  protected moveDataByHalfInterval(data: Array<HistogramData>) {}
 
   protected customizeData(data: Array<HistogramData>): void {}
 
@@ -203,13 +206,15 @@ export abstract class AbstractChart extends AbstractHistogram {
             this.histogramParams.tooltip.xContent = 'Double click';
             this.histogramParams.tooltip.yContent = 'to save this period';
           } else {
-            this.histogramParams.tooltip.xContent = HistogramUtils.toString(data[i].key,
-              this.histogramParams.chartType, this.histogramParams.dataType, this.histogramParams.valuesDateFormat, dataInterval);
+            this.histogramParams.tooltip.xContent = HistogramUtils.toString(data[i].key, this.histogramParams.chartType,
+              this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval,
+              this.histogramParams.valuesDateFormat, dataInterval);
             this.histogramParams.tooltip.yContent = data[i].value.toString();
           }
         } else {
           this.histogramParams.tooltip.xContent = HistogramUtils.toString(data[i].key,
-            this.histogramParams.chartType, this.histogramParams.dataType, this.histogramParams.valuesDateFormat, dataInterval);
+            this.histogramParams.chartType, this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval,
+              this.histogramParams.valuesDateFormat, dataInterval);
           this.histogramParams.tooltip.yContent = data[i].value.toString();
         }
         break;
