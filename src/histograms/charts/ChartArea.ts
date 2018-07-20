@@ -74,6 +74,21 @@ export class ChartArea extends AbstractChart {
     this.dataInterval = 0;
   }
 
+  protected moveDataByHalfInterval(data: Array<HistogramData>) {
+    if (this.moveDataByHalfInterval) {
+      const dataInterval = this.getDataInterval(data);
+      data.forEach(d => {
+        d.key = +d.key + dataInterval / 2;
+      });
+    }
+  }
+
+
+  protected customizeData(data: Array<HistogramData>): void {
+    const followingLastBucket = this.getFollowingLastBucket(data);
+    data.push(followingLastBucket);
+  }
+
   protected plotChart(data: Array<HistogramData>): void {
     this.clipPathContext = this.context.append('defs').append('clipPath')
       .attr('id', this.histogramParams.uid);

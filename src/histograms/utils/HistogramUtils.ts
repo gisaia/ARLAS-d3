@@ -191,7 +191,7 @@ export class HistogramUtils {
     }
   }
 
-  public static toString(value: Date | number, chartType: ChartType, dataType: DataType, dateFormat: string,
+  public static toString(value: Date | number, chartType: ChartType, dataType: DataType, isChartMoved: boolean, dateFormat: string,
      dateInterval?: number): string {
     if (value instanceof Date) {
       if (dateFormat && dateFormat !== null) {
@@ -209,8 +209,9 @@ export class HistogramUtils {
       if (chartType === ChartType.oneDimension) {
         return Math.trunc(value).toString();
       } else {
+        const roundPrecision = (chartType === ChartType.area && isChartMoved) ? 0.1 : 1;
         if (dataType === DataType.time) {
-          const date = new Date(this.round(value, 1));
+          const date = new Date(this.round(value, roundPrecision));
           if (dateInterval) {
             const timeFormat = d3.timeFormat(this.getFormatFromDateInterval(dateInterval));
             return timeFormat(date);
@@ -218,8 +219,7 @@ export class HistogramUtils {
             return date.toDateString();
           }
         } else {
-          return this.round(value, 1).toString();
-
+          return this.round(value, roundPrecision).toString();
         }
       }
     }
