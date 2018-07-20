@@ -75,7 +75,7 @@ export class ChartArea extends AbstractChart {
   }
 
   protected moveDataByHalfInterval(data: Array<HistogramData>) {
-    if (this.moveDataByHalfInterval) {
+    if (this.histogramParams.moveDataByHalfInterval) {
       const dataInterval = this.getDataInterval(data);
       data.forEach(d => {
         d.key = +d.key + dataInterval / 2;

@@ -33,7 +33,7 @@ export class HistogramParams {
   public dataType: DataType = DataType.numeric;
   public dataUnit = '';
   public chartType: ChartType = ChartType.area;
-  public moveDataByHalfInterval = true;
+  public moveDataByHalfInterval = false;
 
   /** Dimensions */
   public chartWidth: number = null;
