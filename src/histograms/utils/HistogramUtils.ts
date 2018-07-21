@@ -123,7 +123,11 @@ export class HistogramUtils {
       if (dataType === DataType.time) {
         return this.parseDataKeyToDate(inputData);
       } else {
-        return inputData;
+        const parsedInputData = [];
+        inputData.forEach(d => {
+          parsedInputData.push({key: d.key, value: d.value});
+        });
+        return parsedInputData;
       }
   }
 
