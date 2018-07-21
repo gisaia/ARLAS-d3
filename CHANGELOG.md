@@ -1,11 +1,17 @@
 # Change Log
 
+## [v4.2.1](https://github.com/gisaia/ARLAS-d3/tree/v4.2.1) (2018-07-21)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.2.0...v4.2.1)
+
 ## [v4.2.0](https://github.com/gisaia/ARLAS-d3/tree/v4.2.0) (2018-07-20)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.1.0...v4.2.0)
 
 **Fixed bugs:**
 
+- HISTOGRAM : extend the x axis for area chart by one bucket unity [\#25](https://github.com/gisaia/ARLAS-d3/issues/25)
+- Feature/\#25 add bucket area [\#37](https://github.com/gisaia/ARLAS-d3/pull/37) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 - Fix second value in tooltip [\#36](https://github.com/gisaia/ARLAS-d3/pull/36) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 
 ## [v4.1.0](https://github.com/gisaia/ARLAS-d3/tree/v4.1.0) (2018-07-10)
