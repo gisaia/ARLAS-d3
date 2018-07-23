@@ -74,15 +74,18 @@ export class ChartArea extends AbstractChart {
     this.dataInterval = 0;
   }
 
-  protected moveDataByHalfInterval(data: Array<HistogramData>) {
+  protected moveDataByHalfInterval(data: Array<{key: number, value: number}>): Array<{key: number, value: number}> {
+    const movedData = [];
     if (this.histogramParams.moveDataByHalfInterval) {
       const dataInterval = this.getDataInterval(data);
       data.forEach(d => {
-        d.key = +d.key + dataInterval / 2;
+        movedData.push({key: +d.key + dataInterval / 2, value: d.value});
       });
+      return movedData;
+    } else {
+      return data;
     }
   }
-
 
   protected customizeData(data: Array<HistogramData>): void {
     const followingLastBucket = this.getFollowingLastBucket(data);
