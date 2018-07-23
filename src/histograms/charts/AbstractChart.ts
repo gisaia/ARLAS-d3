@@ -31,8 +31,8 @@ export abstract class AbstractChart extends AbstractHistogram {
     super.plot(inputData);
     this.dataDomain = inputData;
     if (inputData !== null && Array.isArray(inputData) && inputData.length > 0) {
-      this.moveDataByHalfInterval(inputData);
-      const data = HistogramUtils.parseDataKey(inputData, this.histogramParams.dataType);
+      const movedData = this.moveDataByHalfInterval(inputData);
+      const data = HistogramUtils.parseDataKey(movedData, this.histogramParams.dataType);
       this.histogramParams.dataLength = data.length;
       const minMaxBorders = this.getHistogramMinMaxBorders(data);
       this.initializeDescriptionValues(minMaxBorders[0], minMaxBorders[1]);
@@ -77,7 +77,9 @@ export abstract class AbstractChart extends AbstractHistogram {
     }
   }
 
-  protected moveDataByHalfInterval(data: Array<HistogramData>) {}
+  protected moveDataByHalfInterval(data: Array<{key: number, value: number}>): Array<{key: number, value: number}> {
+    return data;
+  }
 
   protected customizeData(data: Array<HistogramData>): void {}
 
