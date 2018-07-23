@@ -1,8 +1,16 @@
 # Change Log
 
+## [v4.2.2](https://github.com/gisaia/ARLAS-d3/tree/v4.2.2) (2018-07-23)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.2.1...v4.2.2)
+
 ## [v4.2.1](https://github.com/gisaia/ARLAS-d3/tree/v4.2.1) (2018-07-21)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.2.0...v4.2.1)
+
+**Fixed bugs:**
+
+- Fix bug related to move area chart by half interval [\#38](https://github.com/gisaia/ARLAS-d3/pull/38) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 
 ## [v4.2.0](https://github.com/gisaia/ARLAS-d3/tree/v4.2.0) (2018-07-20)
 
