@@ -49,6 +49,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
       this.addLabels(swimlanesMapData);
       this.plotSwimlane(swimlanesMapData);
       this.showTooltipsForSwimlane(swimlanesMapData);
+      this.showTruncatedLabelsTooltip();
       if (this.histogramParams.isHistogramSelectable) {
         this.addSelectionBrush(this.swimlaneAxes);
       }
@@ -261,6 +262,20 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     }
   }
 
+  protected showTruncatedLabelsTooltip(): void {
+    (this.labelsContext.selectAll('text')).nodes().forEach((text) => {
+      const textNode  = d3.select(text);
+      textNode.on('mousemove', () => {
+        const container =  <d3.ContainerElement>this.labelsContext.node();
+        const xy = d3.mouse(container);
+        this.histogramParams.swimlaneLabelTooltip = {xContent: textNode.text(), isShown: true, xPosition: xy[0], yPosition: xy[1]};
+      });
+      textNode.on('mouseout', () => {
+        this.histogramParams.swimlaneLabelTooltip = {xContent: '', isShown: false};
+      });
+    });
+  }
+
   protected showTooltipsForSwimlane(swimlaneMapData: Map<string, Array<HistogramData>>): void {
     this.histogramParams.swimlaneXTooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
     this.verticalTooltipLine = this.context.append('g').append('line').attr('class', 'histogram__swimlane--vertical-tooltip-line')
@@ -356,7 +371,8 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     swimlanesMapData.forEach((swimlane, key) => {
       this.labelsContext.append('text')
         .text(() => key)
-        .attr('transform', 'translate(0,' + this.histogramParams.swimlaneHeight * (i + 0.6) + ')');
+        .attr('transform', 'translate(0,' + this.histogramParams.swimlaneHeight * (i + 0.6) + ')')
+        .attr('class', 'histogram__swimlane-label-text');
       i++;
     });
   }

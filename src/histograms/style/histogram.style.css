@@ -99,6 +99,25 @@
   padding: 5px;
 }
 
+.histogram__swimlane-label-text /*public*/ /*Sets the swimlane label style*/
+{
+  cursor: default;
+}
+
+.histogram__swimlane-label-tooltip /*public*/ /*Sets the swimlane label tooltip style*/
+{
+  position: absolute;
+  text-align: left;
+  padding: 1px;
+  font: 12px sans-serif;
+  background: #fff;
+  border: 0px;
+  border-radius: 2px;
+  pointer-events: none;
+  color: #043b53;
+  z-index: 20000;
+}
+
 .histogram__tooltip /*public*/ /*Sets the tooltip style*/
 {
   position: absolute;

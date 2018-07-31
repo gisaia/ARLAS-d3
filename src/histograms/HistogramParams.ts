@@ -80,6 +80,7 @@ export class HistogramParams {
   public swimlaneBorderRadius = 3;
   public swimlaneMode: SwimlaneMode = SwimlaneMode.variableHeight;
   public swimLaneLabelsWidth: number = null;
+  public swimlaneLabelTooltip: Tooltip;
   public swimlaneHeight: number = null;
 
   // ########################## Outputs ##########################

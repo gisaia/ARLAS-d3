@@ -85,11 +85,11 @@ export interface SwimlaneAxes {
 
 export interface Tooltip {
   isShown: boolean;
-  isRightSide: boolean;
-  xPosition: number;
-  yPosition: number;
+  isRightSide?: boolean;
+  xPosition?: number;
+  yPosition?: number;
   xContent: string;
-  yContent: string;
+  yContent?: string;
   width?: number;
 }
 
