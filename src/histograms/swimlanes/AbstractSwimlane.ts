@@ -394,7 +394,18 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
           interval = Math.max(0, Math.min(interval, Math.abs(currentKeyPosition - previousKeyPosition)));
         }
       });
-      dataInterval = (interval === 0 || interval === Number.MAX_VALUE) ? 1 : interval;
+      if (interval === Number.MAX_VALUE) {
+        // IT MEANS THERE IS ONE BUCKET PER LANE AND THEY ALL HAVE THE SAME KEY
+        if (this.histogramParams.dataType === DataType.time) {
+          // we give 1min as a dataInterval in this case
+          dataInterval = 60000;
+        } else {
+          // we give 1 as a dataInterval in this case
+          dataInterval = 1;
+        }
+      } else {
+        dataInterval = interval;
+      }
     }
     return dataInterval;
   }
