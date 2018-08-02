@@ -303,8 +303,6 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     const xy = d3.mouse(container);
     let dx, dy, startPosition, endPosition, middlePosition;
     const tooltip: Tooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
-    const dataInterval = this.getHistogramDataInterval(data);
-
     for (let i = 0; i < data.length; i++) {
       startPosition = this.histogramParams.swimLaneLabelsWidth + this.swimlaneAxes.xDomain(data[i].key);
       endPosition = startPosition + this.swimlaneAxes.stepWidth * this.histogramParams.barWeight;
@@ -319,7 +317,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
         tooltip.yPosition = this.histogramParams.swimlaneHeight * (indexOfKey + 0.2);
 
         tooltip.xContent = HistogramUtils.toString(data[i].key, this.histogramParams.chartType,
-          this.histogramParams.dataType, false, this.histogramParams.valuesDateFormat, dataInterval);
+          this.histogramParams.dataType, false, this.histogramParams.valuesDateFormat, this.dataInterval);
         tooltip.yContent = data[i].value.toString();
         this.histogramParams.swimlaneXTooltip = tooltip;
         this.histogramParams.swimlaneTooltipsMap.set(key, tooltip);
@@ -372,6 +370,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
 
   protected getDataInterval(swimlaneData: Map<string, Array<HistogramData>>): number {
     let dataInterval: number;
+    this.swimlaneHasMoreThanTwoBuckets = false;
     const keys = swimlaneData.keys();
     for (let i = 0; i < swimlaneData.size; i++) {
       const key = keys.next().value;
