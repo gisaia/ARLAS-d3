@@ -234,7 +234,7 @@ export abstract class AbstractHistogram {
   }
 
   protected getXDomainScale(): any {
-    return (this.histogramParams.dataType === DataType.time) ? d3.scaleTime() : d3.scaleLinear();
+    return (this.histogramParams.dataType === DataType.time) ? d3.scaleUtc() : d3.scaleLinear();
   }
 
   protected getHistogramMinMaxBorders(data: Array<HistogramData>): [number | Date, number | Date] {

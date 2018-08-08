@@ -199,14 +199,14 @@ export class HistogramUtils {
      dateInterval?: number): string {
     if (value instanceof Date) {
       if (dateFormat && dateFormat !== null) {
-        const timeFormat = d3.timeFormat(dateFormat);
+        const timeFormat = d3.utcFormat(dateFormat);
         return timeFormat(value);
       } else {
         if (dateInterval) {
-          const timeFormat = d3.timeFormat(this.getFormatFromDateInterval(dateInterval));
+          const timeFormat = d3.utcFormat(this.getFormatFromDateInterval(dateInterval));
           return timeFormat(value);
         } else {
-          return value.toDateString();
+          return value.toUTCString().split(',')[1].replace('GMT', '');
         }
       }
     } else {
@@ -217,10 +217,10 @@ export class HistogramUtils {
         if (dataType === DataType.time) {
           const date = new Date(this.round(value, roundPrecision));
           if (dateInterval) {
-            const timeFormat = d3.timeFormat(this.getFormatFromDateInterval(dateInterval));
+            const timeFormat = d3.utcFormat(this.getFormatFromDateInterval(dateInterval));
             return timeFormat(date);
           } else {
-            return date.toDateString();
+            return date.toUTCString().split(',')[1].replace('GMT', '');
           }
         } else {
           return this.round(value, roundPrecision).toString();
