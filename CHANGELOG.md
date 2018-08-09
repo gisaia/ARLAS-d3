@@ -1,8 +1,24 @@
 # Change Log
 
+## [v4.2.4](https://github.com/gisaia/ARLAS-d3/tree/v4.2.4) (2018-08-08)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.0.8...v4.2.4)
+
+## [v4.0.8](https://github.com/gisaia/ARLAS-d3/tree/v4.0.8) (2018-08-06)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.0.7...v4.0.8)
+
+## [v4.0.7](https://github.com/gisaia/ARLAS-d3/tree/v4.0.7) (2018-08-06)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.2.3...v4.0.7)
+
 ## [v4.2.3](https://github.com/gisaia/ARLAS-d3/tree/v4.2.3) (2018-08-03)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.2.2...v4.2.3)
+
+**Fixed bugs:**
+
+- SWIMLANE : dataInterval is wrong when there is one bucket per lane [\#40](https://github.com/gisaia/ARLAS-d3/issues/40)
 
 ## [v4.2.2](https://github.com/gisaia/ARLAS-d3/tree/v4.2.2) (2018-07-23)
 
