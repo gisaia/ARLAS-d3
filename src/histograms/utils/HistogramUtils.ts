@@ -213,7 +213,7 @@ export class HistogramUtils {
       if (chartType === ChartType.oneDimension) {
         return Math.trunc(value).toString();
       } else {
-        const roundPrecision = (chartType === ChartType.area && isChartMoved) ? 0.1 : 1;
+        let roundPrecision = (chartType === ChartType.area && isChartMoved) ? 1 : 0;
         if (dataType === DataType.time) {
           const date = new Date(this.round(value, roundPrecision));
           if (dateInterval) {
@@ -223,6 +223,9 @@ export class HistogramUtils {
             return date.toUTCString().split(',')[1].replace('GMT', '');
           }
         } else {
+          if (dateInterval !== undefined && dateInterval < 1) {
+            roundPrecision = this.getRoundPrecision(dateInterval);
+          }
           return this.round(value, roundPrecision).toString();
         }
       }
@@ -275,14 +278,28 @@ export class HistogramUtils {
     return guid;
   }
 
-  private static round(value, precision): number {
+  public static getRoundPrecision(dataInterval: number): number {
+    const order = Math.log10(dataInterval);
+    let roundPrecision = 0;
+    if (order < 0) {
+      roundPrecision = -Math.trunc(order);
+      if (Math.pow(10, -roundPrecision) !== dataInterval) {
+        roundPrecision += 1;
+      }
+    } else {
+      roundPrecision = Math.trunc(order);
+    }
+    return roundPrecision;
+  }
+
+  public static round(value, precision): number {
     let multiplier;
-    if (precision === 1) {
-      multiplier = precision;
+    if (precision === 0) {
+      return Math.round(value);
     } else {
       multiplier = Math.pow(10, precision * 10 || 0);
+      return +(Math.round(value * multiplier) / multiplier).toFixed(precision);
     }
-    return Math.round(value * multiplier) / multiplier;
   }
 }
 
