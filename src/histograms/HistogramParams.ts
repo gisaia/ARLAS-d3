@@ -81,11 +81,13 @@ export class HistogramParams {
   public swimlaneMode: SwimlaneMode = SwimlaneMode.variableHeight;
   public swimLaneLabelsWidth: number = null;
   public swimlaneHeight: number = null;
+  public selectedSwimlanes = new Set<string>();
 
   // ########################## Outputs ##########################
 
   public valuesListChangedEvent: Subject<SelectedOutputValues[]> = new Subject<SelectedOutputValues[]>();
   public hoveredBucketEvent: Subject<Date | number> = new Subject<Date | number>();
+  public selectedSwimlanesEvent = new Subject<Set<string>>();
 
   // ########################## Parameter binded with HTML ##########################
 

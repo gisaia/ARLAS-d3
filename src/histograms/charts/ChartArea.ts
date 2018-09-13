@@ -253,7 +253,7 @@ export class ChartArea extends AbstractChart {
     }
   }
 
-  protected applyStyleOnSelection() {
+  protected applyStyleOnSelection(): void {
     if (this.rectangleCurrentClipper === null) {
       this.rectangleCurrentClipper = this.currentClipPathContext.append('rect')
         .attr('id', 'clip-rect')

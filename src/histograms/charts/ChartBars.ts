@@ -110,7 +110,7 @@ export class ChartBars extends AbstractChart {
     this.applyStyleOnSelection();
   }
 
-  protected applyStyleOnSelection() {
+  protected applyStyleOnSelection(): void {
     this.applyStyleOnSelectedBars(this.barsContext);
     if (this.yStartsFromMin && this.histogramParams.showStripes) {
       // APPLY STYLE ON STRIPPED BARS ACCORDING TO SELECTION TYPE : CURRENT, PARTLY, FULLY SELECTED BARS
