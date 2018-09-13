@@ -496,16 +496,15 @@ export abstract class AbstractHistogram {
   protected getHistogramDataInterval(data: Array<HistogramData>): number {
     let interval = Number.MAX_VALUE;
     if (data.length > 1) {
-      for (let i = 0; i < (data.length - 1); i++) {
-        if (this.histogramParams.dataType === DataType.time) {
-          interval = Math.min(interval, +data[i + 1].key - +data[i].key);
-        } else {
-          interval = Math.min(interval, +data[i + 1].key - +data[i].key);
-        }
+      interval = +data[1].key - +data[0].key;
+      // ##### Work around of substruction bug in js #####
+      if (interval < 1) {
+        const roundPrecision = HistogramUtils.getRoundPrecision(interval);
+        interval = HistogramUtils.round(+data[1].key * Math.pow(10, roundPrecision) - +data[0].key * Math.pow(10, roundPrecision),
+          roundPrecision);
+        interval = interval * Math.pow(10, -roundPrecision);
       }
-      if (interval === Number.MAX_VALUE) {
-        interval = 0;
-      }
+      // #################################################
     } else {
       // three cases
       if (data[0].key === this.selectionInterval.startvalue && data[0].key === this.selectionInterval.endvalue) {

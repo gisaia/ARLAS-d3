@@ -85,10 +85,10 @@ export class ChartBars extends AbstractChart {
     const labelPadding = (this.histogramParams.xAxisPosition === Position.bottom) ? 9 : -15;
     if (this.histogramParams.dataType === DataType.numeric) {
       this.chartAxes.xTicksAxis = d3.axisBottom(this.chartAxes.xDomain).tickValues(this.chartAxes.xDataDomain.domain()
-      .filter((d, i) => !(i % ticksPeriod))).tickSize(this.minusSign * 4);
+        .filter((d, i) => !(i % ticksPeriod))).tickSize(this.minusSign * 4);
       this.chartAxes.xLabelsAxis = d3.axisBottom(this.chartAxes.xDomain).tickSize(0).tickPadding(labelPadding)
-      .tickValues(this.chartAxes.xDataDomain.domain()
-      .filter((d, i) => !(i % labelsPeriod)));
+        .tickValues(this.chartAxes.xDataDomain.domain().filter((d, i) => !(i % labelsPeriod)));
+      this.applyFormatOnXticks(data);
     } else {
       this.chartAxes.xTicksAxis = d3.axisBottom(this.chartAxes.xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 4);
       this.chartAxes.xLabelsAxis = d3.axisBottom(this.chartAxes.xDomain).tickSize(0).tickPadding(labelPadding)

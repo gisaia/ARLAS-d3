@@ -265,6 +265,14 @@ export abstract class AbstractChart extends AbstractHistogram {
         .attr('class', cssClass);
   }
 
+  protected applyFormatOnXticks(data: Array<HistogramData>): void {
+    const interval = this.getHistogramDataInterval(data);
+    if (interval > 0 && interval < 1) {
+        const roundPrecision = HistogramUtils.getRoundPrecision(interval);
+        this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(d3.format('.' + roundPrecision + 'f'));
+    }
+  }
+
   protected setDataInterval(data: Array<HistogramData>): void {
     this.dataInterval = this.getDataInterval(data);
   }
