@@ -33,6 +33,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
   protected verticalTooltipLine;
   protected labelsContext;
   protected aBucketIsEncountred = false;
+  protected swimlaneBarsWeight;
 
   public plot(inputData: Map<string, Array<{ key: number, value: number }>>) {
     super.plot(inputData);
@@ -200,7 +201,9 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     this.histogramParams.dataLength = this.dataDomain.length;
     if (this.histogramParams.dataLength === 1) {
       this.histogramParams.dataLength++;
-      this.histogramParams.barWeight = 0.05;
+      this.swimlaneBarsWeight = 0.05;
+    } else {
+      this.swimlaneBarsWeight = this.histogramParams.barWeight;
     }
 
     // The xDomain extent includes data domain and selected values
