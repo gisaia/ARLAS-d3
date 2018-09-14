@@ -1,6 +1,6 @@
 {
-  "name": "@gisaia-team/arlas-d3",
-  "version": "4.3.0-dev0",
+  "name": "arlas-d3",
+  "version": "4.3.0",
   "description": "D3 components library for ARLAS Web App",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",

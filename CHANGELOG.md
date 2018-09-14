@@ -1,8 +1,28 @@
 # Change Log
 
-## [v4.2.4](https://github.com/gisaia/ARLAS-d3/tree/v4.2.4) (2018-08-08)
+## [v4.3.0](https://github.com/gisaia/ARLAS-d3/tree/v4.3.0) (2018-09-14)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.2.4...v4.3.0)
+
+**Breaking changes:**
+
+- SWIMLANE : Remove brush selection & add the possibility to filter on terms [\#49](https://github.com/gisaia/ARLAS-d3/issues/49)
+
+**New stuff:**
+
+- HISTOGRAM/SWIMLANE : Implement a system of rounding key values when interval \< 1 [\#47](https://github.com/gisaia/ARLAS-d3/issues/47)
+
+**Fixed bugs:**
+
+- SWIMLANE : Swimlane bars get thin after applying filters on ARLAS-wui [\#48](https://github.com/gisaia/ARLAS-d3/issues/48)
+
+## [v4.2.4](https://github.com/gisaia/ARLAS-d3/tree/v4.2.4) (2018-08-09)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.0.8...v4.2.4)
+
+**Fixed bugs:**
+
+- HISTOGRAM/SWIMLANE : dates should be in utc  [\#43](https://github.com/gisaia/ARLAS-d3/issues/43)
 
 ## [v4.0.8](https://github.com/gisaia/ARLAS-d3/tree/v4.0.8) (2018-08-06)
 
