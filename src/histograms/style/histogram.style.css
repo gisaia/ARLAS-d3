@@ -27,7 +27,6 @@
 .histogram text {
     font-size: 0.8em;
     fill-opacity: 1;
-    fill: black;
 }
 
 .histogram__description /*public*/ /*Sets the description part that includes title and start/end values*/
@@ -296,6 +295,22 @@
 
 .selection {
   opacity: 0.6;
+}
+
+.swimlane-label-unselected {
+  fill: gray;
+}
+
+.swimlane-label-selected {
+  fill: #FF4081;
+}
+
+.swimlane-label-neutral {
+  fill: black;
+}
+
+.swimlane-label-container-hovered {
+  fill: #efefef;
 }
 
 

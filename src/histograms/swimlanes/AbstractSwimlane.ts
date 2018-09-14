@@ -29,11 +29,13 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
   protected swimlaneIntervalBorders: [number | Date, number | Date];
   protected isSwimlaneHeightFixed = false;
   protected swimlaneHasMoreThanTwoBuckets = false;
-  protected swimlaneContextList = new Array<any>();
+  protected swimlaneContextList = new Array<{name: string, context: any}>();
   protected verticalTooltipLine;
   protected labelsContext;
   protected aBucketIsEncountred = false;
   protected swimlaneBarsWeight;
+  protected labelsContextList = new Array<{name: string, context: any}>();
+  protected labelsRectContextList = new Array<{name: string, context: any}>();
 
   public plot(inputData: Map<string, Array<{ key: number, value: number }>>) {
     super.plot(inputData);
@@ -49,10 +51,8 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
       this.drawChartAxes(this.swimlaneAxes);
       this.addLabels(swimlanesMapData);
       this.plotSwimlane(swimlanesMapData);
+      this.applyStyleOnSwimlanes();
       this.showTooltipsForSwimlane(swimlanesMapData);
-      if (this.histogramParams.isHistogramSelectable) {
-        this.addSelectionBrush(this.swimlaneAxes);
-      }
       this.plottingCount++;
     } else {
       this.histogramParams.startValue = '';
@@ -83,21 +83,6 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
         - this.histogramParams.margin.top - this.histogramParams.margin.bottom, 0)  / this.nbSwimlanes;
     }
     this.plot(<Map<string, Array<{ key: number, value: number }>>>this.histogramParams.data);
-    if (this.histogramParams.multiselectable) {
-      this.resizeSelectedIntervals(this.swimlaneAxes);
-    }
-  }
-
-  public removeSelectInterval(id: string) {
-    super.removeSelectInterval(id);
-    const isSelectionBeyondDataDomain = HistogramUtils.isSelectionBeyondDataDomain(this.selectionInterval, this.dataDomain,
-      this.histogramParams.intervalSelectedMap);
-    if (!isSelectionBeyondDataDomain && this.hasSelectionExceededData) {
-      this.plot(<Map<string, Array<{key: number, value: number}>>>this.histogramParams.data);
-      this.hasSelectionExceededData = false;
-    } else if (isSelectionBeyondDataDomain) {
-      this.plot(<Map<string, Array<{key: number, value: number}>>>this.histogramParams.data);
-    }
   }
 
   public truncateLabels() {
@@ -106,7 +91,8 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
         const self = d3.select(textNode);
         let textLength = self.node().getComputedTextLength();
         let text = self.text();
-        while (textLength > (this.histogramParams.swimLaneLabelsWidth) && text.length > 0) {
+        while (textLength > (this.histogramParams.swimLaneLabelsWidth - 8) && text.length > 0) { // 8px because the
+          // text is translated by 3px to the right and the container of text occupies swimLaneLabelsWidth - 5px.
           text = text.slice(0, -1);
           self.text(text + '...');
           textLength = self.node().getComputedTextLength();
@@ -115,47 +101,57 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     }
   }
 
+  public applyStyleOnSwimlanes(): void {
+    let i = 0;
+    if (!this.histogramParams.selectedSwimlanes) {
+      this.histogramParams.selectedSwimlanes = new Set<string>();
+    }
+    this.swimlaneContextList.forEach(swimlaneContext => {
+      if (this.histogramParams.selectedSwimlanes.size === 0) {
+        swimlaneContext.context.attr('class', 'histogram__chart--bar__fullyselected');
+        this.labelsContextList[i].context.attr('class', 'swimlane-label-neutral');
+        this.labelsRectContextList[i].context.attr('class', 'swimlane-label-container-neutral');
+      } else {
+        if (this.histogramParams.selectedSwimlanes.has(swimlaneContext.name)) {
+          swimlaneContext.context.attr('class', 'histogram__chart--bar__fullyselected');
+          this.labelsContextList[i].context.attr('class', 'swimlane-label-selected');
+          this.labelsRectContextList[i].context.attr('class', 'swimlane-label-container-selected');
+        } else {
+          swimlaneContext.context.attr('class', 'histogram__chart--bar');
+          this.labelsContextList[i].context.attr('class', 'swimlane-label-unselected');
+          this.labelsRectContextList[i].context.attr('class', 'swimlane-label-container-unselected');
+        }
+      }
+      i++;
+    });
+  }
+
+  protected applyHoverStyleOnSwimlaneLabels(labelRectContext: {name: string, context: any}): void {
+    if (this.histogramParams.selectedSwimlanes.size === 0) {
+      labelRectContext.context.attr('class', 'swimlane-label-container-neutral');
+    } else {
+      if (this.histogramParams.selectedSwimlanes.has(labelRectContext.name)) {
+        labelRectContext.context.attr('class', 'swimlane-label-container-selected');
+      } else {
+        labelRectContext.context.attr('class', 'swimlane-label-container-unselected');
+      }
+    }
+  }
+
   protected plotSwimlane(data: Map<string, Array<HistogramData>>): void {
-    this.swimlaneContextList = new Array<any>();
+    this.swimlaneContextList = new Array<{name: string, context: any}>();
     const keys = data.keys();
     for (let i = 0; i < data.size; i++) {
       const key = keys.next().value;
       this.plotOneLane(data.get(key), i);
-      this.swimlaneContextList.push(this.barsContext);
+      this.swimlaneContextList.push({name: key, context: this.barsContext});
     }
-  }
 
-  protected getIntervalMiddlePositon(chartAxes: SwimlaneAxes, startvalue: number, endvalue: number): number {
-    const keys = this.getSelectedBars(startvalue, endvalue);
-    const lastKey = keys.sort((a, b) => { if (a > b) { return a; } })[keys.length - 1];
-    const firstKey = keys.sort((a, b) => { if (a > b) { return a; } })[0];
-    const firstPosition = chartAxes.xDomain(firstKey);
-    const lastPosition = chartAxes.xDomain(lastKey);
-    return (firstPosition + lastPosition) / 2 + this.histogramParams.swimLaneLabelsWidth;
-  }
-
-  protected addSelectionBrush(swimlaneAxes: SwimlaneAxes): void {
-    super.addSelectionBrush(swimlaneAxes, this.histogramParams.swimLaneLabelsWidth);
-    if (this.histogramParams.multiselectable) {
-      this.onSelectionDoubleClick(swimlaneAxes);
-    }
-    this.applyStyleOnSelection();
-  }
-
-  protected getSelectedBars(startvalue: number, endvalue: number): Array<number> {
-    const keys = new Array<number>();
-    this.swimlaneContextList.forEach(barcontext => {
-      (barcontext).filter((d) => {
-        d.key = +d.key;
-        return d.key >= startvalue
-          && d.key + this.histogramParams.barWeight * this.dataInterval <= endvalue;
-      }).data().map(d => { this.selectedBars.add(d.key); keys.push(d.key); });
+    this.swimlaneContextList.forEach(swimlaneContext => {
+      swimlaneContext.context.on('click', () => {
+        this.setSelectedSwimlanes(swimlaneContext);
+      });
     });
-    return keys;
-  }
-
-  protected applyStyleOnSelection(): void {
-    this.swimlaneContextList.forEach(swimlaneContext => this.applyStyleOnSelectedBars(swimlaneContext));
   }
 
   protected initializeChartDimensions(): void {
@@ -353,15 +349,46 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     return 0;
   }
 
-  protected addLabels(swimlanesMapData: Map<string, Array<HistogramData>>) {
-    this.labelsContext = this.context.append('g').classed('foreignObject', true);
+  protected addLabels(swimlanesMapData: Map<string, Array<HistogramData>>): void {
+    this.labelsContext = this.context.append('g').classed('swimlane-labels-container', true);
     let i = 0;
-    swimlanesMapData.forEach((swimlane, key) => {
-      this.labelsContext.append('text')
-        .text(() => key)
-        .attr('transform', 'translate(0,' + this.histogramParams.swimlaneHeight * (i + 0.6) + ')');
+    this.labelsContextList = new Array<{name: string, context: any}>();
+    this.labelsRectContextList = new Array<{name: string, context: any}>();
+    swimlanesMapData.forEach( (swimlane, key) => {
+      const labelRectContext  = this.labelsContext.append('rect')
+        .attr('width', this.histogramParams.swimLaneLabelsWidth - 5)
+        .attr('height', this.histogramParams.swimlaneHeight)
+        .attr('fill', '#FFFFFF')
+        .attr('transform', 'translate(0,' + (this.histogramParams.swimlaneHeight * (i)) + ')')
+        .style('cursor', 'pointer');
+        this.labelsRectContextList.push({name: key, context: labelRectContext});
+      const labelContext = this.labelsContext.append('text')
+        .text(function () { return key; })
+        .style('cursor', 'pointer')
+        .attr('transform', 'translate(3,' + (this.histogramParams.swimlaneHeight * (i + 4 / 7) +  this.histogramParams.margin.top) + ')');
+        this.labelsContextList.push({name: key, context: labelContext});
       i++;
     });
+    for (let j = 0; j < this.labelsContextList.length; j++) {
+      this.labelsContextList[j].context.on('click', () => {
+        this.setSelectedSwimlanes(this.labelsContextList[j]);
+      });
+      this.labelsContextList[j].context.on('mousemove', () => {
+        this.labelsRectContextList[j].context.attr('class', 'swimlane-label-container-hovered');
+      });
+      this.labelsContextList[j].context.on('mouseout', () => {
+        this.applyHoverStyleOnSwimlaneLabels(this.labelsRectContextList[j]);
+      });
+      this.labelsRectContextList[j].context.on('click', () => {
+        this.setSelectedSwimlanes(this.labelsRectContextList[j]);
+      });
+      this.labelsRectContextList[j].context.on('mousemove', () => {
+        this.labelsRectContextList[j].context.attr('class', 'swimlane-label-container-hovered');
+      });
+      this.labelsRectContextList[j].context.on('mouseout', () => {
+        this.applyHoverStyleOnSwimlaneLabels(this.labelsRectContextList[j]);
+      });
+    }
   }
 
   protected setSwimlaneDataInterval(swimlaneData: Map<string, Array<HistogramData>>): void {
@@ -413,7 +440,20 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     return dataInterval;
   }
 
-  protected setSwimlaneMaxValue(swimlaneDataMap: Map<string, Array<{ key: number, value: number }>>) {
+  protected setSelectedSwimlanes(labelContext: {name: string, context: any}): void {
+    if (!this.histogramParams.selectedSwimlanes) {
+      this.histogramParams.selectedSwimlanes = new Set<string>();
+    }
+    if (this.histogramParams.selectedSwimlanes.has(labelContext.name)) {
+      this.histogramParams.selectedSwimlanes.delete(labelContext.name);
+    } else {
+      this.histogramParams.selectedSwimlanes.add(labelContext.name);
+    }
+    this.histogramParams.selectedSwimlanesEvent.next(this.histogramParams.selectedSwimlanes);
+    this.applyStyleOnSwimlanes();
+  }
+
+  protected setSwimlaneMaxValue(swimlaneDataMap: Map<string, Array<{ key: number, value: number }>>): void {
     this.swimlaneMaxValue = null;
     swimlaneDataMap.forEach((swimlane, key) => {
       if (this.swimlaneMaxValue === null) {
@@ -427,7 +467,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     });
   }
 
-  protected setSwimlaneMinMaxBorders(swimlanesMapData: Map<string, Array<HistogramData>>) {
+  protected setSwimlaneMinMaxBorders(swimlanesMapData: Map<string, Array<HistogramData>>): void {
     const firstKey = swimlanesMapData.keys().next().value;
     const firstArrayLength = swimlanesMapData.get(firstKey).length;
     let minInterval = swimlanesMapData.get(firstKey)[0].key;
@@ -455,14 +495,14 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     return this.swimlaneAxes;
   }
 
-  protected setBrushVerticalTooltipsXPositions(leftPosition: number, rightPosition: number) {
+  protected setBrushVerticalTooltipsXPositions(leftPosition: number, rightPosition: number): void {
     this.histogramParams.brushLeftTooltip.xPosition = this.histogramParams.swimLaneLabelsWidth -
       this.chartDimensions.height + this.histogramParams.margin.left + leftPosition;
     this.histogramParams.brushRightTooltip.xPosition = this.histogramParams.swimLaneLabelsWidth +
       this.histogramParams.margin.left  + rightPosition;
   }
 
-  protected setBrushHorizontalTooltipsXPositions(leftPosition: number, rightPosition: number) {
+  protected setBrushHorizontalTooltipsXPositions(leftPosition: number, rightPosition: number): void {
     this.histogramParams.brushLeftTooltip.xPosition = this.histogramParams.swimLaneLabelsWidth + leftPosition +
       this.histogramParams.margin.left;
     this.histogramParams.brushRightTooltip.xPosition = -this.histogramParams.swimLaneLabelsWidth + this.histogramParams.margin.right +
