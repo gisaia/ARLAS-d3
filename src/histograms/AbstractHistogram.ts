@@ -380,13 +380,14 @@ export abstract class AbstractHistogram {
       .attr('class', 'histogram__chart--bar__partlyselected');
   }
 
-  protected plotBars(data: Array<HistogramData>, axes: ChartAxes | SwimlaneAxes, xDataDomain: any): void {
+  protected plotBars(data: Array<HistogramData>, axes: ChartAxes | SwimlaneAxes, xDataDomain: any, barWeight?: number): void {
+    const barWidth = barWeight ? axes.stepWidth * barWeight : axes.stepWidth * this.histogramParams.barWeight;
     this.barsContext = this.context.append('g').attr('class', 'histogram__bars').selectAll('.bar')
       .data(data)
       .enter().append('rect')
       .attr('class', 'histogram__chart--bar')
       .attr('x', function (d) { return xDataDomain(d.key); })
-      .attr('width', axes.stepWidth * this.histogramParams.barWeight);
+      .attr('width', barWidth);
   }
 
   protected onSelectionDoubleClick(axes: ChartAxes | SwimlaneAxes) {

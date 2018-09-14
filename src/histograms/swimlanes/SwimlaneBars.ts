@@ -23,7 +23,7 @@ import { HistogramData, HistogramUtils, SwimlaneMode } from '../utils/HistogramU
 export class SwimlaneBars extends AbstractSwimlane {
 
   protected plotOneLane(data: Array<HistogramData>, indexOfLane): void {
-    this.plotBars(data, this.swimlaneAxes, this.swimlaneAxes.xDataDomainArray[indexOfLane]);
+    this.plotBars(data, this.swimlaneAxes, this.swimlaneAxes.xDataDomainArray[indexOfLane], this.swimlaneBarsWeight);
     this.barsContext
       .attr('rx', this.histogramParams.swimlaneBorderRadius)
       .attr('ry', this.histogramParams.swimlaneBorderRadius)

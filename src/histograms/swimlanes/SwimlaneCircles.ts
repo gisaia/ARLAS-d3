@@ -27,7 +27,7 @@ export class SwimlaneCircles extends AbstractSwimlane {
   protected plotOneLane(data: Array<HistogramData>, indexOfLane): void {
     this.barsContext = this.context.append('g')
     .attr('class', 'histogram__swimlane').selectAll('dot').data(data).enter().append('circle')
-    .attr('r', (d) => Math.min(this.swimlaneAxes.stepWidth, this.histogramParams.swimlaneHeight) * this.histogramParams.barWeight *
+    .attr('r', (d) => Math.min(this.swimlaneAxes.stepWidth, this.histogramParams.swimlaneHeight) * this.swimlaneBarsWeight *
       Math.sqrt(d.value / this.swimlaneMaxValue) / 2)
     .attr('cx', (d) => this.histogramParams.swimLaneLabelsWidth + this.swimlaneAxes.xDataDomainArray[indexOfLane](d.key) +
       this.swimlaneAxes.stepWidth * this.histogramParams.barWeight / 2)
