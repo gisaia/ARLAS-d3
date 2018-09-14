@@ -30,7 +30,7 @@ export class DonutParams {
   public id;
 
   /**
-   * @description Data displayed on the donut.
+   * @description Data displayed on the donut. Each node's size must be specified
    */
   public donutData: DonutArc;
 

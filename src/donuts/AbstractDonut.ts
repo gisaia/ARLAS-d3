@@ -94,8 +94,13 @@ export abstract class AbstractDonut {
    * @description Transforms input data to d3 nodes
    */
   protected structureDataToNodes(): void {
-    const root: d3.HierarchyNode<any> = d3.hierarchy(this.donutParams.donutData)
-      .sum((d) => d.size)
+    const root: d3.HierarchyNode<any> = (<any>d3.hierarchy(this.donutParams.donutData))
+      .each(d => { if (d.data.size) {
+          d.value = +d.data.size;
+        } else {
+          throw new Error('The node size of ' + d.data.name + ' is not specified');
+        }
+       })
       .sort((a, b) => b.value - a.value);
     const partition = d3.partition();
     this.donutParams.donutNodes = <Array<DonutNode>>partition(root).descendants();
