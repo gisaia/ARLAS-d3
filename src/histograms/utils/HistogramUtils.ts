@@ -202,7 +202,7 @@ export class HistogramUtils {
         const timeFormat = d3.utcFormat(dateFormat);
         return timeFormat(value);
       } else {
-        if (dateInterval) {
+        if (dateInterval !== undefined && dateInterval !== null && dateInterval > 0) {
           const timeFormat = d3.utcFormat(this.getFormatFromDateInterval(dateInterval));
           return timeFormat(value);
         } else {
@@ -216,14 +216,14 @@ export class HistogramUtils {
         let roundPrecision = (chartType === ChartType.area && isChartMoved) ? 1 : 0;
         if (dataType === DataType.time) {
           const date = new Date(this.round(value, roundPrecision));
-          if (dateInterval) {
+          if (dateInterval !== undefined && dateInterval !== null && dateInterval > 0) {
             const timeFormat = d3.utcFormat(this.getFormatFromDateInterval(dateInterval));
             return timeFormat(date);
           } else {
             return date.toUTCString().split(',')[1].replace('GMT', '');
           }
         } else {
-          if (dateInterval !== undefined && dateInterval < 1) {
+          if (dateInterval !== undefined && dateInterval !== null && dateInterval > 0 && dateInterval < 1) {
             roundPrecision = this.getRoundPrecision(dateInterval);
           }
           return this.round(value, roundPrecision).toString();
