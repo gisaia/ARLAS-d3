@@ -95,7 +95,7 @@ export abstract class AbstractDonut {
    */
   protected structureDataToNodes(): void {
     const root: d3.HierarchyNode<any> = (<any>d3.hierarchy(this.donutParams.donutData))
-      .each(d => { if (d.data.size) {
+      .each(d => { if (d.data.size !== undefined && d.data.size !== null) {
           d.value = +d.data.size;
         } else {
           throw new Error('The node size of ' + d.data.name + ' is not specified');
