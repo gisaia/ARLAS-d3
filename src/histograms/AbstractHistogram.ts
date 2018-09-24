@@ -307,17 +307,7 @@ export abstract class AbstractHistogram {
       }
       // #################################################
     } else {
-      // three cases
-      if (data[0].key === this.selectionInterval.startvalue && data[0].key === this.selectionInterval.endvalue) {
-        interval = 1;
-      } else if (data[0].key === this.selectionInterval.startvalue || data[0].key === this.selectionInterval.endvalue) {
-        const isoInterval = Math.max(Math.abs(+data[0].key - +this.selectionInterval.startvalue),
-        Math.abs(+data[0].key - +this.selectionInterval.endvalue));
-        interval = Math.min(1, isoInterval);
-      } else {
-        interval = Math.min(1, Math.abs(+data[0].key - +this.selectionInterval.startvalue),
-        Math.abs(+data[0].key - +this.selectionInterval.endvalue));
-      }
+      interval = 0;
     }
     return interval;
   }
