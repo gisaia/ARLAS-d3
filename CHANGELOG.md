@@ -1,11 +1,21 @@
 # Change Log
 
+## [v4.3.1](https://github.com/gisaia/ARLAS-d3/tree/v4.3.1) (2018-09-24)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.3.0...v4.3.1)
+
+**Fixed bugs:**
+
+- Donut : fix checking if donut node size is undefined [\#56](https://github.com/gisaia/ARLAS-d3/issues/56)
+- Export AbstractChart class  [\#55](https://github.com/gisaia/ARLAS-d3/issues/55)
+
 ## [v4.3.0](https://github.com/gisaia/ARLAS-d3/tree/v4.3.0) (2018-09-14)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.2.4...v4.3.0)
 
 **Breaking changes:**
 
+- DONUT : remove sum policy for nodes hierarchy [\#52](https://github.com/gisaia/ARLAS-d3/issues/52)
 - SWIMLANE : Remove brush selection & add the possibility to filter on terms [\#49](https://github.com/gisaia/ARLAS-d3/issues/49)
 
 **New stuff:**
