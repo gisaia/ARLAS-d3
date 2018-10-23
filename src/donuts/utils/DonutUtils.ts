@@ -17,12 +17,13 @@
  * under the License.
  */
 
-import * as d3 from 'd3';
 import { MarginModel } from '../../histograms/utils/HistogramUtils';
 import { ColorGenerator } from '../../utils/color-generator';
+import { Selection, BaseType } from 'd3-selection';
+import { HierarchyRectangularNode } from 'd3-hierarchy';
 
 export interface DonutDimensions {
-  svg: d3.Selection< d3.BaseType, any, d3.BaseType, any>;
+  svg: Selection< BaseType, any, BaseType, any>;
   width: number;
   height: number;
   radius: number;
@@ -46,7 +47,7 @@ export interface DonutArc {
   children?: Array<DonutArc>;
 }
 
-export interface DonutNode extends d3.HierarchyRectangularNode<any> {
+export interface DonutNode extends HierarchyRectangularNode<any> {
   isSelected: boolean;
   innerRadius: number;
   outerRadius: number;

@@ -21,9 +21,10 @@ import {
   ChartDimensions, ChartAxes, SwimlaneAxes, SelectedInputValues, SelectedOutputValues, HistogramUtils,
   ChartType, DataType, MarginModel, HistogramData, Position
 } from './utils/HistogramUtils';
-import { Subject } from 'rxjs/Subject';
-import * as d3 from 'd3';
 import { HistogramParams } from './HistogramParams';
+import { BrushBehavior } from 'd3-brush';
+import { scaleUtc, scaleLinear } from 'd3-scale';
+import { min, max } from 'd3-array';
 
 export abstract class AbstractHistogram {
 
@@ -46,7 +47,7 @@ export abstract class AbstractHistogram {
   protected dataInterval: number;
 
   /** Brush selection */
-  protected selectionBrush: d3.BrushBehavior<any>;
+  protected selectionBrush: BrushBehavior<any>;
   protected selectionInterval: SelectedOutputValues = { startvalue: null, endvalue: null };
   protected brushHandlesHeight: number = null;
   protected brushHandles;
@@ -132,7 +133,7 @@ export abstract class AbstractHistogram {
   }
 
   protected getXDomainScale(): any {
-    return (this.histogramParams.dataType === DataType.time) ? d3.scaleUtc() : d3.scaleLinear();
+    return (this.histogramParams.dataType === DataType.time) ? scaleUtc() : scaleLinear();
   }
 
   protected getHistogramMinMaxBorders(data: Array<HistogramData>): [number | Date, number | Date] {
@@ -144,8 +145,8 @@ export abstract class AbstractHistogram {
 
   protected getFollowingLastBucket(data): HistogramData {
     const dataInterval = this.getDataInterval(data);
-    const followingLastBucketKey =  +data[data.length - 1].key + dataInterval;
-    const followingLastBucket = {key: followingLastBucketKey, value: 0};
+    const followingLastBucketKey = +data[data.length - 1].key + dataInterval;
+    const followingLastBucket = { key: followingLastBucketKey, value: 0 };
     const parsedFollowingLastBucket = HistogramUtils.parseDataKey([followingLastBucket], this.histogramParams.dataType)[0];
     return parsedFollowingLastBucket;
   }
@@ -173,11 +174,11 @@ export abstract class AbstractHistogram {
     dataKeyUnionSelectedValues.push(selectedStartValue);
     dataKeyUnionSelectedValues.push(selectedEndValue);
     if (this.histogramParams.dataType === DataType.time) {
-      xDomainExtent.push(new Date(d3.min(dataKeyUnionSelectedValues, (d: Date) => +d) - this.dataInterval / 5));
-      xDomainExtent.push(new Date(d3.max(dataKeyUnionSelectedValues, (d: Date) => +d)));
+      xDomainExtent.push(new Date(min(dataKeyUnionSelectedValues, (d: Date) => +d) - this.dataInterval / 5));
+      xDomainExtent.push(new Date(max(dataKeyUnionSelectedValues, (d: Date) => +d)));
     } else {
-      xDomainExtent.push(d3.min(dataKeyUnionSelectedValues, (d: number) => d) * 1 - this.dataInterval / 5 * this.yDimension);
-      xDomainExtent.push(d3.max(dataKeyUnionSelectedValues, (d: number) => d) * 1);
+      xDomainExtent.push(min(dataKeyUnionSelectedValues, (d: number) => d) * 1 - this.dataInterval / 5 * this.yDimension);
+      xDomainExtent.push(max(dataKeyUnionSelectedValues, (d: number) => d) * 1);
     }
     return xDomainExtent;
   }
@@ -266,8 +267,8 @@ export abstract class AbstractHistogram {
   }
 
   protected setBrushVerticalTooltipsXPositions(leftPosition: number, rightPosition: number) {
-    this.histogramParams.brushLeftTooltip.xPosition =  - this.chartDimensions.height + this.histogramParams.margin.left + leftPosition;
-    this.histogramParams.brushRightTooltip.xPosition = this.histogramParams.margin.left  + rightPosition;
+    this.histogramParams.brushLeftTooltip.xPosition = - this.chartDimensions.height + this.histogramParams.margin.left + leftPosition;
+    this.histogramParams.brushRightTooltip.xPosition = this.histogramParams.margin.left + rightPosition;
   }
 
   protected setBrushVerticalTooltipsYPositions(leftPosition: number, rightPosition: number) {
