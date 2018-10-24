@@ -1,6 +1,6 @@
 # ARLAS-d3 :
 
-![Build Status](https://img.shields.io/travis/gisaia/ARLAS-d3/develop.svg?label=develop)
+[![Build Status](https://api.travis-ci.org/gisaia/ARLAS-d3.svg?branch=develop)](https://travis-ci.org/gisaia/ARLAS-d3)
 
 ## About :
 ARLAS-d3 is a library that provides a set of d3 components : Charts .
