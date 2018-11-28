@@ -1,11 +1,25 @@
 # Change Log
 
-## [v4.3.1](https://github.com/gisaia/ARLAS-d3/tree/v4.3.1) (2018-09-24)
+## [v5.0.0](https://github.com/gisaia/ARLAS-d3/tree/v5.0.0) (2018-11-28)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.3.1...v5.0.0)
+
+**Breaking changes:**
+
+- Upgrade rxjs Version to 6 [\#61](https://github.com/gisaia/ARLAS-d3/issues/61)
+- Feature/rxjs6 [\#65](https://github.com/gisaia/ARLAS-d3/pull/65) ([mbarbet](https://github.com/mbarbet))
+
+**New stuff:**
+
+- Add link to CI [\#64](https://github.com/gisaia/ARLAS-d3/pull/64) [[documentation](https://github.com/gisaia/ARLAS-d3/labels/documentation)] ([elouanKeryell-Even](https://github.com/elouanKeryell-Even))
+
+## [v4.3.1](https://github.com/gisaia/ARLAS-d3/tree/v4.3.1) (2018-09-25)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.3.0...v4.3.1)
 
 **Fixed bugs:**
 
+- Histograms : date is undefined when there is one bucket represented [\#59](https://github.com/gisaia/ARLAS-d3/issues/59)
 - Donut : fix checking if donut node size is undefined [\#56](https://github.com/gisaia/ARLAS-d3/issues/56)
 - Export AbstractChart class  [\#55](https://github.com/gisaia/ARLAS-d3/issues/55)
 
