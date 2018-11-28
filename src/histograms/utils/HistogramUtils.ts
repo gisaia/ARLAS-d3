@@ -19,8 +19,11 @@
  */
 
 import * as tinycolor from 'tinycolor2';
-import * as d3 from 'd3';
 import * as moment from 'moment';
+import { Selection, BaseType } from 'd3-selection';
+import { utcFormat } from 'd3-time-format';
+import { Axis } from 'd3-axis';
+import { ScaleLinear } from 'd3-scale';
 
 export interface MarginModel {
   top: number;
@@ -30,7 +33,7 @@ export interface MarginModel {
 }
 
 export interface HistogramData {
-  key: Date|number;
+  key: Date | number;
   value: number;
 }
 
@@ -45,8 +48,8 @@ export interface SwimlaneParsedData {
 }
 
 export interface SelectedOutputValues {
-  startvalue: Date|number;
-  endvalue: Date|number;
+  startvalue: Date | number;
+  endvalue: Date | number;
 }
 
 export interface SelectedInputValues {
@@ -55,7 +58,7 @@ export interface SelectedInputValues {
 }
 
 export interface ChartDimensions {
-  svg: d3.Selection< d3.BaseType, any, d3.BaseType, any>;
+  svg: Selection<BaseType, any, BaseType, any>;
   margin: MarginModel;
   width: number;
   height: number;
@@ -64,23 +67,23 @@ export interface ChartDimensions {
 export interface ChartAxes {
   xDomain: any;
   xDataDomain: any;
-  yDomain: d3.ScaleLinear<number, number>;
-  xTicksAxis: d3.Axis<any>;
-  xLabelsAxis: d3.Axis<any>;
-  yTicksAxis: d3.Axis<any>;
-  yLabelsAxis: d3.Axis<any>;
+  yDomain: ScaleLinear<number, number>;
+  xTicksAxis: Axis<any>;
+  xLabelsAxis: Axis<any>;
+  yTicksAxis: Axis<any>;
+  yLabelsAxis: Axis<any>;
   stepWidth: number;
-  xAxis: d3.Axis<any>;
-  yAxis: d3.Axis<any>;
+  xAxis: Axis<any>;
+  yAxis: Axis<any>;
 }
 
 export interface SwimlaneAxes {
   xDomain: any;
   xDataDomainArray: Array<any>;
-  xTicksAxis: d3.Axis<any>;
-  xLabelsAxis: d3.Axis<any>;
+  xTicksAxis: Axis<any>;
+  xLabelsAxis: Axis<any>;
   stepWidth: number;
-  xAxis: d3.Axis<any>;
+  xAxis: Axis<any>;
 }
 
 export interface Tooltip {
@@ -96,21 +99,21 @@ export interface Tooltip {
 export class HistogramUtils {
 
   public static isSelectionBeyondDataDomain(selectedInputValues: SelectedInputValues,
-     inputData: Array<{ key: number, value: number }>,
-     intervalSelectedMap: Map<string, { values: SelectedOutputValues, x_position: number }>): boolean {
+    inputData: Array<{ key: number, value: number }>,
+    intervalSelectedMap: Map<string, { values: SelectedOutputValues, x_position: number }>): boolean {
 
     let min = selectedInputValues.startvalue;
     let max = selectedInputValues.endvalue;
 
     intervalSelectedMap.forEach(values => {
-        if (min > values.values.startvalue) {
-          min = values.values.startvalue;
-        }
+      if (min > values.values.startvalue) {
+        min = values.values.startvalue;
+      }
 
-        if (max < values.values.endvalue) {
-          max = values.values.endvalue;
-        }
-      });
+      if (max < values.values.endvalue) {
+        max = values.values.endvalue;
+      }
+    });
     if (inputData.length !== 0) {
       return +min < inputData[0].key || +max > inputData[inputData.length - 1].key;
     } else {
@@ -120,15 +123,15 @@ export class HistogramUtils {
 
   public static parseDataKey(inputData: Array<{ key: number, value: number }>,
     dataType: DataType): Array<HistogramData> {
-      if (dataType === DataType.time) {
-        return this.parseDataKeyToDate(inputData);
-      } else {
-        const parsedInputData = [];
-        inputData.forEach(d => {
-          parsedInputData.push({key: d.key, value: d.value});
-        });
-        return parsedInputData;
-      }
+    if (dataType === DataType.time) {
+      return this.parseDataKeyToDate(inputData);
+    } else {
+      const parsedInputData = [];
+      inputData.forEach(d => {
+        parsedInputData.push({ key: d.key, value: d.value });
+      });
+      return parsedInputData;
+    }
   }
 
   public static parseSelectedValues(selectedValues: SelectedInputValues, dataType: DataType): SelectedOutputValues {
@@ -196,14 +199,14 @@ export class HistogramUtils {
   }
 
   public static toString(value: Date | number, chartType: ChartType, dataType: DataType, isChartMoved: boolean, dateFormat: string,
-     dateInterval?: number): string {
+    dateInterval?: number): string {
     if (value instanceof Date) {
       if (dateFormat && dateFormat !== null) {
-        const timeFormat = d3.utcFormat(dateFormat);
+        const timeFormat = utcFormat(dateFormat);
         return timeFormat(value);
       } else {
         if (dateInterval !== undefined && dateInterval !== null && dateInterval > 0) {
-          const timeFormat = d3.utcFormat(this.getFormatFromDateInterval(dateInterval));
+          const timeFormat = utcFormat(this.getFormatFromDateInterval(dateInterval));
           return timeFormat(value);
         } else {
           return value.toUTCString().split(',')[1].replace('GMT', '');
@@ -217,7 +220,7 @@ export class HistogramUtils {
         if (dataType === DataType.time) {
           const date = new Date(this.round(value, roundPrecision));
           if (dateInterval !== undefined && dateInterval !== null && dateInterval > 0) {
-            const timeFormat = d3.utcFormat(this.getFormatFromDateInterval(dateInterval));
+            const timeFormat = utcFormat(this.getFormatFromDateInterval(dateInterval));
             return timeFormat(date);
           } else {
             return date.toUTCString().split(',')[1].replace('GMT', '');
@@ -236,27 +239,27 @@ export class HistogramUtils {
     const duration: moment.Duration = moment.duration(dateInterval);
     let format;
     switch (true) {
-      case duration.asYears() >= 1 : {
+      case duration.asYears() >= 1: {
         format = '%Y';
         break;
       }
-      case duration.asMonths() >= 1 : {
+      case duration.asMonths() >= 1: {
         format = '%B %Y';
         break;
       }
-      case duration.asDays() >= 1 : {
+      case duration.asDays() >= 1: {
         format = '%d %B %Y';
         break;
       }
-      case duration.asHours() >= 1 : {
+      case duration.asHours() >= 1: {
         format = '%d %B %Y %Hh';
         break;
       }
-      case duration.asMinutes() >= 1 : {
+      case duration.asMinutes() >= 1: {
         format = '%d %B %Y %H:%M';
         break;
       }
-      case duration.asSeconds() >= 1 : {
+      case duration.asSeconds() >= 1: {
         format = '%d %B %Y %H:%M:%S';
         break;
       }

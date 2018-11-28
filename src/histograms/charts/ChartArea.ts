@@ -17,11 +17,12 @@
  * under the License.
  */
 
-import * as d3 from 'd3';
-
 import { AbstractChart } from './AbstractChart';
 import { HistogramData, HistogramUtils, ChartAxes, DataType, SelectedOutputValues, Position } from '../utils/HistogramUtils';
-
+import { curveLinear, CurveFactory, curveMonotoneX, area } from 'd3-shape';
+import { axisBottom } from 'd3-axis';
+import { extent } from 'd3-array';
+import { timeFormat } from 'd3-time-format';
 
 export class ChartArea extends AbstractChart {
   private clipPathContext;
@@ -104,10 +105,10 @@ export class ChartArea extends AbstractChart {
       .attr('width', this.chartAxes.xDomain(this.selectionInterval.endvalue) - this.chartAxes.xDomain(this.selectionInterval.startvalue))
       .attr('height', this.chartDimensions.height );
 
-    const curveType: d3.CurveFactory = (this.histogramParams.isSmoothedCurve) ? d3.curveMonotoneX : d3.curveLinear;
+    const curveType: CurveFactory = (this.histogramParams.isSmoothedCurve) ? curveMonotoneX : curveLinear;
     const areaYPositon = (this.yStartsFromMin && this.histogramParams.showStripes) ?
       (0.9 * this.chartDimensions.height) : this.chartDimensions.height;
-    const area = d3.area()
+    const a = area()
       .curve(curveType)
       .x((d: any) => this.chartAxes.xDataDomain(d.key))
       .y0(areaYPositon)
@@ -117,21 +118,21 @@ export class ChartArea extends AbstractChart {
       .append('path')
       .datum(data)
       .attr('class', 'histogram__chart--unselected--area')
-      .attr('d', area);
+      .attr('d', a);
 
     const urlFixedSelection = 'url(#' + this.histogramParams.uid + ')';
     this.context.append('g').attr('class', 'histogram__area-data').attr('clip-path', urlFixedSelection)
       .append('path')
       .datum(data)
       .attr('class', 'histogram__chart--fixed-selected--area')
-      .attr('d', area);
+      .attr('d', a);
 
     const urlCurrentSelection = 'url(#' + this.histogramParams.uid + '-currentselection)';
     this.context.append('g').attr('class', 'histogram__area-data').attr('clip-path', urlCurrentSelection)
       .append('path')
       .datum(data)
       .attr('class', 'histogram__chart--current-selected--area')
-      .attr('d', area);
+      .attr('d', a);
 
     // ADD STRIPPED AREAS
     if (this.yStartsFromMin && this.histogramParams.showStripes) {
@@ -169,16 +170,16 @@ export class ChartArea extends AbstractChart {
     const startRange = this.chartAxes.xDomain(data[0].key);
     const endRange = this.chartAxes.xDomain(+data[data.length - 1].key);
     const xDataDomain = (this.getXDomainScale()).range([startRange, endRange]);
-    xDataDomain.domain(d3.extent(data, (d: any) => d.key));
+    xDataDomain.domain(extent(data, (d: any) => d.key));
     this.chartAxes.xDataDomain = xDataDomain;
-    this.chartAxes.xAxis = d3.axisBottom(this.chartAxes.xDomain).tickSize(0);
-    this.chartAxes.xTicksAxis = d3.axisBottom(this.chartAxes.xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 4);
+    this.chartAxes.xAxis = axisBottom(this.chartAxes.xDomain).tickSize(0);
+    this.chartAxes.xTicksAxis = axisBottom(this.chartAxes.xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 4);
     const labelPadding = (this.histogramParams.xAxisPosition === Position.bottom) ? 9 : -15;
-    this.chartAxes.xLabelsAxis = d3.axisBottom(this.chartAxes.xDomain).tickSize(0)
+    this.chartAxes.xLabelsAxis = axisBottom(this.chartAxes.xDomain).tickSize(0)
       .tickPadding(labelPadding).ticks(this.histogramParams.xLabels);
     this.applyFormatOnXticks(data);
     if (this.histogramParams.dataType === DataType.time && this.histogramParams.ticksDateFormat) {
-      this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(d3.timeFormat(this.histogramParams.ticksDateFormat));
+      this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(timeFormat(this.histogramParams.ticksDateFormat));
     }
   }
 

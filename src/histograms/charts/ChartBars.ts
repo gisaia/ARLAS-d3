@@ -17,11 +17,10 @@
 * under the License.
 */
 
-import * as d3 from 'd3';
-
 import { HistogramData, HistogramUtils, ChartAxes, DataType, Position } from '../utils/HistogramUtils';
 import { AbstractChart } from './AbstractChart';
-
+import { scaleBand } from 'd3-scale';
+import { axisBottom } from 'd3-axis';
 
 export class ChartBars extends AbstractChart {
 
@@ -78,23 +77,23 @@ export class ChartBars extends AbstractChart {
         this.chartAxes.stepWidth = this.chartAxes.xDomain(<number>data[0].key + this.dataInterval) - this.chartAxes.xDomain(data[0].key);
       }
     }
-    this.chartAxes.xDataDomain = d3.scaleBand().range([startRange, endRange]).paddingInner(0);
+    this.chartAxes.xDataDomain = scaleBand().range([startRange, endRange]).paddingInner(0);
     this.chartAxes.xDataDomain.domain(data.map((d) => d.key));
     const ticksPeriod = Math.max(1, Math.round(data.length / this.histogramParams.xTicks));
     const labelsPeriod = Math.max(1, Math.round(data.length / this.histogramParams.xLabels));
     const labelPadding = (this.histogramParams.xAxisPosition === Position.bottom) ? 9 : -15;
     if (this.histogramParams.dataType === DataType.numeric) {
-      this.chartAxes.xTicksAxis = d3.axisBottom(this.chartAxes.xDomain).tickValues(this.chartAxes.xDataDomain.domain()
+      this.chartAxes.xTicksAxis = axisBottom(this.chartAxes.xDomain).tickValues(this.chartAxes.xDataDomain.domain()
         .filter((d, i) => !(i % ticksPeriod))).tickSize(this.minusSign * 4);
-      this.chartAxes.xLabelsAxis = d3.axisBottom(this.chartAxes.xDomain).tickSize(0).tickPadding(labelPadding)
+      this.chartAxes.xLabelsAxis = axisBottom(this.chartAxes.xDomain).tickSize(0).tickPadding(labelPadding)
         .tickValues(this.chartAxes.xDataDomain.domain().filter((d, i) => !(i % labelsPeriod)));
       this.applyFormatOnXticks(data);
     } else {
-      this.chartAxes.xTicksAxis = d3.axisBottom(this.chartAxes.xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 4);
-      this.chartAxes.xLabelsAxis = d3.axisBottom(this.chartAxes.xDomain).tickSize(0).tickPadding(labelPadding)
+      this.chartAxes.xTicksAxis = axisBottom(this.chartAxes.xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 4);
+      this.chartAxes.xLabelsAxis = axisBottom(this.chartAxes.xDomain).tickSize(0).tickPadding(labelPadding)
       .ticks(this.histogramParams.xLabels);
     }
-    this.chartAxes.xAxis = d3.axisBottom(this.chartAxes.xDomain).tickSize(0);
+    this.chartAxes.xAxis = axisBottom(this.chartAxes.xDomain).tickSize(0);
   }
 
   protected drawChartAxes(chartAxes: ChartAxes, leftOffset: number): void {

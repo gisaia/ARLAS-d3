@@ -19,7 +19,9 @@
 
  import { AbstractHistogram } from '../AbstractHistogram';
 import { SwimlaneAxes, HistogramData, HistogramUtils, DataType, Tooltip, Position } from '../utils/HistogramUtils';
-import * as d3 from 'd3';
+import { select, mouse, ContainerElement } from 'd3-selection';
+import { scaleBand } from 'd3-scale';
+import { axisBottom } from 'd3-axis';
 
 export abstract class AbstractSwimlane extends AbstractHistogram {
 
@@ -88,7 +90,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
   public truncateLabels() {
     if (this.labelsContext !== undefined) {
       (this.labelsContext.selectAll('text')).nodes().forEach((textNode) => {
-        const self = d3.select(textNode);
+        const self = select(textNode);
         let textLength = self.node().getComputedTextLength();
         let text = self.text();
         while (textLength > (this.histogramParams.swimLaneLabelsWidth - 8) && text.length > 0) { // 8px because the
@@ -177,7 +179,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
         + this.histogramParams.margin.top + this.histogramParams.margin.bottom;
       }
     }
-    const svg = d3.select(this.histogramParams.svgNode);
+    const svg = select(this.histogramParams.svgNode);
     const margin = this.histogramParams.margin;
     const width = Math.max(+this.histogramParams.chartWidth - this.histogramParams.margin.left - this.histogramParams.margin.right, 0);
     const height = Math.max(+this.histogramParams.chartHeight - this.histogramParams.margin.top - this.histogramParams.margin.bottom, 0);
@@ -218,19 +220,19 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     const startAllDataRange = xDomain(this.dataDomain[0].key);
     const endAllDataRange = xDomain(+this.dataDomain[this.dataDomain.length - 1].key + this.dataInterval);
 
-    const xAllDataDomain = d3.scaleBand().range([startAllDataRange, endAllDataRange]).paddingInner(0);
+    const xAllDataDomain = scaleBand().range([startAllDataRange, endAllDataRange]).paddingInner(0);
     xAllDataDomain.domain(this.dataDomain.map((d) => (d.key).toString()));
     const labelPadding = (this.histogramParams.xAxisPosition === Position.bottom) ? 9 : -15;
     if (this.histogramParams.dataType === DataType.numeric) {
-      xTicksAxis = d3.axisBottom(xDomain).tickPadding(5).tickValues(xAllDataDomain.domain()
+      xTicksAxis = axisBottom(xDomain).tickPadding(5).tickValues(xAllDataDomain.domain()
         .filter((d, i) => !(i % ticksPeriod))).tickSize(this.minusSign * 4);
-      xLabelsAxis = d3.axisBottom(xDomain).tickSize(0).tickPadding(labelPadding).tickValues(xAllDataDomain.domain()
+      xLabelsAxis = axisBottom(xDomain).tickSize(0).tickPadding(labelPadding).tickValues(xAllDataDomain.domain()
         .filter((d, i) => !(i % labelsPeriod)));
     } else {
-      xTicksAxis = d3.axisBottom(xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 4);
-      xLabelsAxis = d3.axisBottom(xDomain).tickSize(0).tickPadding(labelPadding).ticks(this.histogramParams.xLabels);
+      xTicksAxis = axisBottom(xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 4);
+      xLabelsAxis = axisBottom(xDomain).tickSize(0).tickPadding(labelPadding).ticks(this.histogramParams.xLabels);
     }
-    xAxis = d3.axisBottom(xDomain).tickSize(0);
+    xAxis = axisBottom(xDomain).tickSize(0);
 
     data.forEach(swimlane => {
       const startRange = xDomain(swimlane[0].key);
@@ -238,7 +240,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
       let xDataDomain;
       stepWidth = xDomain(+swimlane[0].key + this.dataInterval) - xDomain(+swimlane[0].key);
       endRange = xDomain(+swimlane[swimlane.length - 1].key + this.dataInterval);
-      xDataDomain = d3.scaleBand().range([startRange, endRange]).paddingInner(0);
+      xDataDomain = scaleBand().range([startRange, endRange]).paddingInner(0);
       xDataDomain.domain(swimlane.map((d) => d.key));
       xDataDomainArray.push(xDataDomain);
     });
@@ -275,7 +277,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
         const previousHoveredBucketKey = this.hoveredBucketKey;
         this.hoveredBucketKey = null;
         swimlaneMapData.forEach((swimlane, key) => {
-          this.setTooltipPositionForSwimlane(swimlane, key, i, swimlaneMapData.size, <d3.ContainerElement>this.context.node());
+          this.setTooltipPositionForSwimlane(swimlane, key, i, swimlaneMapData.size, <ContainerElement>this.context.node());
           i++;
         });
         if (!this.aBucketIsEncountred) {
@@ -298,8 +300,8 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
   }
 
   protected setTooltipPositionForSwimlane(data: Array<HistogramData>, key: string, indexOfKey: number, numberOfSwimlane: number,
-    container: d3.ContainerElement): void {
-    const xy = d3.mouse(container);
+    container: ContainerElement): void {
+    const xy = mouse(container);
     let dx, dy, startPosition, endPosition, middlePosition;
     const tooltip: Tooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
     for (let i = 0; i < data.length; i++) {

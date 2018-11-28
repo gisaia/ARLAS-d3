@@ -18,7 +18,7 @@
  */
 
 import { DonutArc, DonutNode, DonutTooltip } from './utils/DonutUtils';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 import { Tooltip } from '../histograms/utils/HistogramUtils';
 import { ColorGenerator } from '../utils/color-generator';
 
