@@ -37,6 +37,21 @@ export interface HistogramData {
   value: number;
 }
 
+export interface BrushCornerTooltips {
+  leftCornerTooltip: CornerTooltip;
+  rightCornerTooltip: CornerTooltip;
+  verticalCssVisibility: string;
+  horizontalCssVisibility: string;
+}
+
+export interface CornerTooltip {
+  htmlContainer: HTMLElement;
+  xPosition: number;
+  yPosition: number;
+  content: string;
+  width?: number;
+}
+
 export interface SwimlaneData {
   key: string;
   value: Array<{ key: number, value: number }>;

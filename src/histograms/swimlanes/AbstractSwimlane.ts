@@ -497,20 +497,6 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     return this.swimlaneAxes;
   }
 
-  protected setBrushVerticalTooltipsXPositions(leftPosition: number, rightPosition: number): void {
-    this.histogramParams.brushLeftTooltip.xPosition = this.histogramParams.swimLaneLabelsWidth -
-      this.chartDimensions.height + this.histogramParams.margin.left + leftPosition;
-    this.histogramParams.brushRightTooltip.xPosition = this.histogramParams.swimLaneLabelsWidth +
-      this.histogramParams.margin.left  + rightPosition;
-  }
-
-  protected setBrushHorizontalTooltipsXPositions(leftPosition: number, rightPosition: number): void {
-    this.histogramParams.brushLeftTooltip.xPosition = this.histogramParams.swimLaneLabelsWidth + leftPosition +
-      this.histogramParams.margin.left;
-    this.histogramParams.brushRightTooltip.xPosition = -this.histogramParams.swimLaneLabelsWidth + this.histogramParams.margin.right +
-      this.chartDimensions.width - rightPosition;
-  }
-
   protected abstract plotOneLane(data: Array<HistogramData>, indexOfLane: number): void;
 
 }
