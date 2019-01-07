@@ -18,7 +18,7 @@
  */
 
 import { AbstractHistogram } from '../AbstractHistogram';
-import { HistogramData, HistogramUtils, ChartAxes, DataType, SelectedInputValues } from '../utils/HistogramUtils';
+import { HistogramData, HistogramUtils, ChartAxes, DataType, SelectedInputValues, SelectedOutputValues } from '../utils/HistogramUtils';
 import { select, ContainerElement, mouse, event } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
 import { max } from 'd3-array';
@@ -26,6 +26,7 @@ import { min } from 'd3-array';
 import { axisLeft } from 'd3-axis';
 import { format } from 'd3-format';
 import { brushX } from 'd3-brush';
+import * as moment from 'moment';
 
 
 export abstract class AbstractChart extends AbstractHistogram {
@@ -496,6 +497,24 @@ export abstract class AbstractChart extends AbstractHistogram {
   protected abstract setTooltipXposition(xPosition: number): number;
   protected abstract setTooltipYposition(yPosition: number): number;
 
+  protected setBrushRangeTooltipPositions(selectionInterval: SelectedOutputValues) {
+    this.brushRangeTooltip.content = this.getRangeOfSelection(selectionInterval);
+    const leftPosition = this.getAxes().xDomain(selectionInterval.startvalue);
+    const rightPosition = this.getAxes().xDomain(selectionInterval.endvalue);
+    if (this.brushRangeTooltip && this.brushRangeTooltip.htmlContainer) {
+      const width = this.brushRangeTooltip.htmlContainer.offsetWidth;
+      if (width !== 0 ) {
+        this.brushRangeTooltip.cssVisibility = 'visible';
+        this.brushRangeTooltip.xPosition = this.histogramParams.margin.left + (leftPosition + rightPosition) / 2 - width / 2;
+        this.brushRangeTooltip.yPosition = this.chartDimensions.height + this.histogramParams.margin.top ;
+      } else {
+        this.brushRangeTooltip.cssVisibility = 'hidden';
+      }
+    } else {
+      this.brushRangeTooltip.cssVisibility = 'hidden';
+    }
+  }
+
   private translateBrushHandles(selection: any, chartAxes: ChartAxes) {
     const xTranslation = this.brushHandlesHeight - (this.chartDimensions.height - this.brushHandlesHeight) / 2;
     if (selection !== null) {
@@ -536,12 +555,61 @@ export abstract class AbstractChart extends AbstractHistogram {
           this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval, this.histogramParams.valuesDateFormat, dataInterval);
         this.histogramParams.showTitle = false;
         this.setBrushTooltipsPositions();
+        this.setBrushRangeTooltipPositions(this.selectionInterval);
         this.applyStyleOnSelection();
         this.translateBrushHandles(selection, chartAxes);
       }
     });
   }
 
+  private getRangeOfSelection(selectionInterval: SelectedOutputValues): any  {
+    const range =  moment.utc(+selectionInterval.endvalue).diff(moment.utc(+selectionInterval.startvalue));
+    const duration: moment.Duration = moment.duration(range);
+    let tooltipContent = '';
+    if (this.histogramParams.dataType === DataType.time) {
+      let i = 0;
+      if (duration.years() > 0) {
+        const YEARS = (duration.years() > 1) ? ' years ' : ' year ';
+        tooltipContent += duration.years() + YEARS;
+        i++;
+      }
+      if (duration.months() > 0) {
+        const MONTHS = (duration.months() > 1) ? ' months ' : ' month ';
+        tooltipContent += duration.months() + MONTHS;
+        i++;
+      }
+      if (duration.days() > 0) {
+        const DAYS = (duration.days() > 1) ? ' days ' : ' day ';
+        tooltipContent += duration.days() + DAYS;
+        i++;
+      }
+      if (duration.hours() > 0 && i < 3) {
+        const HOURS = (duration.hours() > 1) ? ' hours ' : ' hour ';
+        tooltipContent += duration.hours() + HOURS;
+        i++;
+      }
+      if (duration.minutes() > 0 && i < 3) {
+        const MINUTES = (duration.minutes() > 1) ? ' minutes ' : ' minute ';
+        tooltipContent += duration.minutes() + MINUTES;
+        i++;
+      }
+      if (duration.seconds() > 0 && i < 3) {
+        const SECONDS = (duration.seconds() > 1) ? ' seconds ' : ' second ';
+        tooltipContent += duration.seconds() + SECONDS;
+        i++;
+      }
+      if (duration.milliseconds() > 0 && i < 3) {
+        const MILLISECONDS = (duration.milliseconds() > 1) ? ' milliseconds ' : ' millisecond ';
+        tooltipContent += duration.milliseconds() + MILLISECONDS;
+      }
+    } else {
+      tooltipContent = HistogramUtils.toString((+selectionInterval.endvalue - +selectionInterval.startvalue),
+       this.histogramParams.chartType,
+        this.histogramParams.dataType, false, this.histogramParams.valuesDateFormat);
+    }
+    return tooltipContent;
+
+  }
   private handleEndOfBrushingEvent(chartAxes: ChartAxes): void {
     this.selectionBrush.on('end', (datum: any, index: number) => {
       const selection = event.selection;

@@ -25,6 +25,15 @@ import { utcFormat } from 'd3-time-format';
 import { Axis } from 'd3-axis';
 import { ScaleLinear } from 'd3-scale';
 
+export interface BrushTooltip {
+  htmlContainer: HTMLElement;
+  xPosition: number;
+  yPosition: number;
+  content: string;
+  width?: number;
+  cssVisibility?: string;
+}
+
 export interface MarginModel {
   top: number;
   right: number;

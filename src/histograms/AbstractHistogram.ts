@@ -19,7 +19,7 @@
 
 import {
   ChartDimensions, ChartAxes, SwimlaneAxes, SelectedInputValues, SelectedOutputValues, HistogramUtils,
-  ChartType, DataType, MarginModel, HistogramData, Position
+  ChartType, DataType, MarginModel, HistogramData, Position, BrushTooltip
 } from './utils/HistogramUtils';
 import { HistogramParams } from './HistogramParams';
 import { BrushBehavior } from 'd3-brush';
@@ -30,6 +30,8 @@ export abstract class AbstractHistogram {
 
   public histogramParams: HistogramParams;
   public isBrushing = false;
+  public brushRangeTooltip: BrushTooltip;
+
 
   /** Contexts */
   protected context: any;
@@ -71,6 +73,10 @@ export abstract class AbstractHistogram {
   protected plottingCount = 0;
   protected minusSign = 1;
 
+  public constructor() {
+    this.brushRangeTooltip = this.createEmptyBrushRangeTooltip();
+  }
+
   public plot(data: Array<{ key: number, value: number }> | Map<string, Array<{ key: number, value: number }>>) {
     this.setHistogramMargins();
     if (this.context) {
@@ -78,6 +84,13 @@ export abstract class AbstractHistogram {
     }
   }
 
+  public setHTMLElementsOfBrushRangeTooltip(htmlElement: HTMLElement): void {
+    if (!this.brushRangeTooltip) {
+      this.brushRangeTooltip = this.createEmptyBrushRangeTooltip();
+    }
+    this.brushRangeTooltip.htmlContainer = htmlElement;
+  }
+  
   public abstract resize(histogramContainer: HTMLElement): void;
 
   protected setHistogramMargins() {
@@ -316,4 +329,8 @@ export abstract class AbstractHistogram {
   protected abstract setDataInterval(data: Array<HistogramData> | Map<string, Array<HistogramData>>): void;
   protected abstract getDataInterval(data: Array<HistogramData> | Map<string, Array<HistogramData>>): number;
   protected abstract getAxes(): ChartAxes | SwimlaneAxes;
+
+  private createEmptyBrushRangeTooltip (): BrushTooltip {
+    return {htmlContainer: null, content: '', xPosition: 0, yPosition: 0 };
+  }
 }
