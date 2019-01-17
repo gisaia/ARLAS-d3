@@ -94,10 +94,11 @@ export class DonutUtils {
     return nodeToSelect;
   }
 
-  public static getNodeColor(d: DonutNode, donutNodeColorizer: ColorGenerator): string {
+  public static getNodeColor(d: DonutNode, donutNodeColorizer: ColorGenerator,
+     keysToColors: Array<[string, string]>, colorsSaturationWeight: number): string {
     if (d.depth > 0) {
       if (donutNodeColorizer) {
-        return donutNodeColorizer.getColor(d.data.fieldValue);
+        return donutNodeColorizer.getColor(d.data.fieldValue, keysToColors, colorsSaturationWeight);
       } else {
         return this.getHexColorFromString(d.data.fieldValue + ':' + d.data.fieldName);
       }
