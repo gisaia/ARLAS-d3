@@ -89,6 +89,16 @@ export class DonutParams {
   */
   public donutContainer: HTMLElement;
   /**
+   * @description  List of [key, color] couples that associates a hex color to each key
+   */
+  public keysToColors: Array<[string, string]>;
+  /**
+   * @description Knowing that saturation scale is [0, 1], `colorsSaturationWeight` is a
+   * factor (between 0 and 1) that tightens this scale to [(1-colorsSaturationWeight), 1].
+   * Therefore colors saturation of donuts arcs will be within this tightened scale..
+   */
+  public colorsSaturationWeight: number;
+  /**
    * @description an object that implements ColorGenerator interface.
    */
   public donutNodeColorizer: ColorGenerator;
