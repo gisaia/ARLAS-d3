@@ -35,3 +35,5 @@ export { OneSelectionDonut } from './donuts/OneSelectionDonut';
 export { MultiSelectionDonut } from './donuts/MultiSelectionDonut';
 export { DonutParams } from './donuts/DonutParams';
 export { ColorGenerator } from './utils/color-generator';
+
+export { Gauge } from './gauge/Gauge';
