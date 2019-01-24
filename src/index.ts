@@ -29,7 +29,7 @@ export { AbstractSwimlane } from './histograms/swimlanes/AbstractSwimlane';
 export {
   ChartType, DataType, SelectedInputValues, SelectedOutputValues, Position, SwimlaneMode, HistogramUtils
 } from './histograms/utils/HistogramUtils';
-export { DonutArc, DonutNode, DonutDimensions, DonutUtils, DonutTooltip } from './donuts/utils/DonutUtils';
+export { TreeNode, SimpleNode, DonutNode, DonutDimensions, DonutUtils, DonutTooltip } from './donuts/utils/DonutUtils';
 export { AbstractDonut } from './donuts/AbstractDonut';
 export { OneSelectionDonut } from './donuts/OneSelectionDonut';
 export { MultiSelectionDonut } from './donuts/MultiSelectionDonut';

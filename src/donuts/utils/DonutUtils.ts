@@ -17,7 +17,6 @@
  * under the License.
  */
 
-import { MarginModel } from '../../histograms/utils/HistogramUtils';
 import { ColorGenerator } from '../../utils/color-generator';
 import { Selection, BaseType } from 'd3-selection';
 import { HierarchyRectangularNode } from 'd3-hierarchy';
@@ -38,13 +37,18 @@ export interface DonutTooltip {
   nodeColor: string;
 }
 
-export interface DonutArc {
-  name: string;
+export interface TreeNode {
   id: string;
-  ringName: string;
-  isOther: boolean;
+  fieldName: string;
+  fieldValue: string;
   size?: number;
-  children?: Array<DonutArc>;
+  isOther: boolean;
+  children?: Array<TreeNode>;
+}
+
+export interface SimpleNode {
+  fieldName: string;
+  fieldValue: string;
 }
 
 export interface DonutNode extends HierarchyRectangularNode<any> {
@@ -57,12 +61,12 @@ export interface DonutNode extends HierarchyRectangularNode<any> {
 
 export class DonutUtils {
 
-  public static getNode(nodePath: Array<{ringName: string, name: string}>, donutNodes: Array<any>): DonutNode {
+  public static getNode(nodePath: Array<SimpleNode>, donutNodes: Array<any>): DonutNode {
     let count = nodePath.length - 1;
     let nodeToSelect = null;
     for (let i = 0; i < donutNodes.length; i++) {
-      if (donutNodes[i].data.name === nodePath[count].name &&
-        donutNodes[i].data.ringName === nodePath[count].ringName) {
+      if (donutNodes[i].data.fieldValue === nodePath[count].fieldValue &&
+        donutNodes[i].data.fieldName === nodePath[count].fieldName) {
         nodeToSelect = donutNodes[i];
         break;
       }
@@ -72,8 +76,8 @@ export class DonutUtils {
       const children = nodeToSelect.children;
       if (children !== undefined) {
         for (let i = 0; i < children.length; i++) {
-          if (children[i].data.name === nodePath[count].name &&
-            children[i].data.ringName === nodePath[count].ringName) {
+          if (children[i].data.fieldValue === nodePath[count].fieldValue &&
+            children[i].data.fieldName === nodePath[count].fieldName) {
               nodeToSelect = children[i];
               break;
           } else {
@@ -93,23 +97,23 @@ export class DonutUtils {
   public static getNodeColor(d: DonutNode, donutNodeColorizer: ColorGenerator): string {
     if (d.depth > 0) {
       if (donutNodeColorizer) {
-        return donutNodeColorizer.getColor(d.data.name);
+        return donutNodeColorizer.getColor(d.data.fieldValue);
       } else {
-        return this.getHexColorFromString(d.data.name + ':' + d.data.ringName);
+        return this.getHexColorFromString(d.data.fieldValue + ':' + d.data.fieldName);
       }
     } else {
       return '#fff';
     }
   }
 
-  public static getNodePathAsArray(n: DonutNode): Array<{ringName: string, name: string}> {
-    const nodePathAsArray = new Array<{ringName: string, name: string}>();
+  public static getNodePathAsArray(n: DonutNode): Array<{fieldName: string, fieldValue: string}> {
+    const nodePathAsArray = new Array<{fieldName: string, fieldValue: string}>();
     if (n.depth > 0) {
-      nodePathAsArray.push({ringName: n.data.ringName, name: n.data.name});
+      nodePathAsArray.push({fieldName: n.data.fieldName, fieldValue: n.data.fieldValue});
       if (n.parent && n.parent.parent) {
         while (n.parent.parent) {
           n = <DonutNode>n.parent;
-          nodePathAsArray.push({ringName: n.data.ringName, name: n.data.name});
+          nodePathAsArray.push({fieldName: n.data.fieldName, fieldValue: n.data.fieldValue});
         }
       }
     }
@@ -120,7 +124,7 @@ export class DonutUtils {
     const nodePathAsArray = this.getNodePathAsArray(n);
     let path = '';
     nodePathAsArray.forEach(node => {
-      path = node.name + ' > ' + path;
+      path = node.fieldValue + ' > ' + path;
     });
     return path;
   }
