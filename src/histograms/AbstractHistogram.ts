@@ -267,12 +267,12 @@ export abstract class AbstractHistogram {
             this.brushCornerTooltips.verticalCssVisibility = 'visible';
             this.setVerticalTooltipsWidth();
             this.setBrushVerticalTooltipsXPositions(leftPosition, rightPosition);
-            this.setBrushVerticalTooltipsYPositions(leftPosition, rightPosition);
+            this.setBrushVerticalTooltipsYPositions();
           } else {
             this.brushCornerTooltips.horizontalCssVisibility = 'visible';
             this.brushCornerTooltips.verticalCssVisibility = 'hidden';
             this.setBrushHorizontalTooltipsXPositions(leftPosition, rightPosition);
-            this.setBrushHorizontalTooltipsYPositions(leftPosition, rightPosition);
+            this.setBrushHorizontalTooltipsYPositions();
           }
         }
     } else {
@@ -290,12 +290,11 @@ export abstract class AbstractHistogram {
     this.brushCornerTooltips.rightCornerTooltip.xPosition = this.histogramParams.margin.left + rightPosition;
   }
 
-  protected setBrushVerticalTooltipsYPositions(leftPosition: number, rightPosition: number) {
+  protected setBrushVerticalTooltipsYPositions() {
     if (this.histogramParams.xAxisPosition === Position.bottom) {
-      this.brushCornerTooltips.leftCornerTooltip.yPosition = this.chartDimensions.height + this.histogramParams.margin.bottom + 6;
+      this.brushCornerTooltips.leftCornerTooltip.yPosition = this.chartDimensions.height + this.histogramParams.margin.bottom;
     } else {
-      this.brushCornerTooltips.leftCornerTooltip.yPosition = this.chartDimensions.height + this.histogramParams.margin.bottom -
-        this.histogramParams.margin.top - 6;
+      this.brushCornerTooltips.leftCornerTooltip.yPosition = this.chartDimensions.height + this.histogramParams.margin.top;
     }
     this.brushCornerTooltips.rightCornerTooltip.yPosition = this.brushCornerTooltips.leftCornerTooltip.yPosition;
   }
@@ -305,7 +304,7 @@ export abstract class AbstractHistogram {
     this.brushCornerTooltips.rightCornerTooltip.xPosition = this.histogramParams.margin.right + this.chartDimensions.width - rightPosition;
   }
 
-  protected setBrushHorizontalTooltipsYPositions(leftPosition: number, rightPosition: number) {
+  protected setBrushHorizontalTooltipsYPositions() {
     if (this.histogramParams.xAxisPosition === Position.bottom) {
       this.brushCornerTooltips.leftCornerTooltip.yPosition = this.chartDimensions.height + 10;
     } else {
