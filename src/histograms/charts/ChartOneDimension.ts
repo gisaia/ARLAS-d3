@@ -117,13 +117,12 @@ export class ChartOneDimension extends AbstractChart {
   }
 
   protected setVerticalTooltipsWidth() {
-    this.histogramParams.brushLeftTooltip.width = 40;
-    this.histogramParams.brushRightTooltip.width = 40;
+    this.brushCornerTooltips.rightCornerTooltip.width = this.brushCornerTooltips.leftCornerTooltip.width = 40;
   }
 
   protected setBrushVerticalTooltipsXPositions(leftPosition: number, rightPosition: number) {
-    this.histogramParams.brushLeftTooltip.xPosition = -40 + this.histogramParams.margin.left + leftPosition;
-    this.histogramParams.brushRightTooltip.xPosition = this.histogramParams.margin.left + rightPosition;
+    this.brushCornerTooltips.leftCornerTooltip.xPosition = -40 + this.histogramParams.margin.left + leftPosition;
+    this.brushCornerTooltips.rightCornerTooltip.xPosition = this.histogramParams.margin.left + rightPosition;
   }
 
 
