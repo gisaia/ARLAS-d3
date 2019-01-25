@@ -38,18 +38,19 @@ export interface HistogramData {
 }
 
 export interface BrushCornerTooltips {
-  leftCornerTooltip: CornerTooltip;
-  rightCornerTooltip: CornerTooltip;
+  leftCornerTooltip: BrushTooltip;
+  rightCornerTooltip: BrushTooltip;
   verticalCssVisibility: string;
   horizontalCssVisibility: string;
 }
 
-export interface CornerTooltip {
+export interface BrushTooltip {
   htmlContainer: HTMLElement;
   xPosition: number;
   yPosition: number;
   content: string;
   width?: number;
+  cssVisibility?: string;
 }
 
 export interface SwimlaneData {
