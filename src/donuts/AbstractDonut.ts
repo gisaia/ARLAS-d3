@@ -220,25 +220,13 @@ export abstract class AbstractDonut {
   /**
    * @param selectedArc Path from the selected arc to the ultimate parent (as an array)
    * @description REMOVES ALL THE NODES OF SAME RING HAVING THE SAME VALUE FROM THE SELECTEDARCSLIST,
-   * ONLY IF THERE IS A DIFFERENT VALUE ALREADY SELECTED ON THIS RING
    */
   protected removeAllSimilarNodesOfSameRing(selectedArc: Array<{ ringName: string, name: string }>): void {
     const listNodesToRemove = [];
-    let removeAll = false;
     for (let i = 0; i < this.donutParams.selectedArcsList.length; i++) {
       const a = this.donutParams.selectedArcsList[i];
-      if (a.length === selectedArc.length && a[0].ringName === selectedArc[0].ringName && a[0].name !== selectedArc[0].name) {
-        removeAll = true;
-        break;
-      }
-    }
-
-    if (removeAll) {
-      for (let i = 0; i < this.donutParams.selectedArcsList.length; i++) {
-        const a = this.donutParams.selectedArcsList[i];
-        if (a.length === selectedArc.length && a[0].ringName === selectedArc[0].ringName && a[0].name === selectedArc[0].name) {
-          listNodesToRemove.push(i);
-        }
+      if (a.length === selectedArc.length && a[0].ringName === selectedArc[0].ringName && a[0].name === selectedArc[0].name) {
+        listNodesToRemove.push(i);
       }
     }
     for (let i = 0; i < listNodesToRemove.length; i++) {
