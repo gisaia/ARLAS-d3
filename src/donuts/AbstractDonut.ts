@@ -131,7 +131,8 @@ export abstract class AbstractDonut {
       .data(this.donutParams.donutNodes)
       .enter().append('path')
       .attr('class', 'donut__arc')
-      .style('fill', (d) => DonutUtils.getNodeColor(d, this.donutParams.donutNodeColorizer))
+      .style('fill', (d) => DonutUtils.getNodeColor(d, this.donutParams.donutNodeColorizer,
+         this.donutParams.keysToColors, this.donutParams.colorsSaturationWeight))
       .style('opacity', 1)
       .attr('d', this.arc)
       .on('click', (d) => this.onClick(d))
@@ -306,13 +307,15 @@ export abstract class AbstractDonut {
     const arcColorMap = new Map<string, string>();
     this.donutTooltip.nodeParents = new Array<string>();
     hoveredNodeAncestors.forEach(node => {
-      arcColorMap.set(node.data.fieldValue, DonutUtils.getNodeColor(node, this.donutParams.donutNodeColorizer));
-      this.donutTooltip.nodeParents.unshift(node.data.fieldValue);
+      arcColorMap.set(node.data.name, DonutUtils.getNodeColor(node, this.donutParams.donutNodeColorizer,
+        this.donutParams.keysToColors, this.donutParams.colorsSaturationWeight));
+      this.donutTooltip.nodeParents.unshift(node.data.name);
     });
     this.donutParams.hoveredNodesEvent.next(arcColorMap);
     this.donutTooltip.nodeName = hoveredNode.data.fieldValue;
     this.donutTooltip.nodeCount = hoveredNode.value;
-    this.donutTooltip.nodeColor = DonutUtils.getNodeColor(hoveredNode, this.donutParams.donutNodeColorizer);
+    this.donutTooltip.nodeColor = DonutUtils.getNodeColor(hoveredNode, this.donutParams.donutNodeColorizer,
+      this.donutParams.keysToColors, this.donutParams.colorsSaturationWeight);
   }
 
   protected onMouseOut(): void {
