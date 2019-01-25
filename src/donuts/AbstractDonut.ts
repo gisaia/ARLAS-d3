@@ -18,7 +18,7 @@
  */
 
 import { DonutParams } from './DonutParams';
-import { DonutNode, DonutDimensions, DonutUtils, DonutArc, DonutTooltip } from './utils/DonutUtils';
+import { DonutNode, DonutDimensions, DonutUtils, TreeNode, DonutTooltip, SimpleNode } from './utils/DonutUtils';
 import { scaleLinear, scaleSqrt, ScaleLinear, ScalePower } from 'd3-scale';
 import { arc, Arc, DefaultArcObject } from 'd3-shape';
 import { select, mouse, ContainerElement } from 'd3-selection';
@@ -62,8 +62,8 @@ export abstract class AbstractDonut {
     this.styleNodes();
   }
 
-  public abstract dataChange(newData: DonutArc): void;
-  public abstract onSelectionChange(selectedArcsList: Array<Array<{ ringName: string, name: string }>>): void;
+  public abstract dataChange(newData: TreeNode): void;
+  public abstract onSelectionChange(selectedArcsList: Array<Array<SimpleNode>>): void;
 
 
 
@@ -103,7 +103,7 @@ export abstract class AbstractDonut {
         if (d.data.size !== undefined && d.data.size !== null) {
           d.value = +d.data.size;
         } else {
-          throw new Error('The node size of ' + d.data.name + ' is not specified');
+          throw new Error('The node size of ' + d.data.fieldValue + ' is not specified');
         }
       })
       .sort((a, b) => b.value - a.value);
@@ -221,11 +221,11 @@ export abstract class AbstractDonut {
    * @param selectedArc Path from the selected arc to the ultimate parent (as an array)
    * @description REMOVES ALL THE NODES OF SAME RING HAVING THE SAME VALUE FROM THE SELECTEDARCSLIST,
    */
-  protected removeAllSimilarNodesOfSameRing(selectedArc: Array<{ ringName: string, name: string }>): void {
+  protected removeAllSimilarNodesOfSameRing(selectedArc: Array<SimpleNode>): void {
     const listNodesToRemove = [];
     for (let i = 0; i < this.donutParams.selectedArcsList.length; i++) {
       const a = this.donutParams.selectedArcsList[i];
-      if (a.length === selectedArc.length && a[0].ringName === selectedArc[0].ringName && a[0].name === selectedArc[0].name) {
+      if (a.length === selectedArc.length && a[0].fieldName === selectedArc[0].fieldName && a[0].fieldValue === selectedArc[0].fieldValue) {
         listNodesToRemove.push(i);
       }
     }
@@ -306,11 +306,11 @@ export abstract class AbstractDonut {
     const arcColorMap = new Map<string, string>();
     this.donutTooltip.nodeParents = new Array<string>();
     hoveredNodeAncestors.forEach(node => {
-      arcColorMap.set(node.data.name, DonutUtils.getNodeColor(node, this.donutParams.donutNodeColorizer));
-      this.donutTooltip.nodeParents.unshift(node.data.name);
+      arcColorMap.set(node.data.fieldValue, DonutUtils.getNodeColor(node, this.donutParams.donutNodeColorizer));
+      this.donutTooltip.nodeParents.unshift(node.data.fieldValue);
     });
     this.donutParams.hoveredNodesEvent.next(arcColorMap);
-    this.donutTooltip.nodeName = hoveredNode.data.name;
+    this.donutTooltip.nodeName = hoveredNode.data.fieldValue;
     this.donutTooltip.nodeCount = hoveredNode.value;
     this.donutTooltip.nodeColor = DonutUtils.getNodeColor(hoveredNode, this.donutParams.donutNodeColorizer);
   }
