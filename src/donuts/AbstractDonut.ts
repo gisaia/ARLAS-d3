@@ -330,7 +330,13 @@ export abstract class AbstractDonut {
 
   protected showTooltip(node: DonutNode): void {
     this.donutParams.tooltip.isShown = true;
-    this.donutParams.tooltip.xContent = DonutUtils.getNodePathAsString(node) + ' (' + node.value + ')';
+    this.donutParams.tooltip.xContent = DonutUtils.getNodePathAsString(node);
+    const metricValue = node.data ? node.data.metricValue : '';
+    if (metricValue !== undefined) {
+      if (Number(metricValue).toString() !== 'NaN') {
+        this.donutParams.tooltip.xContent += ' (' + metricValue + ')';
+      } 
+    }
   }
 
   protected setTooltipPosition() {
