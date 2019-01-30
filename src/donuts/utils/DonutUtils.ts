@@ -42,6 +42,7 @@ export interface TreeNode {
   fieldName: string;
   fieldValue: string;
   size?: number;
+  metricValue?: number;
   isOther: boolean;
   children?: Array<TreeNode>;
 }

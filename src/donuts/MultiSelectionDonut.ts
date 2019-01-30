@@ -25,7 +25,6 @@ export class MultiSelectionDonut extends AbstractDonut {
   public onSelectionChange(selectedArcsList: Array<Array<SimpleNode>>) {
     this.donutParams.selectedArcsList = selectedArcsList;
     this.deselectAll();
-    this.removeUnExistingNodes();
     this.reapplySelection();
     this.styleNodes();
   }
