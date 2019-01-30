@@ -335,7 +335,7 @@ export abstract class AbstractDonut {
     if (metricValue !== undefined) {
       if (Number(metricValue).toString() !== 'NaN') {
         this.donutParams.tooltip.xContent += ' (' + metricValue + ')';
-      } 
+      }
     }
   }
 
