@@ -18,11 +18,11 @@
  */
 
 import { AbstractDonut } from './AbstractDonut';
-import { DonutNode, DonutUtils, DonutArc } from './utils/DonutUtils';
+import { DonutNode, DonutUtils, TreeNode, SimpleNode } from './utils/DonutUtils';
 
 export class OneSelectionDonut extends AbstractDonut {
 
-  public dataChange(newData: DonutArc): void {
+  public dataChange(newData: TreeNode): void {
     this.donutParams.donutData = newData;
     this.plot();
     if (this.donutParams.selectedArcsList.length === 1) {
@@ -34,7 +34,7 @@ export class OneSelectionDonut extends AbstractDonut {
     }
   }
 
-  public onSelectionChange(selectedArcsList: Array<Array<{ringName: string, name: string}>>) {
+  public onSelectionChange(selectedArcsList: Array<Array<SimpleNode>>) {
     this.donutParams.selectedArcsList = selectedArcsList;
     if (this.donutParams.selectedArcsList.length === 1) {
       this.deselectAll();

@@ -18,8 +18,8 @@
  */
 
 import {
-  ChartDimensions, ChartAxes, SwimlaneAxes, SelectedInputValues, SelectedOutputValues, HistogramUtils,
-  ChartType, DataType, MarginModel, HistogramData, Position
+  ChartDimensions, ChartAxes, SwimlaneAxes, SelectedOutputValues, HistogramUtils,
+  DataType, HistogramData, Position, BrushCornerTooltips
 } from './utils/HistogramUtils';
 import { HistogramParams } from './HistogramParams';
 import { BrushBehavior } from 'd3-brush';
@@ -29,6 +29,8 @@ import { min, max } from 'd3-array';
 export abstract class AbstractHistogram {
 
   public histogramParams: HistogramParams;
+  public brushCornerTooltips: BrushCornerTooltips;
+
   public isBrushing = false;
 
   /** Contexts */
@@ -71,6 +73,10 @@ export abstract class AbstractHistogram {
   protected plottingCount = 0;
   protected minusSign = 1;
 
+  public constructor() {
+    this.brushCornerTooltips = this.createEmptyBrushCornerTooltips();
+  }
+
   public plot(data: Array<{ key: number, value: number }> | Map<string, Array<{ key: number, value: number }>>) {
     this.setHistogramMargins();
     if (this.context) {
@@ -79,6 +85,17 @@ export abstract class AbstractHistogram {
   }
 
   public abstract resize(histogramContainer: HTMLElement): void;
+
+  /**
+   * initialize a new BrushCornerTooltips object
+   */
+  public setHTMLElementsOfBrushCornerTooltips(rightHTMLElement: HTMLElement, leftHTMLElement): void {
+    if (!this.brushCornerTooltips) {
+      this.brushCornerTooltips = this.createEmptyBrushCornerTooltips();
+    }
+    this.brushCornerTooltips.rightCornerTooltip.htmlContainer = rightHTMLElement;
+    this.brushCornerTooltips.leftCornerTooltip.htmlContainer = leftHTMLElement;
+  }
 
   protected setHistogramMargins() {
     // tighten right and bottom margins when X labels are not shown
@@ -227,72 +244,73 @@ export abstract class AbstractHistogram {
       .attr('width', barWidth);
   }
 
-  protected setBrushTooltipsPositions() {
-    this.histogramParams.brushLeftTooltip.xContent = this.histogramParams.startValue;
-    this.histogramParams.brushRightTooltip.xContent = this.histogramParams.endValue;
+  /**
+   * This method is called whenever the brush is being moved. It sets the positions the brush's left and right corner tooltips.
+   */
+  protected setBrushCornerTooltipsPositions() {
+
+    this.brushCornerTooltips.leftCornerTooltip.content = this.histogramParams.startValue;
+    this.brushCornerTooltips.rightCornerTooltip.content = this.histogramParams.endValue;
 
     const leftPosition = this.getAxes().xDomain(this.selectionInterval.startvalue);
     const rightPosition = this.getAxes().xDomain(this.selectionInterval.endvalue);
 
-    if (this.histogramParams.leftBrushElement !== undefined && this.histogramParams.leftBrushElement !== null &&
-      this.histogramParams.rightBrushElement !== undefined && this.histogramParams.rightBrushElement !== null) {
-      const leftOffset = this.histogramParams.leftBrushElement.offsetWidth;
-      const rightOffset = this.histogramParams.rightBrushElement.offsetWidth;
-      if (leftOffset !== 0 && rightOffset !== 0) {
-        if (leftPosition + leftOffset + 5 > rightPosition - rightOffset) {
-          this.histogramParams.displayHorizontal = 'hidden';
-          this.histogramParams.displayVertical = 'visible';
-          this.setVerticalTooltipsWidth();
-          this.setBrushVerticalTooltipsXPositions(leftPosition, rightPosition);
-          this.setBrushVerticalTooltipsYPositions(leftPosition, rightPosition);
-        } else {
-          this.histogramParams.displayHorizontal = 'visible';
-          this.histogramParams.displayVertical = 'hidden';
-          this.setBrushHorizontalTooltipsXPositions(leftPosition, rightPosition);
-          this.setBrushHorizontalTooltipsYPositions(leftPosition, rightPosition);
+    // If the html container of each corner tooltip is set, then we proceed to set their positions
+    if (this.brushCornerTooltips && this.brushCornerTooltips.leftCornerTooltip.htmlContainer &&
+      this.brushCornerTooltips.rightCornerTooltip.htmlContainer) {
+        const leftTooltipWidth = this.brushCornerTooltips.leftCornerTooltip.htmlContainer.offsetWidth;
+        const rightTooltipWidth = this.brushCornerTooltips.rightCornerTooltip.htmlContainer.offsetWidth;
+        if (rightTooltipWidth !== 0 && leftTooltipWidth !== 0) {
+          if (leftPosition + leftTooltipWidth + 5 > rightPosition - rightTooltipWidth) {
+            // If left tooltip and right tooltip meet, switch from horizontal to vertical positions
+            this.brushCornerTooltips.horizontalCssVisibility = 'hidden';
+            this.brushCornerTooltips.verticalCssVisibility = 'visible';
+            this.setVerticalTooltipsWidth();
+            this.setBrushVerticalTooltipsXPositions(leftPosition, rightPosition);
+            this.setBrushVerticalTooltipsYPositions();
+          } else {
+            this.brushCornerTooltips.horizontalCssVisibility = 'visible';
+            this.brushCornerTooltips.verticalCssVisibility = 'hidden';
+            this.setBrushHorizontalTooltipsXPositions(leftPosition, rightPosition);
+            this.setBrushHorizontalTooltipsYPositions();
+          }
         }
-      } else {
-        this.histogramParams.displayHorizontal = 'hidden';
-        this.histogramParams.displayVertical = 'hidden';
-      }
     } else {
-      this.histogramParams.displayHorizontal = 'hidden';
-      this.histogramParams.displayVertical = 'hidden';
+      this.brushCornerTooltips.verticalCssVisibility = 'hidden';
+      this.brushCornerTooltips.horizontalCssVisibility = 'hidden';
     }
   }
 
   protected setVerticalTooltipsWidth() {
-    this.histogramParams.brushLeftTooltip.width = this.chartDimensions.height;
-    this.histogramParams.brushRightTooltip.width = this.chartDimensions.height;
+    this.brushCornerTooltips.leftCornerTooltip.width = this.brushCornerTooltips.rightCornerTooltip.width = this.chartDimensions.height;
   }
 
   protected setBrushVerticalTooltipsXPositions(leftPosition: number, rightPosition: number) {
-    this.histogramParams.brushLeftTooltip.xPosition = - this.chartDimensions.height + this.histogramParams.margin.left + leftPosition;
-    this.histogramParams.brushRightTooltip.xPosition = this.histogramParams.margin.left + rightPosition;
+    this.brushCornerTooltips.leftCornerTooltip.xPosition = -this.chartDimensions.height + this.histogramParams.margin.left + leftPosition;
+    this.brushCornerTooltips.rightCornerTooltip.xPosition = this.histogramParams.margin.left + rightPosition;
   }
 
-  protected setBrushVerticalTooltipsYPositions(leftPosition: number, rightPosition: number) {
+  protected setBrushVerticalTooltipsYPositions() {
     if (this.histogramParams.xAxisPosition === Position.bottom) {
-      this.histogramParams.brushLeftTooltip.yPosition = this.chartDimensions.height + this.histogramParams.margin.bottom + 6;
+      this.brushCornerTooltips.leftCornerTooltip.yPosition = this.chartDimensions.height + this.histogramParams.margin.bottom;
     } else {
-      this.histogramParams.brushLeftTooltip.yPosition = this.chartDimensions.height + this.histogramParams.margin.bottom -
-        this.histogramParams.margin.top - 6;
+      this.brushCornerTooltips.leftCornerTooltip.yPosition = this.chartDimensions.height + this.histogramParams.margin.top;
     }
-    this.histogramParams.brushRightTooltip.yPosition = this.histogramParams.brushLeftTooltip.yPosition;
+    this.brushCornerTooltips.rightCornerTooltip.yPosition = this.brushCornerTooltips.leftCornerTooltip.yPosition;
   }
 
   protected setBrushHorizontalTooltipsXPositions(leftPosition: number, rightPosition: number) {
-    this.histogramParams.brushLeftTooltip.xPosition = leftPosition + this.histogramParams.margin.left;
-    this.histogramParams.brushRightTooltip.xPosition = this.histogramParams.margin.right + this.chartDimensions.width - rightPosition;
+    this.brushCornerTooltips.leftCornerTooltip.xPosition = leftPosition + this.histogramParams.margin.left;
+    this.brushCornerTooltips.rightCornerTooltip.xPosition = this.histogramParams.margin.right + this.chartDimensions.width - rightPosition;
   }
 
-  protected setBrushHorizontalTooltipsYPositions(leftPosition: number, rightPosition: number) {
+  protected setBrushHorizontalTooltipsYPositions() {
     if (this.histogramParams.xAxisPosition === Position.bottom) {
-      this.histogramParams.brushLeftTooltip.yPosition = this.chartDimensions.height + 10;
+      this.brushCornerTooltips.leftCornerTooltip.yPosition = this.chartDimensions.height + 10;
     } else {
-      this.histogramParams.brushLeftTooltip.yPosition = -3;
+      this.brushCornerTooltips.leftCornerTooltip.yPosition = -3;
     }
-    this.histogramParams.brushRightTooltip.yPosition = this.histogramParams.brushLeftTooltip.yPosition;
+    this.brushCornerTooltips.rightCornerTooltip.yPosition = this.brushCornerTooltips.leftCornerTooltip.yPosition;
   }
 
   protected getHistogramDataInterval(data: Array<HistogramData>): number {
@@ -316,4 +334,11 @@ export abstract class AbstractHistogram {
   protected abstract setDataInterval(data: Array<HistogramData> | Map<string, Array<HistogramData>>): void;
   protected abstract getDataInterval(data: Array<HistogramData> | Map<string, Array<HistogramData>>): number;
   protected abstract getAxes(): ChartAxes | SwimlaneAxes;
+
+  private createEmptyBrushCornerTooltips (): BrushCornerTooltips {
+    const emptyLeftCornerTooltip = {htmlContainer: null, content: '', xPosition: 0, yPosition: 0 };
+    const emptyRightCornerTooltip = {htmlContainer: null, content: '', xPosition: 0, yPosition: 0 };
+    return {leftCornerTooltip: emptyLeftCornerTooltip, rightCornerTooltip: emptyRightCornerTooltip,
+       verticalCssVisibility: 'hidden', horizontalCssVisibility: 'hidden'};
+  }
 }

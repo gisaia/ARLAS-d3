@@ -535,7 +535,7 @@ export abstract class AbstractChart extends AbstractHistogram {
         this.histogramParams.endValue = HistogramUtils.toString(this.selectionInterval.endvalue, this.histogramParams.chartType,
           this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval, this.histogramParams.valuesDateFormat, dataInterval);
         this.histogramParams.showTitle = false;
-        this.setBrushTooltipsPositions();
+        this.setBrushCornerTooltipsPositions();
         this.applyStyleOnSelection();
         this.translateBrushHandles(selection, chartAxes);
       }

@@ -18,19 +18,18 @@
  */
 
 import { AbstractDonut } from './AbstractDonut';
-import { DonutNode, DonutArc } from './utils/DonutUtils';
+import { DonutNode, TreeNode, SimpleNode } from './utils/DonutUtils';
 
 export class MultiSelectionDonut extends AbstractDonut {
 
-  public onSelectionChange(selectedArcsList: Array<Array<{ringName: string, name: string}>>) {
+  public onSelectionChange(selectedArcsList: Array<Array<SimpleNode>>) {
     this.donutParams.selectedArcsList = selectedArcsList;
     this.deselectAll();
-    this.removeUnExistingNodes();
     this.reapplySelection();
     this.styleNodes();
   }
 
-  public dataChange(newData: DonutArc): void {
+  public dataChange(newData: TreeNode): void {
     this.donutParams.donutData = newData;
     this.plot();
     this.reapplySelection();

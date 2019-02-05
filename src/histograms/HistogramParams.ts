@@ -17,8 +17,8 @@
  * under the License.
  */
 
-import { ChartDimensions, ChartAxes, SwimlaneAxes, SelectedInputValues, SelectedOutputValues, HistogramUtils,
-         ChartType, DataType, Position, Tooltip, MarginModel, SwimlaneMode } from './utils/HistogramUtils';
+import { SelectedInputValues, SelectedOutputValues, ChartType, DataType, Position, Tooltip, MarginModel,
+   SwimlaneMode} from './utils/HistogramUtils';
 import { Subject } from 'rxjs';
 
 export class HistogramParams {
@@ -94,13 +94,8 @@ export class HistogramParams {
   public histogramContainer: HTMLElement;
   public svgNode: SVGElement;
 
-
   public margin: MarginModel = { top: 4, right: 10, bottom: 20, left: 60 };
   public tooltip: Tooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
-  public brushLeftTooltip: Tooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
-  public brushRightTooltip: Tooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
-  public rightBrushElement: HTMLElement;
-  public leftBrushElement: HTMLElement;
 
   public displaySvg = 'none';
   public dataLength = 0;
