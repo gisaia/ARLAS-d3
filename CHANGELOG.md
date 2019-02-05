@@ -1,5 +1,29 @@
 # Change Log
 
+## [v6.0.0](https://github.com/gisaia/ARLAS-d3/tree/v6.0.0) (2019-02-05)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v6.0.0-beta.1...v6.0.0)
+
+## [v6.0.0-beta.1](https://github.com/gisaia/ARLAS-d3/tree/v6.0.0-beta.1) (2019-01-30)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v6.0.0-beta.0...v6.0.0-beta.1)
+
+**New stuff:**
+
+- Donut: Add metricValue attibute to TreeNode interface & keep unexisting selected nodes [\#79](https://github.com/gisaia/ARLAS-d3/pull/79) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
+
+## [v6.0.0-beta.0](https://github.com/gisaia/ARLAS-d3/tree/v6.0.0-beta.0) (2019-01-25)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v5.0.0...v6.0.0-beta.0)
+
+**Breaking changes:**
+
+- Refactor tooltips on brush corners [\#70](https://github.com/gisaia/ARLAS-d3/pull/70) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
+
+**Fixed bugs:**
+
+- Fix version image mkDock [\#68](https://github.com/gisaia/ARLAS-d3/pull/68) ([mbarbet](https://github.com/mbarbet))
+
 ## [v5.0.0](https://github.com/gisaia/ARLAS-d3/tree/v5.0.0) (2018-11-28)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.3.1...v5.0.0)
