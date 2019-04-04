@@ -43,17 +43,29 @@ export class ChartBars extends AbstractChart {
     const barsHeight = (this.yStartsFromMin && this.histogramParams.showStripes) ?
      (0.9 * this.chartDimensions.height) : this.chartDimensions.height;
     this.barsContext
-    .attr('y', (d) =>  this.chartAxes.yDomain(d.value))
-    .attr('height', (d) => barsHeight - this.chartAxes.yDomain(d.value));
+      .attr('y', (d) =>  this.chartAxes.yDomain(d.value))
+      .attr('height', (d) => barsHeight - this.chartAxes.yDomain(d.value));
+
+    this.addStrippedPattern('no-data-stripes', this.NO_DATA_STRIPES_PATTERN, this.NO_DATA_STRIPES_SIZE, 'histogram__no-data-stripes');
+
+    this.noDatabarsContext
+      .attr('y', 0)
+      .attr('height', (d) => this.chartDimensions.height)
+      .attr('fill', 'url(#no-data-stripes)')
+      .attr('fill-opacity', 0.5);
     // ADD STRIPPED BARS
     if (this.yStartsFromMin && this.histogramParams.showStripes) {
       const id = this.histogramParams.uid;
-      this.addStrippedPattern('unselected-bars-' + id, 'histogram__stripped-unselected-bar');
-      this.addStrippedPattern('partly-selected-bars-' + id, 'histogram__stripped-partlyselected-bar');
-      this.addStrippedPattern('current-selected-bars-' + id, 'histogram__stripped-currentselected-bar');
-      this.addStrippedPattern('fully-selected-bars-' + id, 'histogram__stripped-fullyselected-bar');
+      this.addStrippedPattern('unselected-bars-' + id, this.START_Y_FROM_MIN_STRIPES_PATTERN, this.START_Y_FROM_MIN_STRIPES_SIZE,
+        'histogram__stripped-unselected-bar');
+      this.addStrippedPattern('partly-selected-bars-' + id, this.START_Y_FROM_MIN_STRIPES_PATTERN, this.START_Y_FROM_MIN_STRIPES_SIZE,
+        'histogram__stripped-partlyselected-bar');
+      this.addStrippedPattern('current-selected-bars-' + id, this.START_Y_FROM_MIN_STRIPES_PATTERN, this.START_Y_FROM_MIN_STRIPES_SIZE,
+        'histogram__stripped-currentselected-bar');
+      this.addStrippedPattern('fully-selected-bars-' + id, this.START_Y_FROM_MIN_STRIPES_PATTERN, this.START_Y_FROM_MIN_STRIPES_SIZE,
+        'histogram__stripped-fullyselected-bar');
       this.strippedBarsContext = this.context.append('g').attr('class', 'histogram__bars').selectAll('.bar')
-        .data(data)
+        .data(data.filter(d => this.isValueValid(d)))
         .enter().append('rect')
         .attr('class', 'histogram__chart--bar')
         .attr('x', (d) => this.chartAxes.xDataDomain(d.key))
