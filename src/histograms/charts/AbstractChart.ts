@@ -32,6 +32,10 @@ export abstract class AbstractChart extends AbstractHistogram {
 
   protected chartAxes: ChartAxes;
   protected yStartsFromMin = false;
+  protected START_Y_FROM_MIN_STRIPES_PATTERN = 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2';
+  protected START_Y_FROM_MIN_STRIPES_SIZE = 4;
+  protected NO_DATA_STRIPES_PATTERN = 'M-1,1 l2,-2 M0,10 l10,-10 M9,11 l2,-2';
+  protected NO_DATA_STRIPES_SIZE = 10;
 
   public plot(inputData: Array<{ key: number, value: number }>) {
     super.plot(inputData);
@@ -253,23 +257,25 @@ export abstract class AbstractChart extends AbstractHistogram {
     const xLabelsAxis = null;
     const stepWidth = null;
     let yDomain = scaleLinear().range([this.chartDimensions.height, 0]);
-    let maxOffset = max(data, (d: any) => d.value) * 0.05;
-    yDomain.domain([0, max(data, (d: any) => d.value) + maxOffset]);
+    const maximum = max(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MIN_VALUE);
+    const minimum = min(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MAX_VALUE);
+    let maxOffset = maximum * 0.05;
+    yDomain.domain([0, maximum + maxOffset]);
     const yAllDomain = yDomain;
     // IF WE WANT TO START THE HISTOGRAM FROM MIN OF DATA INSTEAD OF 0
     if (!this.histogramParams.yAxisFromZero) {
       // FIRST WE CHECK IF THE MINIMUM OF DATA IS GREATER THAN 30% OF THE CHART HEIGHT
       // IF SO, THEN THE CHART WILL START FROM THE MINIMUM OF DATA INSTEAD OF 0
-      if (this.chartDimensions.height - yDomain(min(data, (d: any) => d.value)) >= 0.3 * this.chartDimensions.height) {
+      if (this.chartDimensions.height - yDomain(minimum) >= 0.3 * this.chartDimensions.height) {
         // THE `showStripes` OPTION DECIDES WETHER WE ADD STIPPED AREA/BARS TO THE HISTOGRAMS
         // IF `showStripes == TRUE` THEN STRIPES WILL OCCUPY 10% OF THE CHARTHEIGHT AND THE DATA VARIATION WILL OCCUPY 90% OF THE CHART
         // IF `showStripes == FALSE` THEN NO STRIPES WILL BE DISPLAYED. HOWEVER, THE CHART STARTS FROM MIN OF DATA - A DOMAINOFFSET
         const yMaxRange = this.histogramParams.showStripes ? (0.9 * this.chartDimensions.height) : this.chartDimensions.height;
         this.yStartsFromMin = true;
         yDomain = scaleLinear().range([yMaxRange, 0]);
-        const minOffset = this.histogramParams.showStripes ? 0 : 0.1 * (max(data, (d) => d.value) - min(data, (d) => d.value));
-        maxOffset = 0.05 * (max(data, (d) => d.value) - min(data, (d) => d.value));
-        yDomain.domain([min(data, (d: any) => d.value) - minOffset, max(data, (d: any) => d.value) + maxOffset]);
+        const minOffset = this.histogramParams.showStripes ? 0 : 0.1 * (maximum - minimum);
+        maxOffset = 0.05 * (maximum - minimum);
+        yDomain.domain([minimum - minOffset, maximum + maxOffset]);
       } else {
         this.yStartsFromMin = false;
       }
@@ -344,7 +350,8 @@ export abstract class AbstractChart extends AbstractHistogram {
       dy = this.setTooltipYposition(xy[1]);
       if (xy[0] >= startPosition && xy[0] < endPosition && !this.isBrushing) {
         this.hoveredBucketKey = data[i].key;
-        if (data[i].key >= this.selectionInterval.startvalue && data[i].key <= this.selectionInterval.endvalue) {
+        if (data[i].key >= this.selectionInterval.startvalue && data[i].key <= this.selectionInterval.endvalue
+          && this.isValueValid(data[i])) {
           if (xy[1] < this.chartAxes.yDomain(data[i].value) && this.histogramParams.multiselectable) {
             this.histogramParams.tooltip.xContent = 'Double click';
             this.histogramParams.tooltip.yContent = 'to save this period';
@@ -395,15 +402,15 @@ export abstract class AbstractChart extends AbstractHistogram {
     return keys;
   }
 
-  protected addStrippedPattern(id: string, cssClass: string): void {
+  protected addStrippedPattern(id: string, pattern: string, size: number, cssClass: string): void {
     this.context.append('defs')
       .append('pattern')
       .attr('id', id)
       .attr('patternUnits', 'userSpaceOnUse')
-      .attr('width', 4)
-      .attr('height', 4)
+      .attr('width', size)
+      .attr('height', size)
       .append('path')
-      .attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
+      .attr('d', pattern)
       .attr('class', cssClass);
   }
 

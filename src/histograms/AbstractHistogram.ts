@@ -36,6 +36,7 @@ export abstract class AbstractHistogram {
   /** Contexts */
   protected context: any;
   protected barsContext: any;
+  protected noDatabarsContext: any;
   protected brushContext: any;
   protected allAxesContext: any;
 
@@ -237,11 +238,21 @@ export abstract class AbstractHistogram {
   protected plotBars(data: Array<HistogramData>, axes: ChartAxes | SwimlaneAxes, xDataDomain: any, barWeight?: number): void {
     const barWidth = barWeight ? axes.stepWidth * barWeight : axes.stepWidth * this.histogramParams.barWeight;
     this.barsContext = this.context.append('g').attr('class', 'histogram__bars').selectAll('.bar')
-      .data(data)
+      .data(data.filter(d => this.isValueValid(d)))
       .enter().append('rect')
       .attr('class', 'histogram__chart--bar')
       .attr('x', function (d) { return xDataDomain(d.key); })
       .attr('width', barWidth);
+
+    this.noDatabarsContext = this.context.append('g').attr('class', 'histogram__bars').selectAll('.bar')
+      .data(data.filter(d => !this.isValueValid(d)))
+      .enter().append('rect')
+      .attr('x', function (d) { return xDataDomain(d.key); })
+      .attr('width', axes.stepWidth);
+  }
+
+  protected isValueValid(bucket: HistogramData): boolean {
+    return bucket ? !Number.isNaN(Number(bucket.value)) : false;
   }
 
   /**

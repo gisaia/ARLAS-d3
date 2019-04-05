@@ -114,54 +114,69 @@ export class ChartArea extends AbstractChart {
       .y0(areaYPositon)
       .y1((d: any) => this.chartAxes.yDomain(d.value));
 
-    this.context.append('g').attr('class', 'histogram__area-data')
-      .append('path')
-      .datum(data)
-      .attr('class', 'histogram__chart--unselected--area')
-      .attr('d', a);
-
     const urlFixedSelection = 'url(#' + this.histogramParams.uid + ')';
-    this.context.append('g').attr('class', 'histogram__area-data').attr('clip-path', urlFixedSelection)
-      .append('path')
-      .datum(data)
-      .attr('class', 'histogram__chart--fixed-selected--area')
-      .attr('d', a);
-
     const urlCurrentSelection = 'url(#' + this.histogramParams.uid + '-currentselection)';
-    this.context.append('g').attr('class', 'histogram__area-data').attr('clip-path', urlCurrentSelection)
-      .append('path')
-      .datum(data)
-      .attr('class', 'histogram__chart--current-selected--area')
-      .attr('d', a);
+    const discontinuedData = this.splitData(data);
+    discontinuedData[0].forEach(part => {
+      this.context.append('g').attr('class', 'histogram__area-data')
+        .append('path')
+        .datum(part)
+        .attr('class', 'histogram__chart--unselected--area')
+        .attr('d', a);
+      this.context.append('g').attr('class', 'histogram__area-data').attr('clip-path', urlFixedSelection)
+        .append('path')
+        .datum(part)
+        .attr('class', 'histogram__chart--fixed-selected--area')
+        .attr('d', a);
+      this.context.append('g').attr('class', 'histogram__area-data').attr('clip-path', urlCurrentSelection)
+        .append('path')
+        .datum(part)
+        .attr('class', 'histogram__chart--current-selected--area')
+        .attr('d', a);
 
-    // ADD STRIPPED AREAS
-    if (this.yStartsFromMin && this.histogramParams.showStripes) {
-      const id = this.histogramParams.uid;
-      this.addStrippedPattern('unselected-area-' + id, 'histogram__stripped-unselected-area');
-      this.addStrippedPattern('fixed-area-' + id, 'histogram__stripped-fixed-selected-area');
-      this.addStrippedPattern('current-area-' + id, 'histogram__stripped-current-selected-area');
+      // ADD STRIPPED AREAS
+      if (this.yStartsFromMin && this.histogramParams.showStripes) {
+        const id = this.histogramParams.uid;
+        this.addStrippedPattern('unselected-area-' + id, this.START_Y_FROM_MIN_STRIPES_PATTERN, this.START_Y_FROM_MIN_STRIPES_SIZE,
+          'histogram__stripped-unselected-area');
+        this.addStrippedPattern('fixed-area-' + id, this.START_Y_FROM_MIN_STRIPES_PATTERN, this.START_Y_FROM_MIN_STRIPES_SIZE,
+          'histogram__stripped-fixed-selected-area');
+        this.addStrippedPattern('current-area-' + id, this.START_Y_FROM_MIN_STRIPES_PATTERN, this.START_Y_FROM_MIN_STRIPES_SIZE,
+          'histogram__stripped-current-selected-area');
+        this.context.append('g')
+          .append('rect')
+          .attr('x', this.chartAxes.xDomain(part[0].key))
+          .attr('y', this.chartDimensions.height * 0.9)
+          .attr('width', this.chartAxes.xDomain(part[part.length - 1].key) - this.chartAxes.xDomain(part[0].key))
+          .attr('height', this.chartDimensions.height * 0.1)
+          .attr('fill', 'url(#unselected-area-' + id + ')');
+        this.context.append('g')
+          .append('rect').attr('clip-path', urlFixedSelection)
+          .attr('x', this.chartAxes.xDomain(part[0].key))
+          .attr('y', this.chartDimensions.height * 0.9)
+          .attr('width', this.chartAxes.xDomain(part[part.length - 1].key) - this.chartAxes.xDomain(part[0].key))
+          .attr('height', this.chartDimensions.height * 0.1)
+          .attr('fill', 'url(#fixed-area-' + id + ')');
+        this.context.append('g')
+          .append('rect').attr('clip-path', urlCurrentSelection)
+          .attr('x', this.chartAxes.xDomain(part[0].key))
+          .attr('y', this.chartDimensions.height * 0.9)
+          .attr('width', this.chartAxes.xDomain(part[part.length - 1].key) - this.chartAxes.xDomain(part[0].key))
+          .attr('height', this.chartDimensions.height * 0.1)
+          .attr('fill', 'url(#current-area-' + id + ')');
+      }
+    });
+    this.addStrippedPattern('no-data-stripes', this.NO_DATA_STRIPES_PATTERN, this.NO_DATA_STRIPES_SIZE, 'histogram__no-data-stripes');
+    discontinuedData[1].forEach(part => {
       this.context.append('g')
         .append('rect')
-        .attr('x', '0')
-        .attr('y', this.chartDimensions.height * 0.9)
-        .attr('width', this.chartDimensions.width)
-        .attr('height', this.chartDimensions.height * 0.1)
-        .attr('fill', 'url(#unselected-area-' + id + ')');
-      this.context.append('g')
-        .append('rect').attr('clip-path', urlFixedSelection)
-        .attr('x', '0')
-        .attr('y', this.chartDimensions.height * 0.9)
-        .attr('width', this.chartDimensions.width)
-        .attr('height', this.chartDimensions.height * 0.1)
-        .attr('fill', 'url(#fixed-area-' + id + ')');
-      this.context.append('g')
-        .append('rect').attr('clip-path', urlCurrentSelection)
-        .attr('x', '0')
-        .attr('y', this.chartDimensions.height * 0.9)
-        .attr('width', this.chartDimensions.width)
-        .attr('height', this.chartDimensions.height * 0.1)
-        .attr('fill', 'url(#current-area-' + id + ')');
-    }
+        .attr('x', this.chartAxes.xDomain(part[0].key))
+        .attr('y', 0)
+        .attr('width', this.chartAxes.xDomain(part[part.length - 1].key) - this.chartAxes.xDomain(part[0].key))
+        .attr('height', this.chartDimensions.height)
+        .attr('fill', 'url(#no-data-stripes)')
+        .attr('fill-opacity', 0.5);
+    });
   }
 
   protected createChartAxes(data: Array<HistogramData>): void {
@@ -315,5 +330,42 @@ export class ChartArea extends AbstractChart {
     .attr('y', '0')
     .attr('width', this.chartAxes.xDomain(end) - this.chartAxes.xDomain(start))
     .attr('height', this.chartDimensions.height );
+  }
+
+  private splitData(data: Array<HistogramData>): [Array<Array<HistogramData>>, Array<Array<HistogramData>>] {
+    const splittedData = new Array();
+    const wholes = new Array();
+    if (data && data.length > 0) {
+      let isValid = this.isValueValid(data[0]);
+      let stateChanged = false;
+      let localData = [];
+      let localWhole = [];
+      data.forEach( d => {
+        stateChanged = (isValid !== this.isValueValid(d));
+        isValid = this.isValueValid(d);
+        if (stateChanged) {
+          if (isValid) {
+            localWhole.push(d);
+          }
+          isValid ? wholes.push(localWhole) : splittedData.push(localData);
+          localData = [];
+          localWhole = [];
+          if (!isValid) {
+            if (splittedData.length > 0) {
+              const latestDataPart = splittedData[splittedData.length - 1];
+              localWhole.push(latestDataPart[latestDataPart.length - 1]);
+            }
+          }
+        }
+        isValid ? localData.push(d) : localWhole.push(d);
+      });
+      if (localData.length > 0) {
+        splittedData.push(localData);
+      }
+      if (localWhole.length > 0) {
+        wholes.push(localWhole);
+      }
+    }
+    return [splittedData, wholes];
   }
 }
