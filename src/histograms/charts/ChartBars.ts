@@ -21,6 +21,7 @@ import { HistogramData, HistogramUtils, ChartAxes, DataType, Position } from '..
 import { AbstractChart } from './AbstractChart';
 import { scaleBand } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
+import { utcFormat } from 'd3-time-format';
 
 export class ChartBars extends AbstractChart {
 
@@ -103,7 +104,10 @@ export class ChartBars extends AbstractChart {
     } else {
       this.chartAxes.xTicksAxis = axisBottom(this.chartAxes.xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 4);
       this.chartAxes.xLabelsAxis = axisBottom(this.chartAxes.xDomain).tickSize(0).tickPadding(labelPadding)
-      .ticks(this.histogramParams.xLabels);
+        .ticks(this.histogramParams.xLabels);
+      if (this.histogramParams.ticksDateFormat) {
+        this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(utcFormat(this.histogramParams.ticksDateFormat));
+      }
     }
     this.chartAxes.xAxis = axisBottom(this.chartAxes.xDomain).tickSize(0);
   }
