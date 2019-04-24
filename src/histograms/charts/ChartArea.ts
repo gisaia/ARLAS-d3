@@ -22,7 +22,7 @@ import { HistogramData, HistogramUtils, ChartAxes, DataType, SelectedOutputValue
 import { curveLinear, CurveFactory, curveMonotoneX, area } from 'd3-shape';
 import { axisBottom } from 'd3-axis';
 import { extent } from 'd3-array';
-import { timeFormat } from 'd3-time-format';
+import { utcFormat } from 'd3-time-format';
 
 export class ChartArea extends AbstractChart {
   private clipPathContext;
@@ -194,7 +194,7 @@ export class ChartArea extends AbstractChart {
       .tickPadding(labelPadding).ticks(this.histogramParams.xLabels);
     this.applyFormatOnXticks(data);
     if (this.histogramParams.dataType === DataType.time && this.histogramParams.ticksDateFormat) {
-      this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(timeFormat(this.histogramParams.ticksDateFormat));
+      this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(utcFormat(this.histogramParams.ticksDateFormat));
     }
   }
 
