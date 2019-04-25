@@ -1,8 +1,33 @@
 # Change Log
 
+## [v6.0.1](https://github.com/gisaia/ARLAS-d3/tree/v6.0.1) (2019-04-24)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v6.0.0...v6.0.1)
+
+**New stuff:**
+
+- Histograms: apply \[ticksDateFormat\] option when its specified on xLabels for bar charts [\#86](https://github.com/gisaia/ARLAS-d3/issues/86)
+
+**Fixed bugs:**
+
+- Histogram : Handle No-data values [\#71](https://github.com/gisaia/ARLAS-d3/issues/71)
+- Histograms: date ticks are not utc when the option \[ticksDateFormat\] is specified [\#63](https://github.com/gisaia/ARLAS-d3/issues/63)
+
 ## [v6.0.0](https://github.com/gisaia/ARLAS-d3/tree/v6.0.0) (2019-02-05)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v6.0.0-beta.1...v6.0.0)
+
+**Breaking changes:**
+
+- Donut: add metricValue to TreeNode interface [\#81](https://github.com/gisaia/ARLAS-d3/issues/81)
+- Refactor the Donut input Data \(DonutArc\) [\#77](https://github.com/gisaia/ARLAS-d3/issues/77)
+- Enhance colors generation for donuts [\#72](https://github.com/gisaia/ARLAS-d3/issues/72)
+- Create a new component : y log axis \(logarithmic gauge\) [\#69](https://github.com/gisaia/ARLAS-d3/issues/69)
+
+**New stuff:**
+
+- Donuts : Keep unexisting nodes in the selectedArcsList [\#80](https://github.com/gisaia/ARLAS-d3/issues/80)
+- Donut: Remove all similar selected nodes on a same ring. [\#76](https://github.com/gisaia/ARLAS-d3/issues/76)
 
 ## [v6.0.0-beta.1](https://github.com/gisaia/ARLAS-d3/tree/v6.0.0-beta.1) (2019-01-30)
 
