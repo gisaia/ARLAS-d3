@@ -442,7 +442,6 @@ export abstract class AbstractChart extends AbstractHistogram {
     this.brushContext = this.context.append('g')
       .attr('class', 'brush')
       .attr('transform', 'translate(' + leftOffset + ', 0)')
-      .style('visibility', 'visible')
       .style('pointer-events', 'visible')
       .call(this.selectionBrush);
 
