@@ -1,6 +1,14 @@
 # Change Log
 
-## [v6.0.1](https://github.com/gisaia/ARLAS-d3/tree/v6.0.1) (2019-04-24)
+## [v6.0.2](https://github.com/gisaia/ARLAS-d3/tree/v6.0.2) (2019-07-25)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v6.0.1...v6.0.2)
+
+**Fixed bugs:**
+
+- HISTOGRAMS: Remove visibility style from brush [\#88](https://github.com/gisaia/ARLAS-d3/issues/88)
+
+## [v6.0.1](https://github.com/gisaia/ARLAS-d3/tree/v6.0.1) (2019-04-25)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v6.0.0...v6.0.1)
 
