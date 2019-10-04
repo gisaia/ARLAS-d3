@@ -56,11 +56,14 @@ export class SwimlaneBars extends AbstractSwimlane {
       .data(data)
       .enter().append('line').attr('class', 'histogram__swimlane-height--tick')
       .attr('x1', (d) => this.histogramParams.swimLaneLabelsWidth + this.swimlaneAxes.xDataDomainArray[index](d.key))
-      .attr('y1', (d) => this.histogramParams.swimlaneHeight * (index + 1)
-        - (+d.value) * (this.histogramParams.swimlaneHeight - 5) / (+this.swimlaneMaxValue))
+      .attr('y1', (d) => this.getHorizontalTickHeight(d.value, index))
       .attr('x2', (d) => this.histogramParams.swimLaneLabelsWidth + this.swimlaneAxes.xDataDomainArray[index](d.key) +
         this.swimlaneAxes.stepWidth * this.histogramParams.barWeight)
-      .attr('y2', (d) => this.histogramParams.swimlaneHeight * (index + 1)
-        - (+d.value) * (this.histogramParams.swimlaneHeight - 5) / (+this.swimlaneMaxValue));
+      .attr('y2', (d) => this.getHorizontalTickHeight(d.value, index));
+  }
+
+  private getHorizontalTickHeight(dataValue: any, i: number): number {
+    const value = dataValue !== NaN.toString() ? + dataValue : 0;
+    return this.histogramParams.swimlaneHeight * (i + 1) - (+value) * (this.histogramParams.swimlaneHeight - 5) / (+this.swimlaneMaxValue);
   }
 }
