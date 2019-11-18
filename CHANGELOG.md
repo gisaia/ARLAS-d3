@@ -1,8 +1,16 @@
 # Change Log
 
+## [v6.1.0](https://github.com/gisaia/ARLAS-d3/tree/v6.1.0) (2019-11-18)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v6.0.3...v6.1.0)
+
 ## [v6.0.3](https://github.com/gisaia/ARLAS-d3/tree/v6.0.3) (2019-10-04)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v6.0.2...v6.0.3)
+
+**Fixed bugs:**
+
+- Fix swimlanes horizontal ticks height [\#95](https://github.com/gisaia/ARLAS-d3/pull/95) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 
 ## [v6.0.2](https://github.com/gisaia/ARLAS-d3/tree/v6.0.2) (2019-07-25)
 
