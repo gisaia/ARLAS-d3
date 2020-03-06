@@ -18,7 +18,9 @@
  */
 
 import { SelectedInputValues, SelectedOutputValues, ChartType, DataType, Position, Tooltip, MarginModel,
-   SwimlaneMode} from './utils/HistogramUtils';
+   SwimlaneMode,
+   SwimlaneData,
+   HistogramData} from './utils/HistogramUtils';
 import { Subject } from 'rxjs';
 
 export class HistogramParams {
@@ -29,7 +31,8 @@ export class HistogramParams {
   // ########################## Inputs ##########################
 
   /** Data */
-  public data: Array<{ key: number, value: number }> | Map<string, Array<{ key: number, value: number }>>;
+  public histogramData: Array<HistogramData>;
+  public swimlaneData: SwimlaneData;
   public dataType: DataType = DataType.numeric;
   public dataUnit = '';
   public chartType: ChartType = ChartType.area;

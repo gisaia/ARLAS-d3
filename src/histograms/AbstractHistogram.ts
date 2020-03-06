@@ -19,7 +19,7 @@
 
 import {
   ChartDimensions, ChartAxes, SwimlaneAxes, SelectedOutputValues, HistogramUtils,
-  DataType, HistogramData, Position, BrushCornerTooltips
+  DataType, HistogramData, Position, BrushCornerTooltips, SwimlaneData
 } from './utils/HistogramUtils';
 import { HistogramParams } from './HistogramParams';
 import { BrushBehavior } from 'd3-brush';
@@ -46,7 +46,7 @@ export abstract class AbstractHistogram {
   protected isHeightFixed = false;
 
   /** Data */
-  protected dataDomain: Array<{ key: number, value: number }>;
+  protected dataDomain: Array<HistogramData>;
   protected dataInterval: number;
 
   /** Brush selection */
@@ -78,7 +78,9 @@ export abstract class AbstractHistogram {
     this.brushCornerTooltips = this.createEmptyBrushCornerTooltips();
   }
 
-  public plot(data: Array<{ key: number, value: number }> | Map<string, Array<{ key: number, value: number }>>) {
+  public plot(data: Array<HistogramData> | SwimlaneData) {}
+
+  public init() {
     this.setHistogramMargins();
     if (this.context) {
       this.context.remove();
@@ -119,9 +121,10 @@ export abstract class AbstractHistogram {
     }
   }
 
-  protected initializeDescriptionValues(start: Date | number, end: Date | number) {
+  protected initializeDescriptionValues(start: Date | number, end: Date | number,
+    data: Array<HistogramData> | Map<string, Array<HistogramData>>) {
     if (!this.fromSetInterval && this.histogramParams.hasDataChanged) {
-      const dataInterval = this.getDataInterval(this.histogramParams.data);
+      const dataInterval = this.getDataInterval(data);
 
       this.histogramParams.startValue = HistogramUtils.toString(start, this.histogramParams.chartType,
         this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval, this.histogramParams.valuesDateFormat, dataInterval);

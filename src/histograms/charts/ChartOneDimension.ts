@@ -27,7 +27,7 @@ export class ChartOneDimension extends AbstractChart {
 
   public resize(histogramContainer: HTMLElement): void {
     super.resize(histogramContainer);
-    this.plot(<Array<{ key: number, value: number }>>this.histogramParams.data);
+    this.plot(<Array<HistogramData>>this.histogramParams.histogramData);
     if (this.histogramParams.multiselectable) {
       this.resizeSelectedIntervals(this.chartAxes);
     }

@@ -18,11 +18,13 @@
  */
 
 import { AbstractSwimlane } from './AbstractSwimlane';
-import { HistogramData, HistogramUtils, SwimlaneMode } from '../utils/HistogramUtils';
+import { HistogramData, HistogramUtils, SwimlaneMode, LaneStats } from '../utils/HistogramUtils';
 
 export class SwimlaneBars extends AbstractSwimlane {
 
   protected plotOneLane(data: Array<HistogramData>, indexOfLane): void {
+    const columnStats: Map<number, LaneStats> = this.histogramParams.swimlaneData.stats.columnStats;
+    const globalMax = this.histogramParams.swimlaneData.stats.globalStats.max;
     this.plotBars(data, this.swimlaneAxes, this.swimlaneAxes.xDataDomainArray[indexOfLane], this.swimlaneBarsWeight);
     this.barsContext
       .attr('rx', this.histogramParams.swimlaneBorderRadius)
@@ -31,8 +33,8 @@ export class SwimlaneBars extends AbstractSwimlane {
       .attr('height', (d) => this.getSwimlaneContentHeight(d.value))
       .attr('transform', (d) => 'translate(' + this.histogramParams.swimLaneLabelsWidth + ','
       + this.getSwimlaneVerticalTranslation(d.value, indexOfLane) + ')')
-      .style('fill', (d) => HistogramUtils.getColor(d.value / this.swimlaneMaxValue, this.histogramParams.paletteColors).toHexString())
-      .style('stroke', (d) => HistogramUtils.getColor(d.value / this.swimlaneMaxValue, this.histogramParams.paletteColors).toHexString())
+      .style('fill', (d, i) => HistogramUtils.getColor(d.value / columnStats.get(+d.key).sum, this.histogramParams.paletteColors).toHexString())
+      .style('stroke', (d, i) => HistogramUtils.getColor(d.value / columnStats.get(+d.key).sum, this.histogramParams.paletteColors).toHexString())
       .style('opacity', '0.8');
 
     if (this.histogramParams.swimlaneMode === SwimlaneMode.fixedHeight) {
@@ -41,13 +43,15 @@ export class SwimlaneBars extends AbstractSwimlane {
   }
 
   private getSwimlaneContentHeight(swimlaneValue?: number): number {
+    const globalMax = this.histogramParams.swimlaneData.stats.globalStats.max;
     return (this.histogramParams.swimlaneMode === SwimlaneMode.fixedHeight) ? this.histogramParams.swimlaneHeight - 5 :
-      swimlaneValue * this.histogramParams.swimlaneHeight / this.swimlaneMaxValue;
+      swimlaneValue * this.histogramParams.swimlaneHeight / globalMax;
   }
 
   private getSwimlaneVerticalTranslation(swimlaneValue?: number, indexOfSwimlane?: number): number {
+    const globalMax = this.histogramParams.swimlaneData.stats.globalStats.max;
     return (this.histogramParams.swimlaneMode === SwimlaneMode.fixedHeight) ? 5 :
-      this.histogramParams.swimlaneHeight - swimlaneValue * this.histogramParams.swimlaneHeight / this.swimlaneMaxValue;
+      this.histogramParams.swimlaneHeight - swimlaneValue * this.histogramParams.swimlaneHeight / globalMax;
   }
 
   private plotHorizontalTicksForSwimlane(data: Array<HistogramData>, index: number) {
@@ -63,7 +67,8 @@ export class SwimlaneBars extends AbstractSwimlane {
   }
 
   private getHorizontalTickHeight(dataValue: any, i: number): number {
+    const globalMax = this.histogramParams.swimlaneData.stats.globalStats.max;
     const value = dataValue !== NaN.toString() ? + dataValue : 0;
-    return this.histogramParams.swimlaneHeight * (i + 1) - (+value) * (this.histogramParams.swimlaneHeight - 5) / (+this.swimlaneMaxValue);
+    return this.histogramParams.swimlaneHeight * (i + 1) - (+value) * (this.histogramParams.swimlaneHeight - 5) / (+globalMax);
   }
 }

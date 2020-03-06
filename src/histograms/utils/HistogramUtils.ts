@@ -102,6 +102,26 @@ export interface SwimlaneAxes {
   xAxis: Axis<any>;
 }
 
+export interface LaneStats {
+  min?: number;
+  max?: number;
+  sum?: number;
+  count?: number;
+}
+
+export interface SwimlaneStats {
+  columnStats: Map<number, LaneStats>;
+  globalStats: LaneStats;
+  nbLanes: number;
+  minBorder?: number;
+  maxBorder?: number;
+}
+
+export interface SwimlaneData {
+  stats: SwimlaneStats;
+  lanes: Map<string, Array<{ key: number, value: number }>>;
+}
+
 export interface Tooltip {
   isShown: boolean;
   isRightSide: boolean;
@@ -115,7 +135,7 @@ export interface Tooltip {
 export class HistogramUtils {
 
   public static isSelectionBeyondDataDomain(selectedInputValues: SelectedInputValues,
-    inputData: Array<{ key: number, value: number }>,
+    inputData: Array<HistogramData>,
     intervalSelectedMap: Map<string, { values: SelectedOutputValues, x_position: number }>): boolean {
 
     let min = selectedInputValues.startvalue;
@@ -137,7 +157,7 @@ export class HistogramUtils {
     }
   }
 
-  public static parseDataKey(inputData: Array<{ key: number, value: number }>,
+  public static parseDataKey(inputData: Array<HistogramData>,
     dataType: DataType): Array<HistogramData> {
     if (dataType === DataType.time) {
       return this.parseDataKeyToDate(inputData);
@@ -177,7 +197,7 @@ export class HistogramUtils {
     return swimlaneParsedDataMap;
   }
 
-  private static parseDataKeyToDate(inputData: Array<{ key: number, value: number }>) {
+  private static parseDataKeyToDate(inputData: Array<HistogramData>) {
     const parsedData = new Array<HistogramData>();
     inputData.forEach(d => {
       parsedData.push({ key: new Date(+d.key), value: d.value });
