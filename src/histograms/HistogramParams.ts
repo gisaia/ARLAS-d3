@@ -20,7 +20,9 @@
 import { SelectedInputValues, SelectedOutputValues, ChartType, DataType, Position, Tooltip, MarginModel,
    SwimlaneMode,
    SwimlaneData,
-   HistogramData} from './utils/HistogramUtils';
+   HistogramData,
+   SwimlaneRepresentation,
+   SwimlaneOptions} from './utils/HistogramUtils';
 import { Subject } from 'rxjs';
 
 export class HistogramParams {
@@ -82,8 +84,10 @@ export class HistogramParams {
   /** Swimlane */
   public swimlaneBorderRadius = 3;
   public swimlaneMode: SwimlaneMode = SwimlaneMode.variableHeight;
+  public swimlaneRepresentation: SwimlaneRepresentation = SwimlaneRepresentation.column;
   public swimLaneLabelsWidth: number = null;
   public swimlaneHeight: number = null;
+  public swimlaneOptions: SwimlaneOptions;
   public selectedSwimlanes = new Set<string>();
 
   // ########################## Outputs ##########################

@@ -25,6 +25,12 @@ import { utcFormat } from 'd3-time-format';
 import { Axis } from 'd3-axis';
 import { ScaleLinear } from 'd3-scale';
 
+
+export const NAN_COLOR = '#d8d8d8';
+export const TICK_COLOR = '#fff';
+export const TICK_WIDTH = 1.5;
+export const TICK_OPACITY = 1;
+
 export interface MarginModel {
   top: number;
   right: number;
@@ -115,6 +121,25 @@ export interface SwimlaneStats {
   nbLanes: number;
   minBorder?: number;
   maxBorder?: number;
+  bucketLength?: number;
+}
+
+export interface SwimlaneOptions {
+  /**Hex color attributted to buckets whose values are NaN */
+  nan_color?: string;
+  /**Hex color attributted to buckets whose values are 0 */
+  zeros_color?: string;
+  /**The tick plotted on each swimlane bucket that indicates how high/low the bucket value is. */
+  level_tick: TickOptions;
+}
+
+export interface TickOptions {
+  /**Hex color of the tick */
+  color: string;
+  /**Width of the tick in pixels */
+  width: number;
+  /**Opacity of the tick */
+  opacity: number;
 }
 
 export interface SwimlaneData {
@@ -205,7 +230,7 @@ export class HistogramUtils {
     return parsedData;
   }
 
-  public static getColor(zeroToOne: number, paletteColors: [number, number] | string): any {
+  public static getColor(zeroToOne: number, paletteColors: [number, number] | string): tinycolor.Instance {
     // Scrunch the green/cyan range in the middle
     const sign = (zeroToOne < .5) ? -1 : 1;
     zeroToOne = sign * Math.pow(2 * Math.abs(zeroToOne - .5), .35) / 2 + .5;
@@ -344,6 +369,10 @@ export class HistogramUtils {
 
 export enum SwimlaneMode {
   variableHeight, fixedHeight, circles
+}
+
+export enum SwimlaneRepresentation {
+  column, global
 }
 export enum DataType {
   numeric, time

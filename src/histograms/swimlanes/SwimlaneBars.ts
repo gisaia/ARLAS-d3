@@ -18,57 +18,100 @@
  */
 
 import { AbstractSwimlane } from './AbstractSwimlane';
-import { HistogramData, HistogramUtils, SwimlaneMode, LaneStats } from '../utils/HistogramUtils';
+import { HistogramData, HistogramUtils, SwimlaneMode, LaneStats,
+   SwimlaneStats, SwimlaneRepresentation, SwimlaneOptions, NAN_COLOR, TICK_WIDTH, TICK_OPACITY, TICK_COLOR } from '../utils/HistogramUtils';
 
 export class SwimlaneBars extends AbstractSwimlane {
 
-  protected plotOneLane(data: Array<HistogramData>, indexOfLane): void {
-    const columnStats: Map<number, LaneStats> = this.histogramParams.swimlaneData.stats.columnStats;
-    const globalMax = this.histogramParams.swimlaneData.stats.globalStats.max;
-    this.plotBars(data, this.swimlaneAxes, this.swimlaneAxes.xDataDomainArray[indexOfLane], this.swimlaneBarsWeight);
+  protected plotOneLane(laneData: Array<HistogramData>, indexOfLane): void {
+    const swimStats: SwimlaneStats = this.histogramParams.swimlaneData.stats;
+    const swimRepresentation: SwimlaneRepresentation = this.histogramParams.swimlaneRepresentation;
+    const swimColors = this.histogramParams.paletteColors;
+    const swimMode = this.histogramParams.swimlaneMode;
+    const swimHeight = this.histogramParams.swimlaneHeight * 0.9;
+    const swimOptions = this.histogramParams.swimlaneOptions;
+    this.plotBars(laneData, this.swimlaneAxes, this.swimlaneAxes.xDataDomainArray[indexOfLane], this.swimlaneBarsWeight);
     this.barsContext
       .attr('rx', this.histogramParams.swimlaneBorderRadius)
       .attr('ry', this.histogramParams.swimlaneBorderRadius)
       .attr('y', this.histogramParams.swimlaneHeight * (indexOfLane))
-      .attr('height', (d) => this.getSwimlaneContentHeight(d.value))
+      .attr('height', (d) => this.getBucketHeight(d, swimStats, swimRepresentation, swimMode, swimHeight))
       .attr('transform', (d) => 'translate(' + this.histogramParams.swimLaneLabelsWidth + ','
-      + this.getSwimlaneVerticalTranslation(d.value, indexOfLane) + ')')
-      .style('fill', (d, i) => HistogramUtils.getColor(d.value / columnStats.get(+d.key).sum, this.histogramParams.paletteColors).toHexString())
-      .style('stroke', (d, i) => HistogramUtils.getColor(d.value / columnStats.get(+d.key).sum, this.histogramParams.paletteColors).toHexString())
+      + this.getSwimlaneVerticalTranslation(d, swimStats, swimRepresentation, swimMode, swimHeight) + ')')
+      .style('fill', (d) => this.getBucketColor(d, swimOptions, swimStats, swimRepresentation, swimColors))
+      .style('stroke', (d) =>  this.getBucketColor(d, swimOptions, swimStats, swimRepresentation, swimColors))
       .style('opacity', '0.8');
 
     if (this.histogramParams.swimlaneMode === SwimlaneMode.fixedHeight) {
-      this.plotHorizontalTicksForSwimlane(data, indexOfLane);
+      this.plotLevelTicks(laneData, swimOptions, indexOfLane);
     }
   }
 
-  private getSwimlaneContentHeight(swimlaneValue?: number): number {
-    const globalMax = this.histogramParams.swimlaneData.stats.globalStats.max;
-    return (this.histogramParams.swimlaneMode === SwimlaneMode.fixedHeight) ? this.histogramParams.swimlaneHeight - 5 :
-      swimlaneValue * this.histogramParams.swimlaneHeight / globalMax;
+  /**
+   * Returns the height of the bucket
+   * @param bucket the bucket to be plotted
+   * @param swimStats stats of the swimlane used to put `bucket` in the context of all the data
+   * @param representation what information to represent:
+   * - `column`: the bucket value is compared to other values of the same column (vertical lane)
+   * - `global`: the bucket value is compated to all data.
+   * @param swimMode which mode to represent
+   * - fixedHeight: in this case, laneHeight is returned
+   * - varaibleHeight: the height depends on the bucket value representation (column or global).
+   * @param laneHeight The height of the lane
+   */
+  private getBucketHeight(bucket: HistogramData, swimStats: SwimlaneStats, representation: SwimlaneRepresentation,
+    swimMode: SwimlaneMode, laneHeight: number): number {
+    const globalMax = swimStats.globalStats.max;
+    if (swimMode === SwimlaneMode.fixedHeight) {
+      return laneHeight;
+    } else {
+      const value = bucket.value.toString() !== NaN.toString() ? +bucket.value : 0;
+      if (representation === SwimlaneRepresentation.global) {
+        return value / globalMax * laneHeight;
+      } else {
+        const bucketSum = swimStats.columnStats.get(+bucket.key).sum;
+        if (bucketSum === 0) {
+          return 0;
+        } else {
+          return value / bucketSum * laneHeight;
+        }
+      }
+    }
   }
 
-  private getSwimlaneVerticalTranslation(swimlaneValue?: number, indexOfSwimlane?: number): number {
-    const globalMax = this.histogramParams.swimlaneData.stats.globalStats.max;
-    return (this.histogramParams.swimlaneMode === SwimlaneMode.fixedHeight) ? 5 :
-      this.histogramParams.swimlaneHeight - swimlaneValue * this.histogramParams.swimlaneHeight / globalMax;
+  private getSwimlaneVerticalTranslation(bucket: HistogramData, swimStats: SwimlaneStats, representation: SwimlaneRepresentation,
+    swimMode: SwimlaneMode, laneHeight: number): number {
+    if (this.histogramParams.swimlaneMode === SwimlaneMode.fixedHeight) {
+      return laneHeight * 1 / 9;
+    } else {
+      return laneHeight * 1 / 9 + (laneHeight - this.getBucketHeight(bucket, swimStats, representation, swimMode, laneHeight));    }
   }
 
-  private plotHorizontalTicksForSwimlane(data: Array<HistogramData>, index: number) {
+  /**
+   * Plots a tick on each swimlane bucket that indicates how high/low the bucket value is.
+   * @param laneData Data of a lane
+   * @param index
+   */
+  private plotLevelTicks(laneData: Array<HistogramData>, opt: SwimlaneOptions, index: number) {
+    const swimStats: SwimlaneStats = this.histogramParams.swimlaneData.stats;
+    const swimRepresentation: SwimlaneRepresentation = this.histogramParams.swimlaneRepresentation;
+    const swimHeight = this.histogramParams.swimlaneHeight * 0.9;
     this.context.append('g').attr('class', 'histogram__swimlane-height')
       .selectAll('path')
-      .data(data)
-      .enter().append('line').attr('class', 'histogram__swimlane-height--tick')
+      .data(laneData)
+      .enter().append('line')
+      .attr('stroke-width', (opt && opt.level_tick && opt.level_tick.color) ? opt.level_tick.color : TICK_WIDTH)
+      .attr('stroke', (opt && opt.level_tick && opt.level_tick.color) ? opt.level_tick.color : TICK_COLOR)
+      .attr('opacity', (opt && opt.level_tick && opt.level_tick.opacity) ? opt.level_tick.opacity : TICK_OPACITY)
       .attr('x1', (d) => this.histogramParams.swimLaneLabelsWidth + this.swimlaneAxes.xDataDomainArray[index](d.key))
-      .attr('y1', (d) => this.getHorizontalTickHeight(d.value, index))
+      .attr('y1', (d) => this.getLevelTickHeight(d, swimStats, swimRepresentation, SwimlaneMode.variableHeight, swimHeight, index))
       .attr('x2', (d) => this.histogramParams.swimLaneLabelsWidth + this.swimlaneAxes.xDataDomainArray[index](d.key) +
         this.swimlaneAxes.stepWidth * this.histogramParams.barWeight)
-      .attr('y2', (d) => this.getHorizontalTickHeight(d.value, index));
+      .attr('y2', (d) => this.getLevelTickHeight(d, swimStats, swimRepresentation, SwimlaneMode.variableHeight, swimHeight, index));
   }
 
-  private getHorizontalTickHeight(dataValue: any, i: number): number {
-    const globalMax = this.histogramParams.swimlaneData.stats.globalStats.max;
-    const value = dataValue !== NaN.toString() ? + dataValue : 0;
-    return this.histogramParams.swimlaneHeight * (i + 1) - (+value) * (this.histogramParams.swimlaneHeight - 5) / (+globalMax);
+  private getLevelTickHeight(bucket: HistogramData, swimStats: SwimlaneStats, representation: SwimlaneRepresentation,
+    swimMode: SwimlaneMode, laneHeight: number, i: number): number {
+    return this.histogramParams.swimlaneHeight * (i + 1) - this.getBucketHeight(bucket, swimStats, representation, swimMode, laneHeight);
   }
 }

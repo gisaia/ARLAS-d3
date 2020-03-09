@@ -17,25 +17,41 @@
  * under the License.
  */
 
-import * as tinycolor from 'tinycolor2';
-
 import { AbstractSwimlane } from './AbstractSwimlane';
-import { HistogramData, HistogramUtils } from '../utils/HistogramUtils';
+import { HistogramData, SwimlaneStats, SwimlaneRepresentation } from '../utils/HistogramUtils';
 
 export class SwimlaneCircles extends AbstractSwimlane {
 
   protected plotOneLane(data: Array<HistogramData>, indexOfLane): void {
-    const globalMax = this.histogramParams.swimlaneData.stats.globalStats.max;
+    const swimStats: SwimlaneStats = this.histogramParams.swimlaneData.stats;
+    const swimRepresentation: SwimlaneRepresentation = this.histogramParams.swimlaneRepresentation;
+    const swimColors = this.histogramParams.paletteColors;
+    const swimOptions = this.histogramParams.swimlaneOptions;
     this.barsContext = this.context.append('g')
-    .attr('class', 'histogram__swimlane').selectAll('dot').data(data).enter().append('circle')
-    .attr('r', (d) => Math.min(this.swimlaneAxes.stepWidth, this.histogramParams.swimlaneHeight) * this.swimlaneBarsWeight *
-      Math.sqrt(d.value / globalMax) / 2)
-    .attr('cx', (d) => this.histogramParams.swimLaneLabelsWidth + this.swimlaneAxes.xDataDomainArray[indexOfLane](d.key) +
-      this.swimlaneAxes.stepWidth * this.histogramParams.barWeight / 2)
-    .attr('cy', (d) => this.histogramParams.swimlaneHeight * (indexOfLane + 1) - this.histogramParams.swimlaneHeight / 2)
-    .attr('class', 'histogram__swimlane--circle')
-    .style('fill', (d) => HistogramUtils.getColor(d.value / globalMax, this.histogramParams.paletteColors).toHexString())
-    .style('stroke', (d) => HistogramUtils.getColor(d.value / globalMax, this.histogramParams.paletteColors).toHexString())
-    .style('opacity', '0.8');
+      .attr('class', 'histogram__swimlane').selectAll('dot').data(data).enter().append('circle')
+      .attr('r', (d) => this.getBucketRadius(d, swimStats, swimRepresentation))
+      .attr('cx', (d) => this.histogramParams.swimLaneLabelsWidth + this.swimlaneAxes.xDataDomainArray[indexOfLane](d.key) +
+        this.swimlaneAxes.stepWidth * this.histogramParams.barWeight / 2)
+      .attr('cy', (d) => this.histogramParams.swimlaneHeight * (indexOfLane + 1) - this.histogramParams.swimlaneHeight / 2)
+      .attr('class', 'histogram__swimlane--circle')
+      .style('fill', (d) => this.getBucketColor(d, swimOptions, swimStats, swimRepresentation, swimColors))
+      .style('stroke', (d) => this.getBucketColor(d, swimOptions, swimStats, swimRepresentation, swimColors))
+      .style('opacity', '0.8');
+  }
+
+  private getBucketRadius(bucket: HistogramData, swimStats: SwimlaneStats, representation: SwimlaneRepresentation): number {
+    const globalMax = swimStats.globalStats.max;
+    const bucketValue = bucket.value.toString() !== NaN.toString() ? +bucket.value : 0;
+    const fixedCoefficient = Math.min(this.swimlaneAxes.stepWidth, this.histogramParams.swimlaneHeight) * this.swimlaneBarsWeight;
+    if (representation === SwimlaneRepresentation.global) {
+      return Math.sqrt(bucketValue / globalMax) * 3 / 5 * fixedCoefficient;
+    } else {
+      const bucketSum = swimStats.columnStats.get(+bucket.key).sum;
+      if (bucketSum === 0) {
+        return 0;
+      } else {
+        return Math.sqrt(bucketValue / bucketSum) * 3 / 5 * fixedCoefficient;
+      }
+    }
   }
 }
