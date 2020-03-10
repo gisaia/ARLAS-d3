@@ -40,7 +40,7 @@ export class SwimlaneBars extends AbstractSwimlane {
       + this.getSwimlaneVerticalTranslation(d, swimStats, swimRepresentation, swimMode, swimHeight) + ')')
       .style('fill', (d) => this.getBucketColor(d, swimOptions, swimStats, swimRepresentation, swimColors))
       .style('stroke', (d) =>  this.getBucketColor(d, swimOptions, swimStats, swimRepresentation, swimColors))
-      .style('opacity', '0.8');
+      .style('opacity', '1');
 
     if (this.histogramParams.swimlaneMode === SwimlaneMode.fixedHeight) {
       this.plotLevelTicks(laneData, swimOptions, indexOfLane);

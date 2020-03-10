@@ -52,6 +52,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
       this.addLabels(swimlanesMapData);
       this.plotSwimlane(swimlanesMapData);
       this.applyStyleOnSwimlanes();
+      this.buildLegend(inputData.stats);
       this.showTooltipsForSwimlane(swimlanesMapData, inputData.stats, this.histogramParams.swimlaneRepresentation);
       this.plottingCount++;
     } else {
@@ -60,6 +61,53 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
       this.histogramParams.dataLength = 0;
       this.histogramParams.displaySvg = 'none';
     }
+  }
+
+  public buildLegend(stats: SwimlaneStats): void {
+    const legend = [];
+    if (this.histogramParams.swimlaneRepresentation === SwimlaneRepresentation.column) {
+      for (let i = 0; i <= 100; i += 10 ) {
+        let color;
+        if (i === 0 && this.histogramParams.swimlaneOptions && this.histogramParams.swimlaneOptions.zeros_color) {
+          color = this.histogramParams.swimlaneOptions.zeros_color;
+          legend.push({key: i + '%', color: color});
+        } else {
+          color = HistogramUtils.getColor(i / 100, this.histogramParams.paletteColors).toHexString();
+        }
+        if (i === 0 && this.histogramParams.swimlaneOptions && this.histogramParams.swimlaneOptions.zeros_color) {
+          color = HistogramUtils.getColor(i / 100, this.histogramParams.paletteColors).toHexString();
+          legend.push({key: ' ', color: '#fff'});
+          legend.push({key: '>0%', color: color});
+        } else {
+          const key = (i % 50 === 0) ? i + '%' : ' ';
+          legend.push({key, color});
+        }
+      }
+    } else {
+      const min = stats.globalStats.min;
+      const max = stats.globalStats.max;
+      const span = (max - min) / 10;
+      for (let i = 0; i <= 10; i ++ ) {
+        const colorValue = min + span * i;
+        let color;
+        if (colorValue === 0 && this.histogramParams.swimlaneOptions && this.histogramParams.swimlaneOptions.zeros_color) {
+          color = this.histogramParams.swimlaneOptions.zeros_color;
+          legend.push({key: colorValue, color: color});
+        } else {
+          color = HistogramUtils.getColor(colorValue / max, this.histogramParams.paletteColors).toHexString();
+        }
+        if (i === 0 && this.histogramParams.swimlaneOptions && this.histogramParams.swimlaneOptions.zeros_color) {
+          color = HistogramUtils.getColor(i / 100, this.histogramParams.paletteColors).toHexString();
+          legend.push({key: ' ', color: '#fff'});
+          legend.push({key: '>0', color: color});
+        } else {
+          const key = (i % 5 === 0) ? HistogramUtils.numToString(colorValue) : ' ';
+
+          legend.push({key, color});
+        }
+      }
+    }
+    this.histogramParams.legend = legend;
   }
 
   public resize(histogramContainer: HTMLElement): void {
@@ -320,8 +368,9 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
 
         tooltip.yContent = data[i].value.toString();
         if (representation === SwimlaneRepresentation.column) {
-          const percentage = Math.round(data[i].value / swimStats.columnStats.get(+data[i].key).sum * 1000) / 1000;
-          tooltip.yContent += ' - ' + percentage + '%'; 
+          const sum = swimStats.columnStats.get(+data[i].key).sum;
+          const percentage = (sum > 0 ) ? 100 * Math.round(data[i].value / sum * 1000) / 1000 : 0;
+          tooltip.yAdditonalInfo = ' - ' + percentage + '%';
         }
         this.histogramParams.swimlaneXTooltip = tooltip;
         this.histogramParams.swimlaneTooltipsMap.set(key, tooltip);

@@ -130,16 +130,16 @@ export interface SwimlaneOptions {
   /**Hex color attributted to buckets whose values are 0 */
   zeros_color?: string;
   /**The tick plotted on each swimlane bucket that indicates how high/low the bucket value is. */
-  level_tick: TickOptions;
+  level_tick?: TickOptions;
 }
 
 export interface TickOptions {
   /**Hex color of the tick */
-  color: string;
+  color?: string;
   /**Width of the tick in pixels */
-  width: number;
+  width?: number;
   /**Opacity of the tick */
-  opacity: number;
+  opacity?: number;
 }
 
 export interface SwimlaneData {
@@ -154,6 +154,7 @@ export interface Tooltip {
   yPosition: number;
   xContent: string;
   yContent: string;
+  yAdditonalInfo?: string;
   width?: number;
 }
 
@@ -231,10 +232,6 @@ export class HistogramUtils {
   }
 
   public static getColor(zeroToOne: number, paletteColors: [number, number] | string): tinycolor.Instance {
-    // Scrunch the green/cyan range in the middle
-    const sign = (zeroToOne < .5) ? -1 : 1;
-    zeroToOne = sign * Math.pow(2 * Math.abs(zeroToOne - .5), .35) / 2 + .5;
-
     // Linear interpolation between the cold and hot
     if (paletteColors === null) {
       const h0 = 259;
@@ -246,13 +243,13 @@ export class HistogramUtils {
         const h0 = paletteColors[1];
         const h1 = paletteColors[0];
         const h = (h0) * (1 - zeroToOne) + (h1) * (zeroToOne);
-        return tinycolor({ h: h, s: 100, v: 90 });
+        return tinycolor({ h: h, s: 85, v: 100 });
       } else {
         const color = tinycolor(paletteColors.toString());
         const h = color.toHsl().h;
         const s = color.toHsl().s;
-        const l0 = 85;
-        const l1 = 20;
+        const l0 = 95;
+        const l1 = 35;
         const l = (l0) * (1 - zeroToOne) + (l1) * (zeroToOne);
         return tinycolor({ h: h, s: s, l: l });
       }
@@ -364,6 +361,27 @@ export class HistogramUtils {
       multiplier = Math.pow(10, precision * 10 || 0);
       return +(Math.round(value * multiplier) / multiplier).toFixed(precision);
     }
+  }
+
+  public static numToString(value: number): string {
+    let newValue = value.toString();
+    if (value >= 1000) {
+      const suffixes = ['', 'k', 'M', 'b', 't'];
+      const suffixNum = Math.floor(('' + value).length / 4);
+      let shortValue: number;
+      for (let precision = 3; precision >= 1; precision--) {
+        shortValue = shortValue = Math.round(parseFloat((suffixNum !== 0 ? (value / Math.pow(1000, suffixNum)) : value)
+        .toPrecision(precision)));
+        const dotLessShortValue = (shortValue + '').replace(/[^a-zA-Z]+/g, '');
+        if (dotLessShortValue.length <= 2) { break; }
+      }
+      let shortNum = shortValue.toString();
+      if (shortValue % 1 !== 0) {
+        shortNum = shortValue.toFixed(1);
+      }
+      newValue = shortNum + suffixes[suffixNum];
+    }
+    return newValue.toString();
   }
 }
 

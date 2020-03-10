@@ -84,7 +84,7 @@ export class HistogramParams {
   /** Swimlane */
   public swimlaneBorderRadius = 3;
   public swimlaneMode: SwimlaneMode = SwimlaneMode.variableHeight;
-  public swimlaneRepresentation: SwimlaneRepresentation = SwimlaneRepresentation.column;
+  public swimlaneRepresentation: SwimlaneRepresentation = SwimlaneRepresentation.global;
   public swimLaneLabelsWidth: number = null;
   public swimlaneHeight: number = null;
   public swimlaneOptions: SwimlaneOptions;
@@ -104,6 +104,7 @@ export class HistogramParams {
   public margin: MarginModel = { top: 4, right: 10, bottom: 20, left: 60 };
   public tooltip: Tooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
 
+  public legend;
   public displaySvg = 'none';
   public dataLength = 0;
 
