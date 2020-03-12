@@ -1,8 +1,25 @@
 # Change Log
 
+## [v7.0.0](https://github.com/gisaia/ARLAS-d3/tree/v7.0.0) (2020-03-12)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v6.1.0...v7.0.0)
+
+**Breaking changes:**
+
+- Separate swimlaneData and histogramData [\#100](https://github.com/gisaia/ARLAS-d3/issues/100)
+
+**New stuff:**
+
+- SWIMLANE: Add a legend for colors [\#102](https://github.com/gisaia/ARLAS-d3/issues/102)
+- Swimlane : Add a column-oriented representation of data  [\#101](https://github.com/gisaia/ARLAS-d3/issues/101)
+
 ## [v6.1.0](https://github.com/gisaia/ARLAS-d3/tree/v6.1.0) (2019-11-18)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v6.0.3...v6.1.0)
+
+**New stuff:**
+
+- Upgrade rxjs version to v6.5.3 [\#97](https://github.com/gisaia/ARLAS-d3/issues/97)
 
 ## [v6.0.3](https://github.com/gisaia/ARLAS-d3/tree/v6.0.3) (2019-10-04)
 
