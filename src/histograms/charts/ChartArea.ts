@@ -30,13 +30,13 @@ export class ChartArea extends AbstractChart {
   private rectangleCurrentClipper;
   private selectedIntervals = new Map<string, {rect: any, startEndValues: SelectedOutputValues}>();
 
-  public plot(inputData: Array<{ key: number, value: number }>) {
+  public plot(inputData: Array<HistogramData>) {
     super.plot(inputData);
   }
 
   public resize(histogramContainer: HTMLElement): void {
     super.resize(histogramContainer);
-    this.plot(<Array<{ key: number, value: number }>>this.histogramParams.data);
+    this.plot(<Array<{ key: number, value: number }>>this.histogramParams.histogramData);
     if (this.histogramParams.multiselectable) {
       this.resizeSelectedIntervals(this.chartAxes);
     }
@@ -64,10 +64,10 @@ export class ChartArea extends AbstractChart {
     const isSelectionBeyondDataDomain = HistogramUtils.isSelectionBeyondDataDomain(this.selectionInterval, this.dataDomain,
       this.histogramParams.intervalSelectedMap);
     if (!isSelectionBeyondDataDomain && this.hasSelectionExceededData) {
-      this.plot(<Array<{key: number, value: number}>>this.histogramParams.data);
+      this.plot(<Array<HistogramData>>this.histogramParams.histogramData);
       this.hasSelectionExceededData = false;
     } else if (isSelectionBeyondDataDomain) {
-      this.plot(<Array<{key: number, value: number}>>this.histogramParams.data);
+      this.plot(<Array<{key: number, value: number}>>this.histogramParams.histogramData);
     }
   }
 

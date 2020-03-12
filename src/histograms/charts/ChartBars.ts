@@ -27,13 +27,13 @@ export class ChartBars extends AbstractChart {
 
   private strippedBarsContext;
 
-  public plot(inputData: Array<{ key: number, value: number }>) {
+  public plot(inputData: Array<HistogramData>) {
     super.plot(inputData);
   }
 
   public resize(histogramContainer: HTMLElement): void {
     super.resize(histogramContainer);
-    this.plot(<Array<{ key: number, value: number }>>this.histogramParams.data);
+    this.plot(<Array<HistogramData>>this.histogramParams.histogramData);
     if (this.histogramParams.multiselectable) {
       this.resizeSelectedIntervals(this.chartAxes);
     }

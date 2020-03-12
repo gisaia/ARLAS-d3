@@ -18,7 +18,9 @@
  */
 
  import { AbstractHistogram } from '../AbstractHistogram';
-import { SwimlaneAxes, HistogramData, HistogramUtils, DataType, Tooltip, Position } from '../utils/HistogramUtils';
+import { SwimlaneAxes, HistogramData, HistogramUtils,
+   DataType, Tooltip, Position, SwimlaneData, SwimlaneStats, SwimlaneRepresentation,
+   LaneStats, SwimlaneOptions, NAN_COLOR } from '../utils/HistogramUtils';
 import { select, mouse, ContainerElement } from 'd3-selection';
 import { scaleBand } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
@@ -26,8 +28,6 @@ import { axisBottom } from 'd3-axis';
 export abstract class AbstractSwimlane extends AbstractHistogram {
 
   protected swimlaneAxes: SwimlaneAxes;
-  protected swimlaneMaxValue: number = null;
-  protected nbSwimlanes: number;
   protected swimlaneIntervalBorders: [number | Date, number | Date];
   protected isSwimlaneHeightFixed = false;
   protected swimlaneHasMoreThanTwoBuckets = false;
@@ -39,22 +39,21 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
   protected labelsContextList = new Array<{name: string, context: any}>();
   protected labelsRectContextList = new Array<{name: string, context: any}>();
 
-  public plot(inputData: Map<string, Array<{ key: number, value: number }>>) {
-    super.plot(inputData);
+  public plot(inputData: SwimlaneData) {
+    super.init();
     let swimlanesMapData: Map<string, Array<HistogramData>> = null;
-    if (inputData !== null && inputData.size > 0) {
-      this.setSwimlaneMaxValue(inputData);
-      swimlanesMapData = HistogramUtils.parseSwimlaneDataKey(inputData, this.histogramParams.dataType);
-      this.nbSwimlanes = swimlanesMapData.size;
-      this.setSwimlaneMinMaxBorders(swimlanesMapData);
-      this.initializeDescriptionValues(this.swimlaneIntervalBorders[0], this.swimlaneIntervalBorders[1]);
+    if (inputData !== null && inputData.lanes.size > 0) {
+      swimlanesMapData = HistogramUtils.parseSwimlaneDataKey(inputData.lanes, this.histogramParams.dataType);
+      this.setSwimlaneMinMaxBorders(inputData.stats);
+      this.initializeDescriptionValues(this.swimlaneIntervalBorders[0], this.swimlaneIntervalBorders[1], inputData.lanes);
       this.initializeChartDimensions();
       this.createSwimlaneAxes(swimlanesMapData);
       this.drawChartAxes(this.swimlaneAxes);
       this.addLabels(swimlanesMapData);
       this.plotSwimlane(swimlanesMapData);
       this.applyStyleOnSwimlanes();
-      this.showTooltipsForSwimlane(swimlanesMapData);
+      this.buildLegend(inputData.stats);
+      this.showTooltipsForSwimlane(swimlanesMapData, inputData.stats, this.histogramParams.swimlaneRepresentation);
       this.plottingCount++;
     } else {
       this.histogramParams.startValue = '';
@@ -62,6 +61,53 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
       this.histogramParams.dataLength = 0;
       this.histogramParams.displaySvg = 'none';
     }
+  }
+
+  public buildLegend(stats: SwimlaneStats): void {
+    const legend = [];
+    if (this.histogramParams.swimlaneRepresentation === SwimlaneRepresentation.column) {
+      for (let i = 0; i <= 100; i += 10 ) {
+        let color;
+        if (i === 0 && this.histogramParams.swimlaneOptions && this.histogramParams.swimlaneOptions.zeros_color) {
+          color = this.histogramParams.swimlaneOptions.zeros_color;
+          legend.push({key: i + '%', color: color});
+        } else {
+          color = HistogramUtils.getColor(i / 100, this.histogramParams.paletteColors).toHexString();
+        }
+        if (i === 0 && this.histogramParams.swimlaneOptions && this.histogramParams.swimlaneOptions.zeros_color) {
+          color = HistogramUtils.getColor(i / 100, this.histogramParams.paletteColors).toHexString();
+          legend.push({key: ' ', color: '#fff'});
+          legend.push({key: '>0%', color: color});
+        } else {
+          const key = (i % 50 === 0) ? i + '%' : ' ';
+          legend.push({key, color});
+        }
+      }
+    } else {
+      const min = stats.globalStats.min;
+      const max = stats.globalStats.max;
+      const span = (max - min) / 10;
+      for (let i = 0; i <= 10; i ++ ) {
+        const colorValue = min + span * i;
+        let color;
+        if (colorValue === 0 && this.histogramParams.swimlaneOptions && this.histogramParams.swimlaneOptions.zeros_color) {
+          color = this.histogramParams.swimlaneOptions.zeros_color;
+          legend.push({key: colorValue, color: color});
+        } else {
+          color = HistogramUtils.getColor(colorValue / max, this.histogramParams.paletteColors).toHexString();
+        }
+        if (i === 0 && this.histogramParams.swimlaneOptions && this.histogramParams.swimlaneOptions.zeros_color) {
+          color = HistogramUtils.getColor(i / 100, this.histogramParams.paletteColors).toHexString();
+          legend.push({key: ' ', color: '#fff'});
+          legend.push({key: '>0', color: color});
+        } else {
+          const key = (i % 5 === 0) ? HistogramUtils.numToString(colorValue) : ' ';
+
+          legend.push({key, color});
+        }
+      }
+    }
+    this.histogramParams.legend = legend;
   }
 
   public resize(histogramContainer: HTMLElement): void {
@@ -74,17 +120,17 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
       if (this.isSwimlaneHeightFixed === false) {
         this.histogramParams.chartHeight = this.histogramParams.histogramContainer.offsetHeight;
       } else {
-        this.nbSwimlanes = (<Map<string, Array<{ key: number, value: number }>>>this.histogramParams.data).size;
-        this.histogramParams.chartHeight = this.histogramParams.swimlaneHeight * this.nbSwimlanes + this.histogramParams.margin.top +
+        this.histogramParams.chartHeight = this.histogramParams.swimlaneHeight * this.histogramParams.swimlaneData.stats.nbLanes
+         + this.histogramParams.margin.top +
          this.histogramParams.margin.bottom;
       }
     }
 
     if (this.isSwimlaneHeightFixed === false) {
       this.histogramParams.swimlaneHeight = Math.max(+this.histogramParams.chartHeight
-        - this.histogramParams.margin.top - this.histogramParams.margin.bottom, 0)  / this.nbSwimlanes;
+        - this.histogramParams.margin.top - this.histogramParams.margin.bottom, 0)  / this.histogramParams.swimlaneData.stats.nbLanes;
     }
-    this.plot(<Map<string, Array<{ key: number, value: number }>>>this.histogramParams.data);
+    this.plot(this.histogramParams.swimlaneData);
   }
 
   public truncateLabels() {
@@ -165,17 +211,17 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     if (this.histogramParams.swimlaneHeight === null) {
       this.initializeChartHeight();
       this.histogramParams.swimlaneHeight = Math.max(+this.histogramParams.chartHeight
-        - this.histogramParams.margin.top - this.histogramParams.margin.bottom, 0) / this.nbSwimlanes;
+        - this.histogramParams.margin.top - this.histogramParams.margin.bottom, 0) / this.histogramParams.swimlaneData.stats.nbLanes;
     } else if (this.histogramParams.swimlaneHeight !== null && this.plottingCount === 0) {
       this.isSwimlaneHeightFixed = true;
-      this.histogramParams.chartHeight = this.histogramParams.swimlaneHeight * this.nbSwimlanes
+      this.histogramParams.chartHeight = this.histogramParams.swimlaneHeight * this.histogramParams.swimlaneData.stats.nbLanes
       + this.histogramParams.margin.top + this.histogramParams.margin.bottom;
     } else if (this.histogramParams.swimlaneHeight !== null && this.plottingCount !== 0) {
       if (this.isHeightFixed) {
         this.histogramParams.swimlaneHeight = Math.max(+this.histogramParams.chartHeight
-          - this.histogramParams.margin.top - this.histogramParams.margin.bottom, 0) / this.nbSwimlanes;
+          - this.histogramParams.margin.top - this.histogramParams.margin.bottom, 0) / this.histogramParams.swimlaneData.stats.nbLanes;
       } else {
-        this.histogramParams.chartHeight = this.histogramParams.swimlaneHeight * this.nbSwimlanes
+        this.histogramParams.chartHeight = this.histogramParams.swimlaneHeight * this.histogramParams.swimlaneData.stats.nbLanes
         + this.histogramParams.margin.top + this.histogramParams.margin.bottom;
       }
     }
@@ -254,7 +300,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
   }
 
   protected drawLineSeparators(): void {
-    for (let i = 0; i <= (<Map<string, Array<{ key: number, value: number }>>>this.histogramParams.data).size; i++) {
+    for (let i = 0; i <= this.histogramParams.swimlaneData.stats.nbLanes; i++) {
       this.allAxesContext.append('g')
         .attr('class', 'histogram__line-separator')
         .attr('transform', 'translate(' + this.histogramParams.swimLaneLabelsWidth + ',' + this.histogramParams.swimlaneHeight * i + ')')
@@ -262,7 +308,8 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     }
   }
 
-  protected showTooltipsForSwimlane(swimlaneMapData: Map<string, Array<HistogramData>>): void {
+  protected showTooltipsForSwimlane(swimlaneMapData: Map<string, Array<HistogramData>>, swimStats: SwimlaneStats,
+    representation: SwimlaneRepresentation): void {
     this.histogramParams.swimlaneXTooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
     this.verticalTooltipLine = this.context.append('g').append('line').attr('class', 'histogram__swimlane--vertical-tooltip-line')
       .attr('x1', 0)
@@ -270,14 +317,14 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
       .attr('x2', 0)
       .attr('y2', this.chartDimensions.height)
       .style('display', 'none');
-    this.context
+    this.chartDimensions.svg
       .on('mousemove', () => {
         let i = 0;
         this.aBucketIsEncountred = false;
         const previousHoveredBucketKey = this.hoveredBucketKey;
         this.hoveredBucketKey = null;
         swimlaneMapData.forEach((swimlane, key) => {
-          this.setTooltipPositionForSwimlane(swimlane, key, i, swimlaneMapData.size, <ContainerElement>this.context.node());
+          this.setTooltipPositionForSwimlane(swimlane, key, i, swimStats, representation, <ContainerElement>this.context.node());
           i++;
         });
         if (!this.aBucketIsEncountred) {
@@ -299,8 +346,8 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
       });
   }
 
-  protected setTooltipPositionForSwimlane(data: Array<HistogramData>, key: string, indexOfKey: number, numberOfSwimlane: number,
-    container: ContainerElement): void {
+  protected setTooltipPositionForSwimlane(data: Array<HistogramData>, key: string, indexOfKey: number, swimStats: SwimlaneStats,
+    representation: SwimlaneRepresentation, container: ContainerElement): void {
     const xy = mouse(container);
     let dx, dy, startPosition, endPosition, middlePosition;
     const tooltip: Tooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
@@ -316,10 +363,15 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
         dy = this.setTooltipYposition(xy[1]);
         tooltip.xPosition = (xy[0] + dx);
         tooltip.yPosition = this.histogramParams.swimlaneHeight * (indexOfKey + 0.2);
-
         tooltip.xContent = HistogramUtils.toString(data[i].key, this.histogramParams.chartType,
           this.histogramParams.dataType, false, this.histogramParams.valuesDateFormat, this.dataInterval);
+
         tooltip.yContent = data[i].value.toString();
+        if (representation === SwimlaneRepresentation.column) {
+          const sum = swimStats.columnStats.get(+data[i].key).sum;
+          const percentage = (sum > 0 ) ? 100 * Math.round(data[i].value / sum * 1000) / 1000 : 0;
+          tooltip.yAdditonalInfo = ' - ' + percentage + '%';
+        }
         this.histogramParams.swimlaneXTooltip = tooltip;
         this.histogramParams.swimlaneTooltipsMap.set(key, tooltip);
         this.aBucketIsEncountred = true;
@@ -350,6 +402,45 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
   protected setTooltipYposition(yPosition: number): number {
     return 0;
   }
+
+  /**
+   * returns a color in hex form (#abcdef)
+   * @param bucket the bucket to be colorized
+   * @param swimStats stats of the swimlane used to put `bucket` in the context of all the data
+   * @param representation what information to represent:
+   * - `column`: the bucket value is compared to other values of the same column (vertical lane)
+   * - `global`: the bucket value is compated to all data.
+   * @param colors Either a hex string color or a color name (in English) or a saturation interval.
+   */
+  protected getBucketColor(bucket: HistogramData, swimOptions: SwimlaneOptions, swimStats: SwimlaneStats,
+    representation: SwimlaneRepresentation, colors: string | [number, number]): string {
+     const columnStats: Map<number, LaneStats> = swimStats.columnStats;
+     const globalMax = swimStats.globalStats.max;
+     const bucketValue = bucket.value;
+     if (bucketValue.toString() === NaN.toString()) {
+       if (swimOptions && swimOptions.nan_color) {
+         return swimOptions.nan_color;
+       } else {
+         return NAN_COLOR;
+       }
+     } else {
+       let colorValue;
+       /** calculates the value that will be transformed to a color */
+       if (representation === SwimlaneRepresentation.global) {
+         colorValue = globalMax === 0 ? 0 : +bucketValue / globalMax;
+       } else {
+         /** representation === SwimlaneRepresentation.column */
+         const columnSum = swimStats.columnStats.get(+bucket.key).sum;
+         colorValue = columnSum === 0 ? 0 : +bucketValue / columnStats.get(+bucket.key).sum;
+       }
+       /** for colorValue == 0; if `zeros_color` is specified, we return it otherwise we use the `colors` palette */
+       if (colorValue === 0 && swimOptions && swimOptions.zeros_color) {
+         return swimOptions.zeros_color;
+       } else {
+         return HistogramUtils.getColor(colorValue, colors).toHexString();
+       }
+     }
+   }
 
   protected addLabels(swimlanesMapData: Map<string, Array<HistogramData>>): void {
     this.labelsContext = this.context.append('g').classed('swimlane-labels-container', true);
@@ -455,38 +546,24 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     this.applyStyleOnSwimlanes();
   }
 
-  protected setSwimlaneMaxValue(swimlaneDataMap: Map<string, Array<{ key: number, value: number }>>): void {
-    this.swimlaneMaxValue = null;
-    swimlaneDataMap.forEach((swimlane, key) => {
-      if (this.swimlaneMaxValue === null) {
-        this.swimlaneMaxValue = swimlane[0].value;
+  protected setSwimlaneMinMaxBorders(swimlaneStats: SwimlaneStats): void {
+    const minInterval = swimlaneStats.minBorder;
+    const maxInterval = swimlaneStats.maxBorder;
+    const dataType = this.histogramParams.dataType;
+    let bucketLength = 0;
+    if (swimlaneStats.bucketLength !== undefined) {
+      bucketLength = swimlaneStats.bucketLength;
+    } else {
+      if (dataType === DataType.time) {
+        /** we give 1 min as a bucketlength in this case */
+        bucketLength = 60000;
+      } else {
+        /** we give 1 as a dataInterval in this case */
+        bucketLength = 1;
       }
-      swimlane.forEach(element => {
-        if (element.value > this.swimlaneMaxValue) {
-          this.swimlaneMaxValue = element.value;
-        }
-      });
-    });
-  }
-
-  protected setSwimlaneMinMaxBorders(swimlanesMapData: Map<string, Array<HistogramData>>): void {
-    const firstKey = swimlanesMapData.keys().next().value;
-    const firstArrayLength = swimlanesMapData.get(firstKey).length;
-    let minInterval = swimlanesMapData.get(firstKey)[0].key;
-    let maxInterval = swimlanesMapData.get(firstKey)[firstArrayLength - 1].key;
-    swimlanesMapData.forEach((swimlane, key) => {
-      if (swimlane[0].key <= minInterval) {
-        minInterval = swimlane[0].key;
-      }
-      if (swimlane[swimlane.length - 1].key >= maxInterval) {
-        maxInterval = swimlane[swimlane.length - 1].key;
-      }
-    });
-    const dataInterval = this.getDataInterval(swimlanesMapData);
-    maxInterval =  +maxInterval + dataInterval;
-    const lastBucket = {key: maxInterval, value: 0};
-    maxInterval = HistogramUtils.parseDataKey([lastBucket], this.histogramParams.dataType)[0].key;
-    this.swimlaneIntervalBorders = [minInterval, maxInterval];
+    }
+    this.swimlaneIntervalBorders = (dataType === DataType.time) ?
+     [(new Date(minInterval)), new Date(maxInterval + bucketLength)] : [minInterval, maxInterval + bucketLength];
   }
 
   protected getHistogramMinMaxBorders(data: Array<HistogramData>): [number | Date, number | Date] {

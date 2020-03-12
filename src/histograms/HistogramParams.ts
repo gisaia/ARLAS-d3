@@ -18,7 +18,11 @@
  */
 
 import { SelectedInputValues, SelectedOutputValues, ChartType, DataType, Position, Tooltip, MarginModel,
-   SwimlaneMode} from './utils/HistogramUtils';
+   SwimlaneMode,
+   SwimlaneData,
+   HistogramData,
+   SwimlaneRepresentation,
+   SwimlaneOptions} from './utils/HistogramUtils';
 import { Subject } from 'rxjs';
 
 export class HistogramParams {
@@ -29,7 +33,8 @@ export class HistogramParams {
   // ########################## Inputs ##########################
 
   /** Data */
-  public data: Array<{ key: number, value: number }> | Map<string, Array<{ key: number, value: number }>>;
+  public histogramData: Array<HistogramData>;
+  public swimlaneData: SwimlaneData;
   public dataType: DataType = DataType.numeric;
   public dataUnit = '';
   public chartType: ChartType = ChartType.area;
@@ -79,8 +84,10 @@ export class HistogramParams {
   /** Swimlane */
   public swimlaneBorderRadius = 3;
   public swimlaneMode: SwimlaneMode = SwimlaneMode.variableHeight;
+  public swimlaneRepresentation: SwimlaneRepresentation = SwimlaneRepresentation.global;
   public swimLaneLabelsWidth: number = null;
   public swimlaneHeight: number = null;
+  public swimlaneOptions: SwimlaneOptions;
   public selectedSwimlanes = new Set<string>();
 
   // ########################## Outputs ##########################
@@ -97,6 +104,7 @@ export class HistogramParams {
   public margin: MarginModel = { top: 4, right: 10, bottom: 20, left: 60 };
   public tooltip: Tooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
 
+  public legend;
   public displaySvg = 'none';
   public dataLength = 0;
 

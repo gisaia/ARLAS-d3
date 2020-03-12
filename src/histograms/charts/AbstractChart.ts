@@ -37,15 +37,15 @@ export abstract class AbstractChart extends AbstractHistogram {
   protected NO_DATA_STRIPES_PATTERN = 'M-1,1 l2,-2 M0,10 l10,-10 M9,11 l2,-2';
   protected NO_DATA_STRIPES_SIZE = 10;
 
-  public plot(inputData: Array<{ key: number, value: number }>) {
-    super.plot(inputData);
+  public plot(inputData: Array<HistogramData>) {
+    super.init();
     this.dataDomain = inputData;
     if (inputData !== null && Array.isArray(inputData) && inputData.length > 0) {
       const movedData = this.moveDataByHalfInterval(inputData);
       const data = HistogramUtils.parseDataKey(movedData, this.histogramParams.dataType);
       this.histogramParams.dataLength = data.length;
       const minMaxBorders = this.getHistogramMinMaxBorders(data);
-      this.initializeDescriptionValues(minMaxBorders[0], minMaxBorders[1]);
+      this.initializeDescriptionValues(minMaxBorders[0], minMaxBorders[1], inputData);
       this.initializeChartDimensions();
       this.createChartAxes(data);
       this.drawChartAxes(this.chartAxes, 0);
@@ -73,7 +73,7 @@ export abstract class AbstractChart extends AbstractHistogram {
       parsedSelectedValues.endvalue !== this.selectionInterval.endvalue) {
       this.selectionInterval.startvalue = parsedSelectedValues.startvalue;
       this.selectionInterval.endvalue = parsedSelectedValues.endvalue;
-      const dataInterval = this.getDataInterval(<Array<HistogramData>>this.histogramParams.data);
+      const dataInterval = this.getDataInterval(<Array<HistogramData>>this.histogramParams.histogramData);
       this.histogramParams.startValue = HistogramUtils.toString(this.selectionInterval.startvalue, this.histogramParams.chartType,
         this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval, this.histogramParams.valuesDateFormat, dataInterval);
       this.histogramParams.endValue = HistogramUtils.toString(this.selectionInterval.endvalue, this.histogramParams.chartType,
@@ -83,11 +83,11 @@ export abstract class AbstractChart extends AbstractHistogram {
         if (HistogramUtils.isSelectionBeyondDataDomain(selectedInputValues, <Array<{ key: number, value: number }>>data,
           this.histogramParams.intervalSelectedMap)) {
           this.hasSelectionExceededData = true;
-          this.plot(<Array<{ key: number, value: number }>>this.histogramParams.data);
+          this.plot(<Array<{ key: number, value: number }>>this.histogramParams.histogramData);
         } else {
           if (this.hasSelectionExceededData) {
             this.hasSelectionExceededData = false;
-            this.plot(<Array<{ key: number, value: number }>>this.histogramParams.data);
+            this.plot(<Array<{ key: number, value: number }>>this.histogramParams.histogramData);
           }
           const selectionBrushStart = Math.max(0, axes.xDomain(this.selectionInterval.startvalue));
           const selectionBrushEnd = Math.min(axes.xDomain(this.selectionInterval.endvalue), (this.chartDimensions).width);
@@ -114,10 +114,10 @@ export abstract class AbstractChart extends AbstractHistogram {
     const isSelectionBeyondDataDomain = HistogramUtils.isSelectionBeyondDataDomain(this.selectionInterval, this.dataDomain,
       this.histogramParams.intervalSelectedMap);
     if (!isSelectionBeyondDataDomain && this.hasSelectionExceededData) {
-      this.plot(<Array<{ key: number, value: number }>>this.histogramParams.data);
+      this.plot(<Array<HistogramData>>this.histogramParams.histogramData);
       this.hasSelectionExceededData = false;
     } else if (isSelectionBeyondDataDomain) {
-      this.plot(<Array<{ key: number, value: number }>>this.histogramParams.data);
+      this.plot(<Array<HistogramData>>this.histogramParams.histogramData);
     }
   }
 
@@ -222,7 +222,7 @@ export abstract class AbstractChart extends AbstractHistogram {
     });
   }
 
-  protected moveDataByHalfInterval(data: Array<{ key: number, value: number }>): Array<{ key: number, value: number }> {
+  protected moveDataByHalfInterval(data: Array<HistogramData>): Array<HistogramData> {
     return data;
   }
 
@@ -340,7 +340,7 @@ export abstract class AbstractChart extends AbstractHistogram {
     let dy;
     let startPosition;
     let endPosition;
-    const dataInterval = this.getDataInterval(<Array<HistogramData>>this.histogramParams.data);
+    const dataInterval = this.getDataInterval(<Array<HistogramData>>this.histogramParams.histogramData);
 
     for (let i = 0; i < data.length; i++) {
       this.histogramParams.tooltip.isShown = true;
@@ -391,7 +391,7 @@ export abstract class AbstractChart extends AbstractHistogram {
   protected getSelectedBars(startvalue: number, endvalue: number): Array<number> {
     const keys = new Array<number>();
     const bars = HistogramUtils
-      .parseDataKey(<Array<{ key: number; value: number }>>this.histogramParams.data, this.histogramParams.dataType);
+      .parseDataKey(<Array<{ key: number; value: number }>>this.histogramParams.histogramData, this.histogramParams.dataType);
     bars.forEach((d) => {
       if (+d.key >= startvalue
         && +d.key + this.histogramParams.barWeight * this.dataInterval <= +endvalue) {
@@ -534,7 +534,7 @@ export abstract class AbstractChart extends AbstractHistogram {
       if (selection !== null) {
         this.selectionInterval.startvalue = selection.map(chartAxes.xDomain.invert, chartAxes.xDomain)[0];
         this.selectionInterval.endvalue = selection.map(chartAxes.xDomain.invert, chartAxes.xDomain)[1];
-        const dataInterval = this.getDataInterval(<Array<HistogramData>>this.histogramParams.data);
+        const dataInterval = this.getDataInterval(<Array<HistogramData>>this.histogramParams.histogramData);
         this.histogramParams.startValue = HistogramUtils.toString(this.selectionInterval.startvalue,
           this.histogramParams.chartType,
           this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval, this.histogramParams.valuesDateFormat, dataInterval);
@@ -555,7 +555,7 @@ export abstract class AbstractChart extends AbstractHistogram {
         if (!this.fromSetInterval && this.isBrushing) {
           this.selectionInterval.startvalue = selection.map(chartAxes.xDomain.invert, chartAxes.xDomain)[0];
           this.selectionInterval.endvalue = selection.map(chartAxes.xDomain.invert, chartAxes.xDomain)[1];
-          const dataInterval = this.getDataInterval(<Array<HistogramData>>this.histogramParams.data);
+          const dataInterval = this.getDataInterval(<Array<HistogramData>>this.histogramParams.histogramData);
           this.histogramParams.startValue = HistogramUtils.toString(this.selectionInterval.startvalue, this.histogramParams.chartType,
             this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval,
             this.histogramParams.valuesDateFormat, dataInterval);
@@ -569,7 +569,7 @@ export abstract class AbstractChart extends AbstractHistogram {
           const isSelectionBeyondDataDomain = HistogramUtils.isSelectionBeyondDataDomain(this.selectionInterval, this.dataDomain,
             this.histogramParams.intervalSelectedMap);
           if (!isSelectionBeyondDataDomain && this.hasSelectionExceededData) {
-            this.plot(<Array<{ key: number, value: number }>>this.histogramParams.data);
+            this.plot(<Array<HistogramData>>this.histogramParams.histogramData);
             this.hasSelectionExceededData = false;
           }
         }

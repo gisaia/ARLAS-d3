@@ -25,6 +25,12 @@ import { utcFormat } from 'd3-time-format';
 import { Axis } from 'd3-axis';
 import { ScaleLinear } from 'd3-scale';
 
+
+export const NAN_COLOR = '#d8d8d8';
+export const TICK_COLOR = '#fff';
+export const TICK_WIDTH = 1.5;
+export const TICK_OPACITY = 1;
+
 export interface MarginModel {
   top: number;
   right: number;
@@ -102,6 +108,45 @@ export interface SwimlaneAxes {
   xAxis: Axis<any>;
 }
 
+export interface LaneStats {
+  min?: number;
+  max?: number;
+  sum?: number;
+  count?: number;
+}
+
+export interface SwimlaneStats {
+  columnStats: Map<number, LaneStats>;
+  globalStats: LaneStats;
+  nbLanes: number;
+  minBorder?: number;
+  maxBorder?: number;
+  bucketLength?: number;
+}
+
+export interface SwimlaneOptions {
+  /**Hex color attributted to buckets whose values are NaN */
+  nan_color?: string;
+  /**Hex color attributted to buckets whose values are 0 */
+  zeros_color?: string;
+  /**The tick plotted on each swimlane bucket that indicates how high/low the bucket value is. */
+  level_tick?: TickOptions;
+}
+
+export interface TickOptions {
+  /**Hex color of the tick */
+  color?: string;
+  /**Width of the tick in pixels */
+  width?: number;
+  /**Opacity of the tick */
+  opacity?: number;
+}
+
+export interface SwimlaneData {
+  stats: SwimlaneStats;
+  lanes: Map<string, Array<{ key: number, value: number }>>;
+}
+
 export interface Tooltip {
   isShown: boolean;
   isRightSide: boolean;
@@ -109,13 +154,14 @@ export interface Tooltip {
   yPosition: number;
   xContent: string;
   yContent: string;
+  yAdditonalInfo?: string;
   width?: number;
 }
 
 export class HistogramUtils {
 
   public static isSelectionBeyondDataDomain(selectedInputValues: SelectedInputValues,
-    inputData: Array<{ key: number, value: number }>,
+    inputData: Array<HistogramData>,
     intervalSelectedMap: Map<string, { values: SelectedOutputValues, x_position: number }>): boolean {
 
     let min = selectedInputValues.startvalue;
@@ -137,7 +183,7 @@ export class HistogramUtils {
     }
   }
 
-  public static parseDataKey(inputData: Array<{ key: number, value: number }>,
+  public static parseDataKey(inputData: Array<HistogramData>,
     dataType: DataType): Array<HistogramData> {
     if (dataType === DataType.time) {
       return this.parseDataKeyToDate(inputData);
@@ -177,7 +223,7 @@ export class HistogramUtils {
     return swimlaneParsedDataMap;
   }
 
-  private static parseDataKeyToDate(inputData: Array<{ key: number, value: number }>) {
+  private static parseDataKeyToDate(inputData: Array<HistogramData>) {
     const parsedData = new Array<HistogramData>();
     inputData.forEach(d => {
       parsedData.push({ key: new Date(+d.key), value: d.value });
@@ -185,11 +231,7 @@ export class HistogramUtils {
     return parsedData;
   }
 
-  public static getColor(zeroToOne: number, paletteColors: [number, number] | string): any {
-    // Scrunch the green/cyan range in the middle
-    const sign = (zeroToOne < .5) ? -1 : 1;
-    zeroToOne = sign * Math.pow(2 * Math.abs(zeroToOne - .5), .35) / 2 + .5;
-
+  public static getColor(zeroToOne: number, paletteColors: [number, number] | string): tinycolor.Instance {
     // Linear interpolation between the cold and hot
     if (paletteColors === null) {
       const h0 = 259;
@@ -201,13 +243,13 @@ export class HistogramUtils {
         const h0 = paletteColors[1];
         const h1 = paletteColors[0];
         const h = (h0) * (1 - zeroToOne) + (h1) * (zeroToOne);
-        return tinycolor({ h: h, s: 100, v: 90 });
+        return tinycolor({ h: h, s: 85, v: 100 });
       } else {
         const color = tinycolor(paletteColors.toString());
         const h = color.toHsl().h;
         const s = color.toHsl().s;
-        const l0 = 85;
-        const l1 = 20;
+        const l0 = 95;
+        const l1 = 35;
         const l = (l0) * (1 - zeroToOne) + (l1) * (zeroToOne);
         return tinycolor({ h: h, s: s, l: l });
       }
@@ -320,10 +362,35 @@ export class HistogramUtils {
       return +(Math.round(value * multiplier) / multiplier).toFixed(precision);
     }
   }
+
+  public static numToString(value: number): string {
+    let newValue = value.toString();
+    if (value >= 1000) {
+      const suffixes = ['', 'k', 'M', 'b', 't'];
+      const suffixNum = Math.floor(('' + value).length / 4);
+      let shortValue: number;
+      for (let precision = 3; precision >= 1; precision--) {
+        shortValue = shortValue = Math.round(parseFloat((suffixNum !== 0 ? (value / Math.pow(1000, suffixNum)) : value)
+        .toPrecision(precision)));
+        const dotLessShortValue = (shortValue + '').replace(/[^a-zA-Z]+/g, '');
+        if (dotLessShortValue.length <= 2) { break; }
+      }
+      let shortNum = shortValue.toString();
+      if (shortValue % 1 !== 0) {
+        shortNum = shortValue.toFixed(1);
+      }
+      newValue = shortNum + suffixes[suffixNum];
+    }
+    return newValue.toString();
+  }
 }
 
 export enum SwimlaneMode {
   variableHeight, fixedHeight, circles
+}
+
+export enum SwimlaneRepresentation {
+  column, global
 }
 export enum DataType {
   numeric, time
