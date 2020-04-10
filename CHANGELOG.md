@@ -1,5 +1,13 @@
 # Change Log
 
+## [v7.0.1](https://github.com/gisaia/ARLAS-d3/tree/v7.0.1) (2020-04-10)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.0.0...v7.0.1)
+
+**Fixed bugs:**
+
+- \[Histograms\] Fix buckets whose values are 'Infinity' [\#104](https://github.com/gisaia/ARLAS-d3/issues/104)
+
 ## [v7.0.0](https://github.com/gisaia/ARLAS-d3/tree/v7.0.0) (2020-03-12)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v6.1.0...v7.0.0)
