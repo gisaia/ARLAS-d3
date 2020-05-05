@@ -26,10 +26,6 @@ import { extent } from 'd3-array';
 import { utcFormat } from 'd3-time-format';
 
 export class ChartArea extends AbstractChart {
-  private clipPathContext;
-  private currentClipPathContext;
-  private rectangleCurrentClipper;
-  private selectedIntervals = new Map<string, {rect: any, startEndValues: SelectedOutputValues}>();
 
   public plot(inputData: Array<HistogramData>) {
     super.plot(inputData);
@@ -40,35 +36,6 @@ export class ChartArea extends AbstractChart {
     this.plot(<Array<{ key: number, value: number }>>this.histogramParams.histogramData);
     if (this.histogramParams.multiselectable) {
       this.resizeSelectedIntervals(this.chartAxes);
-    }
-  }
-
-  public redrawSelectedIntervals(): void {
-    super.redrawSelectedIntervals();
-    this.selectedIntervals.forEach((rectClipper, guid) => { rectClipper.rect.remove(); });
-    this.selectedIntervals.clear();
-    this.histogramParams.intervalListSelection.forEach((v) => {
-      if (this.histogramParams.dataType === DataType.time) {
-        v.startvalue = new Date(+v.startvalue);
-        v.endvalue = new Date(+v.endvalue);
-      }
-      const guid = HistogramUtils.getIntervalGUID(v.startvalue, v.endvalue);
-      const rect = this.getAppendedRectangle(v.startvalue, v.endvalue);
-      this.selectedIntervals.set(guid, {rect: rect, startEndValues: {startvalue : v.startvalue, endvalue: v.endvalue}});
-    });
-  }
-
-  public removeSelectInterval(id: string) {
-    super.removeSelectInterval(id);
-    this.selectedIntervals.get(id).rect.remove();
-    this.selectedIntervals.delete(id);
-    const isSelectionBeyondDataDomain = HistogramUtils.isSelectionBeyondDataDomain(this.selectionInterval, this.dataDomain,
-      this.histogramParams.intervalSelectedMap);
-    if (!isSelectionBeyondDataDomain && this.hasSelectionExceededData) {
-      this.plot(<Array<HistogramData>>this.histogramParams.histogramData);
-      this.hasSelectionExceededData = false;
-    } else if (isSelectionBeyondDataDomain) {
-      this.plot(<Array<{key: number, value: number}>>this.histogramParams.histogramData);
     }
   }
 
@@ -207,47 +174,6 @@ export class ChartArea extends AbstractChart {
     this.drawYAxis(chartAxes);
   }
 
-  protected onSelectionDoubleClick (axes: ChartAxes): void {
-    this.brushContext.on('dblclick', () => {
-      if (this.isBrushed) {
-        const finalPosition = this.getIntervalMiddlePositon(axes, +this.selectionInterval.startvalue, +this.selectionInterval.endvalue);
-        let guid;
-        if ((typeof (<Date>this.selectionInterval.startvalue).getMonth === 'function')) {
-          const startMilliString = (<Date>this.selectionInterval.startvalue).getTime().toString();
-          const start = startMilliString.substring(0, startMilliString.length - 3);
-          const endMilliString = (<Date>this.selectionInterval.endvalue).getTime().toString();
-          const end = endMilliString.substring(0, endMilliString.length - 3);
-          guid = start + '000' + end + '000';
-        } else {
-          guid = this.selectionInterval.startvalue.toString() + this.selectionInterval.endvalue.toString();
-        }
-        this.histogramParams.intervalSelectedMap.set(guid,
-          {
-            values: { startvalue: this.selectionInterval.startvalue, endvalue: this.selectionInterval.endvalue },
-            x_position: finalPosition
-          });
-        if (this.histogramParams.selectionListIntervalId.indexOf(guid) < 0) {
-          this.histogramParams.selectionListIntervalId.push(guid);
-        }
-        // ### Emits the selected interval
-        const selectionListInterval = [];
-        this.histogramParams.intervalSelectedMap.forEach((k, v) => selectionListInterval.push(k.values));
-        this.histogramParams.valuesListChangedEvent.next(selectionListInterval.concat(this.selectionInterval));
-
-        if (!this.selectedIntervals.has(guid)) {
-          const rect = this.getAppendedRectangle(this.selectionInterval.startvalue, this.selectionInterval.endvalue);
-          this.selectedIntervals.set(guid, {rect: rect, startEndValues: {startvalue : this.selectionInterval.startvalue,
-             endvalue: this.selectionInterval.endvalue}});
-        }
-      } else {
-        if (this.rectangleCurrentClipper !== null) {
-          this.rectangleCurrentClipper.remove();
-          this.rectangleCurrentClipper = null;
-        }
-      }
-    });
-  }
-
   protected onSelectionClick (): void {
     this.brushContext.on('click', () => {
       if (!this.isBrushed && this.rectangleCurrentClipper !== null) {
@@ -274,27 +200,7 @@ export class ChartArea extends AbstractChart {
   }
 
   protected applyStyleOnSelection(): void {
-    if (this.rectangleCurrentClipper === null) {
-      this.rectangleCurrentClipper = this.currentClipPathContext.append('rect')
-        .attr('id', 'clip-rect')
-        .attr('x', this.chartAxes.xDomain(this.selectionInterval.startvalue))
-        .attr('y', '0')
-        .attr('width', this.chartAxes.xDomain(this.selectionInterval.endvalue) - this.chartAxes.xDomain(this.selectionInterval.startvalue))
-        .attr('height', this.chartDimensions.height );
-    } else {
-      this.rectangleCurrentClipper
-        .attr('x', this.chartAxes.xDomain(this.selectionInterval.startvalue))
-        .attr('width', this.chartAxes.xDomain(this.selectionInterval.endvalue) - this.chartAxes.xDomain(this.selectionInterval.startvalue));
-    }
-  }
-
-  protected resizeSelectedIntervals(chartAxes: ChartAxes) {
-    super.resizeSelectedIntervals(chartAxes);
-    this.selectedIntervals.forEach((rect, guid) => {
-      rect.rect.remove();
-      const rectangle = this.getAppendedRectangle(rect.startEndValues.startvalue, rect.startEndValues.endvalue);
-      this.selectedIntervals.set(guid, {rect: rectangle, startEndValues: rect.startEndValues});
-    });
+    this.applyStyleOnClipper();
   }
 
   protected getStartPosition(data: Array<HistogramData>, index: number): number {
@@ -325,15 +231,6 @@ export class ChartArea extends AbstractChart {
 
   protected setTooltipYposition(yPosition: number): number {
     return -10;
-  }
-
-  private getAppendedRectangle (start: Date | number, end: Date | number): any {
-    return this.clipPathContext.append('rect')
-    .attr('id', 'clip-rect')
-    .attr('x', this.chartAxes.xDomain(start))
-    .attr('y', '0')
-    .attr('width', this.chartAxes.xDomain(end) - this.chartAxes.xDomain(start))
-    .attr('height', this.chartDimensions.height );
   }
 
   private splitData(data: Array<HistogramData>): [Array<Array<HistogramData>>, Array<Array<HistogramData>>] {
