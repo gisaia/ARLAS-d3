@@ -683,7 +683,4 @@ export abstract class AbstractChart extends AbstractHistogram {
       throw new Error('Start and end values are null');
     }
   }
-
-  
-
 }

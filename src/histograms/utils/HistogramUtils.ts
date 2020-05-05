@@ -439,7 +439,7 @@ export const UNSELECTED_STYLE: Style = {
   stroke_width: 1,
   background_color: '#FFF',
   background_opacity: 0
-}
+};
 
 export const HEAD_BAR = {
   SELECTED_STYLE,
@@ -468,7 +468,34 @@ export function getBarOptions(barOptions: BarOptions): BarOptions {
     if (!returnedBarOptions.head_band.unselected_style) { returnedBarOptions.head_band.unselected_style = HEAD_BAR.UNSELECTED_STYLE; }
     if (returnedBarOptions.head_band.height === undefined) { returnedBarOptions.head_band.height = HEAD_BAR.HEIGHT; }
   }
-  if (!returnedBarOptions.selected_style) { returnedBarOptions.selected_style = SELECTED_STYLE; }
-  if (!returnedBarOptions.unselected_style) { returnedBarOptions.unselected_style = UNSELECTED_STYLE; }
+  if (!returnedBarOptions.selected_style) {
+    returnedBarOptions.selected_style = SELECTED_STYLE;
+  } else {
+    returnedBarOptions.selected_style.fill = returnedBarOptions.selected_style.fill ?
+      returnedBarOptions.selected_style.fill : SELECTED_STYLE.fill;
+    returnedBarOptions.selected_style.stroke = returnedBarOptions.selected_style.stroke ?
+      returnedBarOptions.selected_style.stroke : SELECTED_STYLE.stroke;
+    returnedBarOptions.selected_style.background_color = returnedBarOptions.selected_style.background_color ?
+      returnedBarOptions.selected_style.background_color : SELECTED_STYLE.background_color;
+    returnedBarOptions.selected_style.stroke_width = returnedBarOptions.selected_style.stroke_width !== undefined ?
+      returnedBarOptions.selected_style.stroke_width : SELECTED_STYLE.stroke_width;
+    returnedBarOptions.selected_style.background_opacity = returnedBarOptions.selected_style.background_opacity !== undefined ?
+      returnedBarOptions.selected_style.background_opacity : SELECTED_STYLE.background_opacity;
+  }
+  if (!returnedBarOptions.unselected_style) {
+    returnedBarOptions.unselected_style = UNSELECTED_STYLE;
+  } else {
+      returnedBarOptions.unselected_style.fill = returnedBarOptions.unselected_style.fill ?
+        returnedBarOptions.unselected_style.fill : UNSELECTED_STYLE.fill;
+      returnedBarOptions.unselected_style.stroke = returnedBarOptions.unselected_style.stroke ?
+        returnedBarOptions.unselected_style.stroke : UNSELECTED_STYLE.stroke;
+      returnedBarOptions.unselected_style.background_color = returnedBarOptions.unselected_style.background_color ?
+        returnedBarOptions.unselected_style.background_color : UNSELECTED_STYLE.background_color;
+      returnedBarOptions.unselected_style.stroke_width = returnedBarOptions.unselected_style.stroke_width !== undefined ?
+        returnedBarOptions.unselected_style.stroke_width : UNSELECTED_STYLE.stroke_width;
+      returnedBarOptions.unselected_style.background_opacity = returnedBarOptions.unselected_style.background_opacity !== undefined ?
+        returnedBarOptions.unselected_style.background_opacity : UNSELECTED_STYLE.background_opacity;
+  }
+
   return returnedBarOptions;
 }
