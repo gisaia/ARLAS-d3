@@ -69,6 +69,8 @@ export class HistogramParams {
   public barWeight = 0.6;
   public multiselectable = false;
 
+  public barOptions: BarOptions;
+
   /** Area */
   public isSmoothedCurve = true;
 
@@ -127,4 +129,31 @@ export class HistogramParams {
   public uid: string;
   public displayHorizontal = 'hidden';
   public displayVertical = 'hidden';
+}
+
+export interface BarOptions {
+  selected_style?: Style;
+  unselected_style?: Style;
+  /** bar weight applied to bars width. ]0,1]. Not implemented */
+  bar_weight?: number;
+  /** Optional head band on a bar. */
+  head_band?: BarHeadBand;
+}
+
+export interface BarHeadBand {
+  selected_style?: Style;
+  unselected_style?: Style;
+  height?: number;
+}
+
+export interface Style {
+  /** bars fill color. Not implemented */
+  fill?: string;
+  /** bars stroke color. Not implemented */
+  stroke?: string;
+  /** bars stroke width in px. Not implemented */
+  stroke_width?: number;
+
+  background_color?: string;
+  background_opacity?: number;
 }

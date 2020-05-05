@@ -17,7 +17,8 @@
 * under the License.
 */
 
-import { HistogramData, ChartAxes, DataType, Position, tickNumberFormat } from '../utils/HistogramUtils';
+import { HistogramData, ChartAxes, DataType, Position, tickNumberFormat,
+  getBarOptions, SelectedOutputValues, } from '../utils/HistogramUtils';
 import { AbstractChart } from './AbstractChart';
 import { scaleBand } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
@@ -26,6 +27,7 @@ import { utcFormat } from 'd3-time-format';
 export class ChartBars extends AbstractChart {
 
   private strippedBarsContext;
+  private headBandsContext;
 
   public plot(inputData: Array<HistogramData>) {
     super.plot(inputData);
@@ -39,7 +41,71 @@ export class ChartBars extends AbstractChart {
     }
   }
 
+  /** Plots headbands on the top of each bar. A headband is small rectangle (that forms a band)
+   * on top of each bar. Those headbands are added for styling purposes */
+  protected plotHeadBand(data: Array<HistogramData>, axes: ChartAxes, xDataDomain: any, barWeight?: number) {
+    const barWidth = barWeight ? axes.stepWidth * barWeight : axes.stepWidth * this.histogramParams.barWeight;
+    const hasHeadBand = this.histogramParams.barOptions && this.histogramParams.barOptions.head_band;
+    if (hasHeadBand) {
+      const barsHeight = (this.yStartsFromMin && this.histogramParams.showStripes) ?
+      (0.9 * this.chartDimensions.height) : this.chartDimensions.height;
+      const headBandHeight = getBarOptions(this.histogramParams.barOptions).head_band.height;
+      this.headBandsContext = this.context.append('g').attr('class', 'bars_head_bands').selectAll('.bar')
+      .data(data.filter(d => this.isValueValid(d)))
+      .enter().append('rect')
+      .attr('class', 'head_band')
+      .attr('x', function (d) { return xDataDomain(d.key); })
+      .attr('width', barWidth)
+      .attr('y', (d) =>  this.chartAxes.yDomain(d.value))
+      .attr('height', (d) => Math.min(headBandHeight, barsHeight - this.chartAxes.yDomain(d.value)));
+    }
+  }
+
+  /** Plots 3 rectangles behind data bars and selection brush. This rectangles are clippable in order to make a specific style for
+   * - non selected parts of the chart
+   * - current selected part
+   * - already selected parts
+   */
+  protected plotBackground() {
+    this.clipPathContext = this.context.append('defs').append('clipPath').attr('id', this.histogramParams.uid);
+    this.currentClipPathContext = this.context.append('defs').append('clipPath').attr('id', this.histogramParams.uid + '-cs');
+    this.rectangleCurrentClipper = this.currentClipPathContext.append('rect')
+      .attr('id', 'clip-rect')
+      .attr('x', this.chartAxes.xDomain(this.selectionInterval.startvalue))
+      .attr('y', '0')
+      .attr('width', this.chartAxes.xDomain(this.selectionInterval.endvalue) - this.chartAxes.xDomain(this.selectionInterval.startvalue))
+      .attr('height', this.chartDimensions.height );
+    const urlFixedSelection = 'url(#' + this.histogramParams.uid + ')';
+    const urlCurrentSelection = 'url(#' + this.histogramParams.uid + '-cs)';
+    const barOptions = getBarOptions(this.histogramParams.barOptions);
+    this.context.append('g').append('rect')
+      .attr('class', 'bars_background_color')
+      .attr('x', 0)
+      .attr('width', this.chartDimensions.width)
+      .attr('y', 0)
+      .attr('height', this.chartDimensions.height)
+      .attr('fill', barOptions.unselected_style.background_color)
+      .attr('fill-opacity', barOptions.unselected_style.background_opacity);
+    this.context.append('g').attr('clip-path', urlCurrentSelection).append('rect')
+      .attr('class', 'bars_white_background_color')
+      .attr('x', 0)
+      .attr('width', this.chartDimensions.width)
+      .attr('y', 0)
+      .attr('height', this.chartDimensions.height)
+      .attr('fill', barOptions.selected_style.background_color)
+      .attr('fill-opacity', barOptions.selected_style.background_opacity);
+    this.context.append('g').attr('clip-path', urlFixedSelection).append('rect')
+      .attr('class', 'bars_white_background_color')
+      .attr('x', 0)
+      .attr('width', this.chartDimensions.width)
+      .attr('y', 0)
+      .attr('height', this.chartDimensions.height)
+      .attr('fill', barOptions.selected_style.background_color)
+      .attr('fill-opacity', barOptions.selected_style.background_opacity);
+  }
+
   protected plotChart(data: Array<HistogramData>): void {
+    this.plotBackground();
     this.plotBars(data, this.chartAxes, this.chartAxes.xDataDomain);
     const barsHeight = (this.yStartsFromMin && this.histogramParams.showStripes) ?
      (0.9 * this.chartDimensions.height) : this.chartDimensions.height;
@@ -74,6 +140,7 @@ export class ChartBars extends AbstractChart {
         .attr('y', (d) => 0.9 * this.chartDimensions.height)
         .attr('height', (d) => 0.1 * this.chartDimensions.height);
     }
+    this.plotHeadBand(data, this.chartAxes, this.chartAxes.xDataDomain);
   }
 
   protected createChartAxes(data: Array<HistogramData>): void {
@@ -127,13 +194,54 @@ export class ChartBars extends AbstractChart {
   }
 
   protected applyStyleOnSelection(): void {
+    this.applyStyleOnClipper();
     this.applyStyleOnSelectedBars(this.barsContext);
     if (this.yStartsFromMin && this.histogramParams.showStripes) {
       // APPLY STYLE ON STRIPPED BARS ACCORDING TO SELECTION TYPE : CURRENT, PARTLY, FULLY SELECTED BARS
       this.applyStyleOnStrippedSelectedBars(this.strippedBarsContext);
     }
+    this.applyStyleOnHeadBand(this.headBandsContext);
   }
 
+  protected applyStyleOnHeadBand(headBandContext: any): void {
+    if (headBandContext) {
+      const barOptions = getBarOptions(this.histogramParams.barOptions);
+      const selectedFill = barOptions.head_band.selected_style.fill;
+      const selectedStroke = barOptions.head_band.selected_style.stroke;
+      const selectedStrokeWidth = barOptions.head_band.selected_style.stroke_width;
+      const unselectedFill = barOptions.head_band.unselected_style.fill;
+      const unselectedStroke = barOptions.head_band.unselected_style.stroke;
+      const unselectedStrokeWidth = barOptions.head_band.unselected_style.stroke_width;
+      headBandContext.filter((d) => this.selectedBars.has(+d.key))
+        .attr('fill', selectedFill)
+        .attr('stroke', selectedStroke)
+        .attr('stroke-width', selectedStrokeWidth);
+
+      headBandContext.filter((d) => +d.key >= this.selectionInterval.startvalue
+      && +d.key + this.histogramParams.barWeight * this.dataInterval <= this.selectionInterval.endvalue)
+        .attr('fill', selectedFill)
+        .attr('stroke', selectedStroke)
+        .attr('stroke-width', selectedStrokeWidth);
+
+      headBandContext.filter((d) => (+d.key < this.selectionInterval.startvalue || +d.key > this.selectionInterval.endvalue)
+      && (!this.selectedBars.has(+d.key)))
+        .attr('fill', unselectedFill)
+        .attr('stroke', unselectedStroke)
+        .attr('stroke-width', unselectedStrokeWidth);
+
+      headBandContext.filter((d) => +d.key < this.selectionInterval.startvalue && (!this.selectedBars.has(+d.key))
+      && +d.key + this.histogramParams.barWeight * this.dataInterval > this.selectionInterval.startvalue)
+        .attr('fill', selectedFill)
+        .attr('stroke', selectedStroke)
+        .attr('stroke-width', selectedStrokeWidth);
+
+      headBandContext.filter((d) => +d.key <= this.selectionInterval.endvalue && (!this.selectedBars.has(+d.key))
+      && +d.key + this.histogramParams.barWeight * this.dataInterval > this.selectionInterval.endvalue)
+        .attr('fill', selectedFill)
+        .attr('stroke', selectedStroke)
+        .attr('stroke-width', selectedStrokeWidth);
+    }
+  }
   protected applyStyleOnStrippedSelectedBars(barsContext: any): void {
     barsContext.filter((d) => this.selectedBars.has(+d.key)).attr('fill', 'url(#fully-selected-bars-' + this.histogramParams.uid + ')');
     barsContext.filter((d) => +d.key >= this.selectionInterval.startvalue

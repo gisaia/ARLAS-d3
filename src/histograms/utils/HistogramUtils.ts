@@ -24,9 +24,14 @@ import { Selection, BaseType } from 'd3-selection';
 import { utcFormat } from 'd3-time-format';
 import { Axis } from 'd3-axis';
 import { ScaleLinear } from 'd3-scale';
+<<<<<<< HEAD
 import { isNumber } from 'util';
 import { format } from 'd3-format';
 import { HistogramParams } from '../HistogramParams';
+=======
+import { BarOptions, Style } from '../../histograms/HistogramParams';
+
+>>>>>>> [Bars hitograms] add headbands on top of each + add customizable background
 
 export const NAN_COLOR = '#d8d8d8';
 export const TICK_COLOR = '#fff';
@@ -419,3 +424,51 @@ export const tickNumberFormat = (d, formatChar) => {
   const y = +format('')(d);
   return formatNumber(y, formatChar);
 };
+
+export const SELECTED_STYLE: Style = {
+  fill: '#5CCBC3',
+  stroke: '#5CCBC3',
+  stroke_width: 1,
+  background_color: '#FFF',
+  background_opacity: 0.2
+};
+
+export const UNSELECTED_STYLE: Style = {
+  fill: '#DADADA',
+  stroke: '#DADADA',
+  stroke_width: 1,
+  background_color: '#FFF',
+  background_opacity: 0
+}
+
+export const HEAD_BAR = {
+  SELECTED_STYLE,
+  UNSELECTED_STYLE,
+  HEIGHT: 5
+};
+
+export const BAR_OPTIONS = {
+  WEIGHT: 0.8,
+  BACKGROUND_COLOR: '#FFF'
+};
+
+export function getBarOptions(barOptions: BarOptions): BarOptions {
+  const returnedBarOptions: BarOptions = barOptions ? Object.assign({}, barOptions) : {};
+  if (returnedBarOptions.bar_weight === undefined) {
+    returnedBarOptions.bar_weight = BAR_OPTIONS.WEIGHT;
+  }
+  if (!returnedBarOptions.head_band) {
+    returnedBarOptions.head_band = {
+      selected_style: HEAD_BAR.SELECTED_STYLE,
+      unselected_style: HEAD_BAR.UNSELECTED_STYLE,
+      height: HEAD_BAR.HEIGHT
+    };
+  } else {
+    if (!returnedBarOptions.head_band.selected_style) { returnedBarOptions.head_band.selected_style = HEAD_BAR.SELECTED_STYLE; }
+    if (!returnedBarOptions.head_band.unselected_style) { returnedBarOptions.head_band.unselected_style = HEAD_BAR.UNSELECTED_STYLE; }
+    if (returnedBarOptions.head_band.height === undefined) { returnedBarOptions.head_band.height = HEAD_BAR.HEIGHT; }
+  }
+  if (!returnedBarOptions.selected_style) { returnedBarOptions.selected_style = SELECTED_STYLE; }
+  if (!returnedBarOptions.unselected_style) { returnedBarOptions.unselected_style = UNSELECTED_STYLE; }
+  return returnedBarOptions;
+}
