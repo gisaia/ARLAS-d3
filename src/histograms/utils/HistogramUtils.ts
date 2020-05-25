@@ -288,7 +288,7 @@ export class HistogramUtils {
           if (dateInterval !== undefined && dateInterval !== null && dateInterval > 0 && dateInterval < 1) {
             roundPrecision = this.getRoundPrecision(dateInterval);
           }
-          return this.round(value, roundPrecision).toString();
+          return formatWithSpace(this.round(value, roundPrecision));
         }
       }
     }
@@ -296,34 +296,34 @@ export class HistogramUtils {
 
   public static getFormatFromDateInterval(dateInterval): string {
     const duration: moment.Duration = moment.duration(dateInterval);
-    let format;
+    let f: string;
     switch (true) {
       case duration.asYears() >= 1: {
-        format = '%Y';
+        f = '%Y';
         break;
       }
       case duration.asMonths() >= 1: {
-        format = '%B %Y';
+        f = '%B %Y';
         break;
       }
       case duration.asDays() >= 1: {
-        format = '%d %B %Y';
+        f = '%d %B %Y';
         break;
       }
       case duration.asHours() >= 1: {
-        format = '%d %B %Y %Hh';
+        f = '%d %B %Y %Hh';
         break;
       }
       case duration.asMinutes() >= 1: {
-        format = '%d %B %Y %H:%M';
+        f = '%d %B %Y %H:%M';
         break;
       }
       case duration.asSeconds() >= 1: {
-        format = '%d %B %Y %H:%M:%S';
+        f = '%d %B %Y %H:%M:%S';
         break;
       }
     }
-    return format;
+    return f;
   }
 
   public static generateUID(): string {

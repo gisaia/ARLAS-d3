@@ -18,7 +18,7 @@
  */
 
 import { AbstractHistogram } from '../AbstractHistogram';
-import { HistogramData, HistogramUtils, ChartAxes, DataType, SelectedInputValues, spaceFormat } from '../utils/HistogramUtils';
+import { HistogramData, HistogramUtils, ChartAxes, DataType, SelectedInputValues, spaceFormat, formatWithSpace } from '../utils/HistogramUtils';
 import { select, ContainerElement, mouse, event } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
 import { max } from 'd3-array';
@@ -361,13 +361,13 @@ export abstract class AbstractChart extends AbstractHistogram {
             this.histogramParams.tooltip.xContent = HistogramUtils.toString(data[i].key, this.histogramParams.chartType,
               this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval,
               this.histogramParams.valuesDateFormat, dataInterval);
-            this.histogramParams.tooltip.yContent = data[i].value.toString();
+            this.histogramParams.tooltip.yContent = formatWithSpace(data[i].value);
           }
         } else {
           this.histogramParams.tooltip.xContent = HistogramUtils.toString(data[i].key,
             this.histogramParams.chartType, this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval,
             this.histogramParams.valuesDateFormat, dataInterval);
-          this.histogramParams.tooltip.yContent = data[i].value.toString();
+          this.histogramParams.tooltip.yContent = formatWithSpace(data[i].value);
         }
         break;
       } else {
