@@ -20,7 +20,7 @@
  import { AbstractHistogram } from '../AbstractHistogram';
 import { SwimlaneAxes, HistogramData, HistogramUtils,
    DataType, Tooltip, Position, SwimlaneData, SwimlaneStats, SwimlaneRepresentation,
-   LaneStats, SwimlaneOptions, NAN_COLOR, formatWithSpace } from '../utils/HistogramUtils';
+   LaneStats, SwimlaneOptions, NAN_COLOR, formatNumber } from '../utils/HistogramUtils';
 import { select, mouse, ContainerElement } from 'd3-selection';
 import { scaleBand } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
@@ -363,10 +363,8 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
         dy = this.setTooltipYposition(xy[1]);
         tooltip.xPosition = (xy[0] + dx);
         tooltip.yPosition = this.histogramParams.swimlaneHeight * (indexOfKey + 0.2);
-        tooltip.xContent = HistogramUtils.toString(data[i].key, this.histogramParams.chartType,
-          this.histogramParams.dataType, false, this.histogramParams.valuesDateFormat, this.dataInterval);
-
-        tooltip.yContent = formatWithSpace(data[i].value);
+        tooltip.xContent = HistogramUtils.toString(data[i].key, this.histogramParams, this.dataInterval);
+        tooltip.yContent = formatNumber(data[i].value, this.histogramParams.numberFormatChar);
         if (representation === SwimlaneRepresentation.column) {
           const sum = swimStats.columnStats.get(+data[i].key).sum;
           const percentage = (sum > 0 ) ? 100 * Math.round(data[i].value / sum * 1000) / 1000 : 0;

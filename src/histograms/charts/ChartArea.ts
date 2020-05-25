@@ -18,7 +18,8 @@
  */
 
 import { AbstractChart } from './AbstractChart';
-import { HistogramData, HistogramUtils, ChartAxes, DataType, SelectedOutputValues, Position, spaceFormat } from '../utils/HistogramUtils';
+import { HistogramData, HistogramUtils, ChartAxes, DataType, SelectedOutputValues, Position,
+  tickNumberFormat } from '../utils/HistogramUtils';
 import { curveLinear, CurveFactory, curveMonotoneX, area } from 'd3-shape';
 import { axisBottom } from 'd3-axis';
 import { extent } from 'd3-array';
@@ -197,7 +198,7 @@ export class ChartArea extends AbstractChart {
       this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(utcFormat(this.histogramParams.ticksDateFormat));
     } else {
       /** apply space between thousands, millions */
-      this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(spaceFormat);
+      this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(d => tickNumberFormat(d, this.histogramParams.numberFormatChar));
     }
   }
 

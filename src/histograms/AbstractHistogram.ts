@@ -126,12 +126,10 @@ export abstract class AbstractHistogram {
     if (!this.fromSetInterval && this.histogramParams.hasDataChanged) {
       const dataInterval = this.getDataInterval(data);
 
-      this.histogramParams.startValue = HistogramUtils.toString(start, this.histogramParams.chartType,
-        this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval, this.histogramParams.valuesDateFormat, dataInterval);
+      this.histogramParams.startValue = HistogramUtils.toString(start, this.histogramParams, dataInterval);
       this.selectionInterval.startvalue = start;
 
-      this.histogramParams.endValue = HistogramUtils.toString(end, this.histogramParams.chartType,
-        this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval, this.histogramParams.valuesDateFormat, dataInterval);
+      this.histogramParams.endValue = HistogramUtils.toString(end, this.histogramParams, dataInterval);
       this.selectionInterval.endvalue = end;
     }
   }

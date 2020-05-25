@@ -26,6 +26,7 @@ import { Axis } from 'd3-axis';
 import { ScaleLinear } from 'd3-scale';
 import { isNumber } from 'util';
 import { format } from 'd3-format';
+import { HistogramParams } from '../HistogramParams';
 
 export const NAN_COLOR = '#d8d8d8';
 export const TICK_COLOR = '#fff';
@@ -257,11 +258,10 @@ export class HistogramUtils {
     }
   }
 
-  public static toString(value: Date | number, chartType: ChartType, dataType: DataType, isChartMoved: boolean, dateFormat: string,
-    dateInterval?: number): string {
+  public static toString(value: Date | number, histogramParams: HistogramParams, dateInterval?: number): string {
     if (value instanceof Date) {
-      if (dateFormat && dateFormat !== null) {
-        const timeFormat = utcFormat(dateFormat);
+      if (histogramParams.valuesDateFormat) {
+        const timeFormat = utcFormat(histogramParams.valuesDateFormat);
         return timeFormat(value);
       } else {
         if (dateInterval !== undefined && dateInterval !== null && dateInterval > 0) {
@@ -272,11 +272,11 @@ export class HistogramUtils {
         }
       }
     } else {
-      if (chartType === ChartType.oneDimension) {
+      if (histogramParams.chartType === ChartType.oneDimension) {
         return Math.trunc(value).toString();
       } else {
-        let roundPrecision = (chartType === ChartType.area && isChartMoved) ? 1 : 0;
-        if (dataType === DataType.time) {
+        let roundPrecision = (histogramParams.chartType === ChartType.area && histogramParams.moveDataByHalfInterval) ? 1 : 0;
+        if (histogramParams.dataType === DataType.time) {
           const date = new Date(this.round(value, roundPrecision));
           if (dateInterval !== undefined && dateInterval !== null && dateInterval > 0) {
             const timeFormat = utcFormat(this.getFormatFromDateInterval(dateInterval));
@@ -288,7 +288,7 @@ export class HistogramUtils {
           if (dateInterval !== undefined && dateInterval !== null && dateInterval > 0 && dateInterval < 1) {
             roundPrecision = this.getRoundPrecision(dateInterval);
           }
-          return formatWithSpace(this.round(value, roundPrecision));
+          return formatNumber(this.round(value, roundPrecision), histogramParams.numberFormatChar);
         }
       }
     }
@@ -405,18 +405,23 @@ export enum Position {
   top, bottom
 }
 
-export function formatWithSpace(x): string {
+export function formatNumber(x, formatChar = ' '): string {
   if (isNumber(x)) {
+    if (formatChar === NUMBER_FORMAT_CHAR) {
+      formatChar = ' ';
+    }
     const trunc = Math.trunc(x);
     const decimal = (x + '').split('.');
-    const spacedNumber = Math.abs(trunc).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    const spacedNumber = Math.abs(trunc).toString().replace(/\B(?=(\d{3})+(?!\d))/g, formatChar);
     const spacedNumberString = trunc < 0 ? '-' + spacedNumber : spacedNumber;
     return decimal.length === 2 ? spacedNumberString + '.' + decimal[1] : spacedNumberString;
   }
   return x;
 }
 
-export const spaceFormat = (d) => {
+export const NUMBER_FORMAT_CHAR = 'NUMBER_FORMAT_CHAR';
+
+export const tickNumberFormat = (d, formatChar) => {
   const y = +format('')(d);
-  return formatWithSpace(y);
+  return formatNumber(y, formatChar);
 };
