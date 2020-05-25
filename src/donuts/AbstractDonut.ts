@@ -24,6 +24,7 @@ import { arc, Arc, DefaultArcObject } from 'd3-shape';
 import { select, mouse, ContainerElement } from 'd3-selection';
 import { hierarchy, partition, HierarchyNode } from 'd3-hierarchy';
 import { interpolate } from 'd3-interpolate';
+import { formatWithSpace } from 'histograms/utils/HistogramUtils';
 
 export abstract class AbstractDonut {
   public donutParams: DonutParams;
@@ -331,9 +332,9 @@ export abstract class AbstractDonut {
   protected showTooltip(node: DonutNode): void {
     this.donutParams.tooltip.isShown = true;
     this.donutParams.tooltip.xContent = DonutUtils.getNodePathAsString(node);
-    const metricValue = node.data ? node.data.metricValue : '';
+    const metricValue = node.data ? formatWithSpace(+node.data.metricValue) : '';
     if (metricValue !== undefined) {
-      if (Number(metricValue).toString() !== 'NaN') {
+      if (metricValue.toString() !== 'NaN') {
         this.donutParams.tooltip.xContent += ' (' + metricValue + ')';
       }
     }
