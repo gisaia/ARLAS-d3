@@ -486,27 +486,20 @@ export abstract class AbstractChart extends AbstractHistogram {
     this.handleStartOfBrushingEvent(chartAxes);
 
     const brushResizePath = (d) => {
-      const e = +(d.type === 'e'),
-        x = e ? 1 : -1,
-        y = this.brushHandlesHeight;
-      return 'M' + (.5 * x) + ',' + y
-        + 'A6,6 0 0 ' + e + ' ' + (6.5 * x) + ',' + (y + 6)
-        + 'V' + (2 * y - 6) + 'A6,6 0 0 ' + e + ' ' + (.5 * x) + ',' + (2 * y)
-        + 'Z'
-        + 'M' + (2.5 * x) + ',' + (y + 8)
-        + 'V' + (2 * y - 8)
-        + 'M' + (4.5 * x) + ',' + (y + 8)
-        + 'V' + (2 * y - 8);
+        return (d.type === 'e') ? 0 : -2.8;
     };
 
     this.brushHandles = this.brushContext.selectAll('.histogram__brush--handles')
       .data([{ type: 'w' }, { type: 'e' }])
-      .enter().append('path')
-      .attr('class', 'histogram__brush--handles')
-      .attr('stroke', '#000')
+      .enter().append('rect')
+      .attr('stroke', '#5e5e5e')
+      .attr('fill', '#5e5e5e')
       .attr('cursor', 'ew-resize')
       .style('z-index', '30000')
-      .attr('d', brushResizePath);
+      .attr('width', 2.5)
+      .attr('height', this.brushHandlesHeight)
+      .attr('x', brushResizePath)
+      .attr('y', this.brushHandlesHeight);
 
     this.brushContext.call((this.selectionBrush).move, [selectionBrushStart, selectionBrushEnd]);
     this.handleOnBrushingEvent(chartAxes);

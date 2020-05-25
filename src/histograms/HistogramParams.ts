@@ -143,7 +143,8 @@ export interface BarOptions {
 export interface BarHeadBand {
   selected_style?: Style;
   unselected_style?: Style;
-  height?: number;
+  selected_height?: number;
+  unselected_height?: number;
 }
 
 export interface Style {

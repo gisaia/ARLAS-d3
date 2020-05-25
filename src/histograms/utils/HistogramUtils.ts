@@ -461,12 +461,14 @@ export function getBarOptions(barOptions: BarOptions): BarOptions {
     returnedBarOptions.head_band = {
       selected_style: HEAD_BAR.SELECTED_STYLE,
       unselected_style: HEAD_BAR.UNSELECTED_STYLE,
-      height: HEAD_BAR.HEIGHT
+      selected_height: HEAD_BAR.HEIGHT,
+      unselected_height: HEAD_BAR.HEIGHT
     };
   } else {
     if (!returnedBarOptions.head_band.selected_style) { returnedBarOptions.head_band.selected_style = HEAD_BAR.SELECTED_STYLE; }
     if (!returnedBarOptions.head_band.unselected_style) { returnedBarOptions.head_band.unselected_style = HEAD_BAR.UNSELECTED_STYLE; }
-    if (returnedBarOptions.head_band.height === undefined) { returnedBarOptions.head_band.height = HEAD_BAR.HEIGHT; }
+    if (returnedBarOptions.head_band.selected_height === undefined) { returnedBarOptions.head_band.selected_height = HEAD_BAR.HEIGHT; }
+    if (returnedBarOptions.head_band.unselected_height === undefined) { returnedBarOptions.head_band.unselected_height = HEAD_BAR.HEIGHT; }
   }
   if (!returnedBarOptions.selected_style) {
     returnedBarOptions.selected_style = SELECTED_STYLE;
