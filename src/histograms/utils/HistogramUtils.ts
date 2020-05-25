@@ -296,34 +296,28 @@ export class HistogramUtils {
 
   public static getFormatFromDateInterval(dateInterval): string {
     const duration: moment.Duration = moment.duration(dateInterval);
-    let f: string;
     switch (true) {
       case duration.asYears() >= 1: {
-        f = '%Y';
-        break;
+        return '%Y';
       }
       case duration.asMonths() >= 1: {
-        f = '%B %Y';
-        break;
+        return '%B %Y';
       }
       case duration.asDays() >= 1: {
-        f = '%d %B %Y';
-        break;
+        return '%d %B %Y';
       }
       case duration.asHours() >= 1: {
-        f = '%d %B %Y %Hh';
-        break;
+        return '%d %B %Y %Hh';
       }
       case duration.asMinutes() >= 1: {
-        f = '%d %B %Y %H:%M';
+        return '%d %B %Y %H:%M';
         break;
       }
       case duration.asSeconds() >= 1: {
-        f = '%d %B %Y %H:%M:%S';
-        break;
+        return '%d %B %Y %H:%M:%S';
       }
     }
-    return f;
+    return '';
   }
 
   public static generateUID(): string {
