@@ -103,4 +103,6 @@ export class DonutParams {
    */
   public donutNodeColorizer: ColorGenerator;
 
+  public numberFormatChar = '';
+
 }

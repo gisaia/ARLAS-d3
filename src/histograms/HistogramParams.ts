@@ -90,6 +90,8 @@ export class HistogramParams {
   public swimlaneOptions: SwimlaneOptions;
   public selectedSwimlanes = new Set<string>();
 
+  public numberFormatChar = ' ';
+
   // ########################## Outputs ##########################
 
   public valuesListChangedEvent: Subject<SelectedOutputValues[]> = new Subject<SelectedOutputValues[]>();

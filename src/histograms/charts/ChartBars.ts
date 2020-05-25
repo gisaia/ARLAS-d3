@@ -17,7 +17,7 @@
 * under the License.
 */
 
-import { HistogramData, HistogramUtils, ChartAxes, DataType, Position } from '../utils/HistogramUtils';
+import { HistogramData, ChartAxes, DataType, Position, tickNumberFormat } from '../utils/HistogramUtils';
 import { AbstractChart } from './AbstractChart';
 import { scaleBand } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
@@ -99,7 +99,8 @@ export class ChartBars extends AbstractChart {
       this.chartAxes.xTicksAxis = axisBottom(this.chartAxes.xDomain).tickValues(this.chartAxes.xDataDomain.domain()
         .filter((d, i) => !(i % ticksPeriod))).tickSize(this.minusSign * 4);
       this.chartAxes.xLabelsAxis = axisBottom(this.chartAxes.xDomain).tickSize(0).tickPadding(labelPadding)
-        .tickValues(this.chartAxes.xDataDomain.domain().filter((d, i) => !(i % labelsPeriod)));
+        .tickValues(this.chartAxes.xDataDomain.domain().filter((d, i) => !(i % labelsPeriod)))
+        .tickFormat(d => tickNumberFormat(d, this.histogramParams.numberFormatChar));
       this.applyFormatOnXticks(data);
     } else {
       this.chartAxes.xTicksAxis = axisBottom(this.chartAxes.xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 4);

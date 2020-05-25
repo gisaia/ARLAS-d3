@@ -18,7 +18,8 @@
  */
 
 import { AbstractHistogram } from '../AbstractHistogram';
-import { HistogramData, HistogramUtils, ChartAxes, DataType, SelectedInputValues } from '../utils/HistogramUtils';
+import { HistogramData, HistogramUtils, ChartAxes, DataType, SelectedInputValues, tickNumberFormat,
+  formatNumber } from '../utils/HistogramUtils';
 import { select, ContainerElement, mouse, event } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
 import { max } from 'd3-array';
@@ -26,6 +27,7 @@ import { min } from 'd3-array';
 import { axisLeft } from 'd3-axis';
 import { format } from 'd3-format';
 import { brushX } from 'd3-brush';
+
 
 
 export abstract class AbstractChart extends AbstractHistogram {
@@ -74,10 +76,8 @@ export abstract class AbstractChart extends AbstractHistogram {
       this.selectionInterval.startvalue = parsedSelectedValues.startvalue;
       this.selectionInterval.endvalue = parsedSelectedValues.endvalue;
       const dataInterval = this.getDataInterval(<Array<HistogramData>>this.histogramParams.histogramData);
-      this.histogramParams.startValue = HistogramUtils.toString(this.selectionInterval.startvalue, this.histogramParams.chartType,
-        this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval, this.histogramParams.valuesDateFormat, dataInterval);
-      this.histogramParams.endValue = HistogramUtils.toString(this.selectionInterval.endvalue, this.histogramParams.chartType,
-        this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval, this.histogramParams.valuesDateFormat, dataInterval);
+      this.histogramParams.startValue = HistogramUtils.toString(this.selectionInterval.startvalue, this.histogramParams, dataInterval);
+      this.histogramParams.endValue = HistogramUtils.toString(this.selectionInterval.endvalue, this.histogramParams, dataInterval);
       const data = this.dataDomain;
       if (data !== null) {
         if (HistogramUtils.isSelectionBeyondDataDomain(selectedInputValues, <Array<{ key: number, value: number }>>data,
@@ -280,8 +280,10 @@ export abstract class AbstractChart extends AbstractHistogram {
         this.yStartsFromMin = false;
       }
     }
+
     const yTicksAxis = axisLeft(yDomain).ticks(this.histogramParams.yTicks).tickSizeOuter(0);
-    const yLabelsAxis = axisLeft(yDomain).tickSize(0).tickPadding(10).ticks(this.histogramParams.yLabels);
+    const yLabelsAxis = axisLeft(yDomain).tickSize(0).tickPadding(10).ticks(this.histogramParams.yLabels)
+      .tickFormat(d => tickNumberFormat(d, this.histogramParams.numberFormatChar));
     const yAxis = axisLeft(yAllDomain).tickSize(0).ticks(0);
     this.chartAxes = { xDomain, xDataDomain, yDomain, xTicksAxis, yTicksAxis, stepWidth, xLabelsAxis, yLabelsAxis, xAxis, yAxis };
   }
@@ -356,16 +358,12 @@ export abstract class AbstractChart extends AbstractHistogram {
             this.histogramParams.tooltip.xContent = 'Double click';
             this.histogramParams.tooltip.yContent = 'to save this period';
           } else {
-            this.histogramParams.tooltip.xContent = HistogramUtils.toString(data[i].key, this.histogramParams.chartType,
-              this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval,
-              this.histogramParams.valuesDateFormat, dataInterval);
-            this.histogramParams.tooltip.yContent = data[i].value.toString();
+            this.histogramParams.tooltip.xContent = HistogramUtils.toString(data[i].key, this.histogramParams, dataInterval);
+            this.histogramParams.tooltip.yContent = formatNumber(data[i].value, this.histogramParams.numberFormatChar);
           }
         } else {
-          this.histogramParams.tooltip.xContent = HistogramUtils.toString(data[i].key,
-            this.histogramParams.chartType, this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval,
-            this.histogramParams.valuesDateFormat, dataInterval);
-          this.histogramParams.tooltip.yContent = data[i].value.toString();
+          this.histogramParams.tooltip.xContent = HistogramUtils.toString(data[i].key, this.histogramParams, dataInterval);
+          this.histogramParams.tooltip.yContent = formatNumber(data[i].value, this.histogramParams.numberFormatChar);
         }
         break;
       } else {
@@ -535,11 +533,8 @@ export abstract class AbstractChart extends AbstractHistogram {
         this.selectionInterval.startvalue = selection.map(chartAxes.xDomain.invert, chartAxes.xDomain)[0];
         this.selectionInterval.endvalue = selection.map(chartAxes.xDomain.invert, chartAxes.xDomain)[1];
         const dataInterval = this.getDataInterval(<Array<HistogramData>>this.histogramParams.histogramData);
-        this.histogramParams.startValue = HistogramUtils.toString(this.selectionInterval.startvalue,
-          this.histogramParams.chartType,
-          this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval, this.histogramParams.valuesDateFormat, dataInterval);
-        this.histogramParams.endValue = HistogramUtils.toString(this.selectionInterval.endvalue, this.histogramParams.chartType,
-          this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval, this.histogramParams.valuesDateFormat, dataInterval);
+        this.histogramParams.startValue = HistogramUtils.toString(this.selectionInterval.startvalue, this.histogramParams, dataInterval);
+        this.histogramParams.endValue = HistogramUtils.toString(this.selectionInterval.endvalue, this.histogramParams, dataInterval);
         this.histogramParams.showTitle = false;
         this.setBrushCornerTooltipsPositions();
         this.applyStyleOnSelection();
@@ -556,12 +551,8 @@ export abstract class AbstractChart extends AbstractHistogram {
           this.selectionInterval.startvalue = selection.map(chartAxes.xDomain.invert, chartAxes.xDomain)[0];
           this.selectionInterval.endvalue = selection.map(chartAxes.xDomain.invert, chartAxes.xDomain)[1];
           const dataInterval = this.getDataInterval(<Array<HistogramData>>this.histogramParams.histogramData);
-          this.histogramParams.startValue = HistogramUtils.toString(this.selectionInterval.startvalue, this.histogramParams.chartType,
-            this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval,
-            this.histogramParams.valuesDateFormat, dataInterval);
-          this.histogramParams.endValue = HistogramUtils.toString(this.selectionInterval.endvalue, this.histogramParams.chartType,
-            this.histogramParams.dataType, this.histogramParams.moveDataByHalfInterval,
-            this.histogramParams.valuesDateFormat, dataInterval);
+          this.histogramParams.startValue = HistogramUtils.toString(this.selectionInterval.startvalue, this.histogramParams, dataInterval);
+          this.histogramParams.endValue = HistogramUtils.toString(this.selectionInterval.endvalue, this.histogramParams, dataInterval);
           const selectionListInterval = [];
           this.histogramParams.intervalSelectedMap.forEach((k, v) => selectionListInterval.push(k.values));
           this.histogramParams.valuesListChangedEvent.next(selectionListInterval.concat(this.selectionInterval));
