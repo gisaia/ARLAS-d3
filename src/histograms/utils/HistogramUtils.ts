@@ -24,7 +24,8 @@ import { Selection, BaseType } from 'd3-selection';
 import { utcFormat } from 'd3-time-format';
 import { Axis } from 'd3-axis';
 import { ScaleLinear } from 'd3-scale';
-
+import { isNumber } from 'util';
+import { format } from 'd3-format';
 
 export const NAN_COLOR = '#d8d8d8';
 export const TICK_COLOR = '#fff';
@@ -403,3 +404,19 @@ export enum ChartType {
 export enum Position {
   top, bottom
 }
+
+export function formatWithSpace(x): string {
+  if (isNumber(x)) {
+    const trunc = Math.trunc(x);
+    const decimal = (x + '').split('.');
+    const spacedNumber = Math.abs(trunc).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    const spacedNumberString = trunc < 0 ? '-' + spacedNumber : spacedNumber;
+    return decimal.length === 2 ? spacedNumberString + '.' + decimal[1] : spacedNumberString;
+  }
+  return x;
+}
+
+export const spaceFormat = (d) => {
+  const y = +format('')(d);
+  return formatWithSpace(y);
+};
