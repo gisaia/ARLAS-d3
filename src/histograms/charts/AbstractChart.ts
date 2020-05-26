@@ -300,8 +300,11 @@ export abstract class AbstractChart extends AbstractHistogram {
     const xLabelsAxis = null;
     const stepWidth = null;
     let yDomain = scaleLinear().range([this.chartDimensions.height, 0]);
-    const maximum = max(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MIN_VALUE);
+    let maximum = max(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MIN_VALUE);
     const minimum = min(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MAX_VALUE);
+    if (minimum === maximum) {
+      maximum += 1;
+    }
     let maxOffset = maximum * 0.05;
     yDomain.domain([0, maximum + maxOffset]);
     const yAllDomain = yDomain;
