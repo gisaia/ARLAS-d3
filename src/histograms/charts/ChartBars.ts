@@ -162,7 +162,7 @@ export class ChartBars extends AbstractChart {
         .filter((d, i) => !(i % ticksPeriod))).tickSize(this.minusSign * 4);
       this.chartAxes.xLabelsAxis = axisBottom(this.chartAxes.xDomain).tickSize(0).tickPadding(labelPadding)
         .tickValues(this.chartAxes.xDataDomain.domain().filter((d, i) => !(i % labelsPeriod)))
-        .tickFormat(d => this.histogramParams.shortYLabels ? tickNumberFormat(d, this.histogramParams.numberFormatChar) : '.0s');
+        .tickFormat(d => tickNumberFormat(d, this.histogramParams.numberFormatChar));
       this.applyFormatOnXticks(data);
     } else {
       this.chartAxes.xTicksAxis = axisBottom(this.chartAxes.xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 4);
