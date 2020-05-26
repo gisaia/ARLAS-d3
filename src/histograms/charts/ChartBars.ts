@@ -52,7 +52,8 @@ export class ChartBars extends AbstractChart {
       .attr('class', 'head_band')
       .attr('x', function (d) { return xDataDomain(d.key); })
       .attr('width', barWidth)
-      .attr('y', (d) =>  this.chartAxes.yDomain(d.value));
+      .attr('y', (d) =>  this.chartAxes.yDomain(d.value) - 1.5);
+      // 1.5px is to avoid the headband to be under the x axis
   }
 
   /** Plots 3 rectangles behind data bars and selection brush. This rectangles are clippable in order to make a specific style for
