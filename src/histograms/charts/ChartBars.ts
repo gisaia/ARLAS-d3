@@ -18,7 +18,7 @@
 */
 
 import { HistogramData, ChartAxes, DataType, Position, tickNumberFormat,
-  getBarOptions, SelectedOutputValues, } from '../utils/HistogramUtils';
+  getBarOptions, SelectedOutputValues, UNSELECTED_BARS, } from '../utils/HistogramUtils';
 import { AbstractChart } from './AbstractChart';
 import { scaleBand } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
@@ -128,7 +128,7 @@ export class ChartBars extends AbstractChart {
       this.strippedBarsContext = this.context.append('g').attr('class', 'histogram__bars').selectAll('.bar')
         .data(data.filter(d => this.isValueValid(d)))
         .enter().append('rect')
-        .attr('class', 'histogram__chart--bar')
+        .attr('class', UNSELECTED_BARS)
         .attr('x', (d) => this.chartAxes.xDataDomain(d.key))
         .attr('width', this.chartAxes.stepWidth * this.histogramParams.barWeight)
         .attr('y', (d) => 0.9 * this.chartDimensions.height)

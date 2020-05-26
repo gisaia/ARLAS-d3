@@ -33,7 +33,10 @@ export const NAN_COLOR = '#d8d8d8';
 export const TICK_COLOR = '#fff';
 export const TICK_WIDTH = 1.5;
 export const TICK_OPACITY = 1;
-
+export const FULLY_SELECTED_BARS = 'histogram__chart--bar__fullyselected';
+export const CURRENTLY_SELECTED_BARS = 'histogram__chart--bar__currentselection';
+export const UNSELECTED_BARS = 'histogram__chart--bar';
+export const PARTLY_SELECTED_BARS = 'histogram__chart--bar__partlyselected';
 export interface MarginModel {
   top: number;
   right: number;

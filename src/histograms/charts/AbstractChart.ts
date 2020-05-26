@@ -19,7 +19,8 @@
 
 import { AbstractHistogram } from '../AbstractHistogram';
 import { HistogramData, HistogramUtils, ChartAxes, DataType, SelectedInputValues, tickNumberFormat,
-  formatNumber, getBarOptions, SelectedOutputValues } from '../utils/HistogramUtils';
+  formatNumber, getBarOptions, SelectedOutputValues,
+  FULLY_SELECTED_BARS, CURRENTLY_SELECTED_BARS, UNSELECTED_BARS, PARTLY_SELECTED_BARS } from '../utils/HistogramUtils';
 import { select, ContainerElement, mouse, event } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
 import { max } from 'd3-array';
@@ -116,8 +117,10 @@ export abstract class AbstractChart extends AbstractHistogram {
     const selectionListInterval = [];
     this.histogramParams.intervalSelectedMap.forEach((k, v) => selectionListInterval.push(k.values));
     this.histogramParams.valuesListChangedEvent.next(selectionListInterval.concat(this.selectionInterval));
-    this.selectedIntervals.get(id).rect.remove();
-    this.selectedIntervals.delete(id);
+    if (this.selectedIntervals && this.selectedIntervals.get(id)) {
+      this.selectedIntervals.get(id).rect.remove();
+      this.selectedIntervals.delete(id);
+    }
     const isSelectionBeyondDataDomain = HistogramUtils.isSelectionBeyondDataDomain(this.selectionInterval, this.dataDomain,
       this.histogramParams.intervalSelectedMap);
     if (!isSelectionBeyondDataDomain && this.hasSelectionExceededData) {
@@ -544,23 +547,23 @@ export abstract class AbstractChart extends AbstractHistogram {
         .attr('stroke', selectedStroke)
         .attr('stroke-width', selectedStrokeWidth);
     } else {
-      barsContext.filter((d) => this.selectedBars.has(+d.key)).attr('class', 'histogram__chart--bar__fullyselected');
+      barsContext.filter((d) => this.selectedBars.has(+d.key)).attr('class', FULLY_SELECTED_BARS);
 
       barsContext.filter((d) => +d.key >= this.selectionInterval.startvalue
         && +d.key + this.histogramParams.barWeight * this.dataInterval <= this.selectionInterval.endvalue)
-        .attr('class', 'histogram__chart--bar__currentselection');
+        .attr('class', CURRENTLY_SELECTED_BARS);
 
       barsContext.filter((d) => (+d.key < this.selectionInterval.startvalue || +d.key > this.selectionInterval.endvalue)
         && (!this.selectedBars.has(+d.key)))
-        .attr('class', 'histogram__chart--bar');
+        .attr('class', UNSELECTED_BARS);
 
       barsContext.filter((d) => +d.key < this.selectionInterval.startvalue && (!this.selectedBars.has(+d.key))
         && +d.key + this.histogramParams.barWeight * this.dataInterval > this.selectionInterval.startvalue)
-        .attr('class', 'histogram__chart--bar__partlyselected');
+        .attr('class', PARTLY_SELECTED_BARS);
 
       barsContext.filter((d) => +d.key <= this.selectionInterval.endvalue && (!this.selectedBars.has(+d.key))
         && +d.key + this.histogramParams.barWeight * this.dataInterval > this.selectionInterval.endvalue)
-        .attr('class', 'histogram__chart--bar__partlyselected');
+        .attr('class', PARTLY_SELECTED_BARS);
       }
   }
 

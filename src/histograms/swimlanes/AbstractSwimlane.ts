@@ -20,7 +20,7 @@
  import { AbstractHistogram } from '../AbstractHistogram';
 import { SwimlaneAxes, HistogramData, HistogramUtils,
    DataType, Tooltip, Position, SwimlaneData, SwimlaneStats, SwimlaneRepresentation,
-   LaneStats, SwimlaneOptions, NAN_COLOR, formatNumber } from '../utils/HistogramUtils';
+   LaneStats, SwimlaneOptions, NAN_COLOR, formatNumber, FULLY_SELECTED_BARS, UNSELECTED_BARS } from '../utils/HistogramUtils';
 import { select, mouse, ContainerElement } from 'd3-selection';
 import { scaleBand } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
@@ -156,16 +156,16 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     }
     this.swimlaneContextList.forEach(swimlaneContext => {
       if (this.histogramParams.selectedSwimlanes.size === 0) {
-        swimlaneContext.context.attr('class', 'histogram__chart--bar__fullyselected');
+        swimlaneContext.context.attr('class', FULLY_SELECTED_BARS);
         this.labelsContextList[i].context.attr('class', 'swimlane-label-neutral');
         this.labelsRectContextList[i].context.attr('class', 'swimlane-label-container-neutral');
       } else {
         if (this.histogramParams.selectedSwimlanes.has(swimlaneContext.name)) {
-          swimlaneContext.context.attr('class', 'histogram__chart--bar__fullyselected');
+          swimlaneContext.context.attr('class', FULLY_SELECTED_BARS);
           this.labelsContextList[i].context.attr('class', 'swimlane-label-selected');
           this.labelsRectContextList[i].context.attr('class', 'swimlane-label-container-selected');
         } else {
-          swimlaneContext.context.attr('class', 'histogram__chart--bar');
+          swimlaneContext.context.attr('class', UNSELECTED_BARS);
           this.labelsContextList[i].context.attr('class', 'swimlane-label-unselected');
           this.labelsRectContextList[i].context.attr('class', 'swimlane-label-container-unselected');
         }
