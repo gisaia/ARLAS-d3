@@ -241,7 +241,6 @@ export abstract class AbstractHistogram {
     this.barsContext = this.context.append('g').attr('class', 'histogram__bars').selectAll('.bar')
       .data(data.filter(d => this.isValueValid(d)))
       .enter().append('rect')
-      .attr('class', 'histogram__chart--bar')
       .attr('x', function (d) { return xDataDomain(d.key); })
       .attr('width', barWidth);
 

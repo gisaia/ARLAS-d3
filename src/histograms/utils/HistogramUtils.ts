@@ -26,13 +26,19 @@ import { Axis } from 'd3-axis';
 import { ScaleLinear } from 'd3-scale';
 import { isNumber } from 'util';
 import { format } from 'd3-format';
-import { HistogramParams } from '../HistogramParams';
+import { HistogramParams, Style, BarOptions } from '../HistogramParams';
+
 
 export const NAN_COLOR = '#d8d8d8';
 export const TICK_COLOR = '#fff';
 export const TICK_WIDTH = 1.5;
 export const TICK_OPACITY = 1;
-
+export const FULLY_SELECTED_BARS = 'histogram__chart--bar__fullyselected';
+export const CURRENTLY_SELECTED_BARS = 'histogram__chart--bar__currentselection';
+export const UNSELECTED_BARS = 'histogram__chart--bar';
+export const PARTLY_SELECTED_BARS = 'histogram__chart--bar__partlyselected';
+export const UNSELECTED_BARS_ZONE = 'unselected_bars_zone';
+export const SELECTED_BARS_ZONE = 'selected_bars_zone';
 export interface MarginModel {
   top: number;
   right: number;
@@ -419,3 +425,80 @@ export const tickNumberFormat = (d, formatChar) => {
   const y = +format('')(d);
   return formatNumber(y, formatChar);
 };
+
+export const SELECTED_STYLE: Style = {
+  fill: '#5CCBC3',
+  stroke: '#5CCBC3',
+  stroke_width: 1,
+  background_color: '#FFF',
+  background_opacity: 0.2
+};
+
+export const UNSELECTED_STYLE: Style = {
+  fill: '#DADADA',
+  stroke: '#DADADA',
+  stroke_width: 1,
+  background_color: '#FFF',
+  background_opacity: 0
+};
+
+export const HEAD_BAR = {
+  SELECTED_STYLE,
+  UNSELECTED_STYLE,
+  HEIGHT: 5
+};
+
+export const BAR_OPTIONS = {
+  WEIGHT: 0.8,
+  BACKGROUND_COLOR: '#FFF'
+};
+
+export function getBarOptions(barOptions: BarOptions): BarOptions {
+  const returnedBarOptions: BarOptions = barOptions ? Object.assign({}, barOptions) : {};
+  if (returnedBarOptions.bar_weight === undefined) {
+    returnedBarOptions.bar_weight = BAR_OPTIONS.WEIGHT;
+  }
+  if (!returnedBarOptions.head_band) {
+    returnedBarOptions.head_band = {
+      selected_style: HEAD_BAR.SELECTED_STYLE,
+      unselected_style: HEAD_BAR.UNSELECTED_STYLE,
+      selected_height: HEAD_BAR.HEIGHT,
+      unselected_height: HEAD_BAR.HEIGHT
+    };
+  } else {
+    if (!returnedBarOptions.head_band.selected_style) { returnedBarOptions.head_band.selected_style = HEAD_BAR.SELECTED_STYLE; }
+    if (!returnedBarOptions.head_band.unselected_style) { returnedBarOptions.head_band.unselected_style = HEAD_BAR.UNSELECTED_STYLE; }
+    if (returnedBarOptions.head_band.selected_height === undefined) { returnedBarOptions.head_band.selected_height = HEAD_BAR.HEIGHT; }
+    if (returnedBarOptions.head_band.unselected_height === undefined) { returnedBarOptions.head_band.unselected_height = HEAD_BAR.HEIGHT; }
+  }
+  if (!returnedBarOptions.selected_style) {
+    returnedBarOptions.selected_style = SELECTED_STYLE;
+  } else {
+    returnedBarOptions.selected_style.fill = returnedBarOptions.selected_style.fill ?
+      returnedBarOptions.selected_style.fill : SELECTED_STYLE.fill;
+    returnedBarOptions.selected_style.stroke = returnedBarOptions.selected_style.stroke ?
+      returnedBarOptions.selected_style.stroke : SELECTED_STYLE.stroke;
+    returnedBarOptions.selected_style.background_color = returnedBarOptions.selected_style.background_color ?
+      returnedBarOptions.selected_style.background_color : SELECTED_STYLE.background_color;
+    returnedBarOptions.selected_style.stroke_width = returnedBarOptions.selected_style.stroke_width !== undefined ?
+      returnedBarOptions.selected_style.stroke_width : SELECTED_STYLE.stroke_width;
+    returnedBarOptions.selected_style.background_opacity = returnedBarOptions.selected_style.background_opacity !== undefined ?
+      returnedBarOptions.selected_style.background_opacity : SELECTED_STYLE.background_opacity;
+  }
+  if (!returnedBarOptions.unselected_style) {
+    returnedBarOptions.unselected_style = UNSELECTED_STYLE;
+  } else {
+      returnedBarOptions.unselected_style.fill = returnedBarOptions.unselected_style.fill ?
+        returnedBarOptions.unselected_style.fill : UNSELECTED_STYLE.fill;
+      returnedBarOptions.unselected_style.stroke = returnedBarOptions.unselected_style.stroke ?
+        returnedBarOptions.unselected_style.stroke : UNSELECTED_STYLE.stroke;
+      returnedBarOptions.unselected_style.background_color = returnedBarOptions.unselected_style.background_color ?
+        returnedBarOptions.unselected_style.background_color : UNSELECTED_STYLE.background_color;
+      returnedBarOptions.unselected_style.stroke_width = returnedBarOptions.unselected_style.stroke_width !== undefined ?
+        returnedBarOptions.unselected_style.stroke_width : UNSELECTED_STYLE.stroke_width;
+      returnedBarOptions.unselected_style.background_opacity = returnedBarOptions.unselected_style.background_opacity !== undefined ?
+        returnedBarOptions.unselected_style.background_opacity : UNSELECTED_STYLE.background_opacity;
+  }
+
+  return returnedBarOptions;
+}
