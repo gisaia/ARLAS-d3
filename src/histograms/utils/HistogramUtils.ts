@@ -37,6 +37,8 @@ export const FULLY_SELECTED_BARS = 'histogram__chart--bar__fullyselected';
 export const CURRENTLY_SELECTED_BARS = 'histogram__chart--bar__currentselection';
 export const UNSELECTED_BARS = 'histogram__chart--bar';
 export const PARTLY_SELECTED_BARS = 'histogram__chart--bar__partlyselected';
+export const UNSELECTED_BARS_ZONE = 'unselected_bars_zone';
+export const SELECTED_BARS_ZONE = 'selected_bars_zone';
 export interface MarginModel {
   top: number;
   right: number;

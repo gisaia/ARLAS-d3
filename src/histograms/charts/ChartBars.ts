@@ -18,7 +18,7 @@
 */
 
 import { HistogramData, ChartAxes, DataType, Position, tickNumberFormat,
-  getBarOptions, SelectedOutputValues, UNSELECTED_BARS, } from '../utils/HistogramUtils';
+  getBarOptions, SelectedOutputValues, UNSELECTED_BARS, UNSELECTED_BARS_ZONE, SELECTED_BARS_ZONE, } from '../utils/HistogramUtils';
 import { AbstractChart } from './AbstractChart';
 import { scaleBand } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
@@ -73,7 +73,7 @@ export class ChartBars extends AbstractChart {
     const urlCurrentSelection = 'url(#' + this.histogramParams.uid + '-cs)';
     const barOptions = getBarOptions(this.histogramParams.barOptions);
     this.context.append('g').append('rect')
-      .attr('class', 'bars_background_color')
+      .attr('class', UNSELECTED_BARS_ZONE)
       .attr('x', 0)
       .attr('width', this.chartDimensions.width)
       .attr('y', 0)
@@ -81,7 +81,7 @@ export class ChartBars extends AbstractChart {
       .attr('fill', barOptions.unselected_style.background_color)
       .attr('fill-opacity', barOptions.unselected_style.background_opacity);
     this.context.append('g').attr('clip-path', urlCurrentSelection).append('rect')
-      .attr('class', 'bars_white_background_color')
+      .attr('class', SELECTED_BARS_ZONE)
       .attr('x', 0)
       .attr('width', this.chartDimensions.width)
       .attr('y', 0)
@@ -89,7 +89,7 @@ export class ChartBars extends AbstractChart {
       .attr('fill', barOptions.selected_style.background_color)
       .attr('fill-opacity', barOptions.selected_style.background_opacity);
     this.context.append('g').attr('clip-path', urlFixedSelection).append('rect')
-      .attr('class', 'bars_white_background_color')
+      .attr('class', SELECTED_BARS_ZONE)
       .attr('x', 0)
       .attr('width', this.chartDimensions.width)
       .attr('y', 0)
@@ -265,9 +265,6 @@ export class ChartBars extends AbstractChart {
         && +d.key + this.histogramParams.barWeight * this.dataInterval > this.selectionInterval.endvalue)
           .attr('class', 'headband_partlyselected');
       }
-
-      
-
     }
   }
   protected applyStyleOnStrippedSelectedBars(barsContext: any): void {
