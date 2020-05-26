@@ -165,7 +165,8 @@ export class ChartArea extends AbstractChart {
       this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(utcFormat(this.histogramParams.ticksDateFormat));
     } else {
       /** apply space between thousands, millions */
-      this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(d => tickNumberFormat(d, this.histogramParams.numberFormatChar));
+      this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis
+        .tickFormat(d => this.histogramParams.shortYLabels ? tickNumberFormat(d, this.histogramParams.numberFormatChar) : '.0s');
     }
   }
 
