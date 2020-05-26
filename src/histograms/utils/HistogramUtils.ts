@@ -24,14 +24,10 @@ import { Selection, BaseType } from 'd3-selection';
 import { utcFormat } from 'd3-time-format';
 import { Axis } from 'd3-axis';
 import { ScaleLinear } from 'd3-scale';
-<<<<<<< HEAD
 import { isNumber } from 'util';
 import { format } from 'd3-format';
-import { HistogramParams } from '../HistogramParams';
-=======
-import { BarOptions, Style } from '../../histograms/HistogramParams';
+import { HistogramParams, Style, BarOptions } from '../HistogramParams';
 
->>>>>>> [Bars hitograms] add headbands on top of each + add customizable background
 
 export const NAN_COLOR = '#d8d8d8';
 export const TICK_COLOR = '#fff';

@@ -507,7 +507,7 @@ export abstract class AbstractChart extends AbstractHistogram {
   }
 
   protected applyStyleOnSelectedBars(barsContext: any): void {
-    if (this.histogramParams.barOptions && (this.histogramParams.barOptions.selected_style)) {
+    if (this.histogramParams.barOptions) {
       const barOptions = getBarOptions(this.histogramParams.barOptions);
       const selectedFill = barOptions.selected_style.fill;
       const selectedStroke = barOptions.selected_style.stroke;
