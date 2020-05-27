@@ -53,6 +53,7 @@ export class HistogramParams {
   public showYTicks = true;
   public showXLabels = true;
   public showYLabels = true;
+  public shortYLabels = false;
   public yAxisFromZero = false;
   public showStripes = true;
   public showHorizontalLines = true;
