@@ -85,8 +85,11 @@ export abstract class AbstractDonut {
    * @description Inialize donuts dimensions
    */
   protected initializeDonutDimensions(): void {
-    const width = this.donutParams.donutContainer.offsetWidth;
-    const height = this.donutParams.donutContainer.offsetHeight;
+    let width = this.donutParams.donutContainer.offsetWidth;
+    let height = this.donutParams.donutContainer.offsetHeight;
+    if (this.donutParams.diameter !== null && this.donutParams.diameter !== undefined) {
+      width = height = this.donutParams.diameter;
+    }
     const radius = Math.min(width, height) / 2;
     const svg = select(this.donutParams.svgElement)
       .attr('class', 'donut__svg')
