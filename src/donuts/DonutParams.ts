@@ -105,4 +105,7 @@ export class DonutParams {
 
   public numberFormatChar = '';
 
+  /** Dimensions */
+  public diameter: number;
+
 }
