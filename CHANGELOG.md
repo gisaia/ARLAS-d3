@@ -1,5 +1,20 @@
 # Change Log
 
+## [v7.1.0](https://github.com/gisaia/ARLAS-d3/tree/v7.1.0) (2020-05-28)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.0.2...v7.1.0)
+
+**New stuff:**
+
+- \[Swimlane\] Display ticks and tooltips with space between thousands, millions, ...  [\#110](https://github.com/gisaia/ARLAS-d3/issues/110)
+- \[Donut\] Display donut tooltips with space between thousands, millions, ... [\#109](https://github.com/gisaia/ARLAS-d3/issues/109)
+- \[Histogram\] Display histogram tooltips & ticks with space between thousands, millions, ... [\#108](https://github.com/gisaia/ARLAS-d3/issues/108)
+- Histograms : group ticks values by "K", "M, "B" \(40000 =\> 40K, ....\) [\#62](https://github.com/gisaia/ARLAS-d3/issues/62)
+
+**Fixed bugs:**
+
+- \[Histogram\] If all buckets have the same values, the histogram is not well plotted [\#112](https://github.com/gisaia/ARLAS-d3/issues/112)
+
 ## [v7.0.2](https://github.com/gisaia/ARLAS-d3/tree/v7.0.2) (2020-04-10)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.0.1...v7.0.2)
