@@ -410,6 +410,7 @@ export function formatNumber(x, formatChar = ' '): string {
     if (formatChar === NUMBER_FORMAT_CHAR) {
       formatChar = ' ';
     }
+    x = Math.round(x * 100) / 100;
     const trunc = Math.trunc(x);
     const decimal = (x + '').split('.');
     const spacedNumber = Math.abs(trunc).toString().replace(/\B(?=(\d{3})+(?!\d))/g, formatChar);
