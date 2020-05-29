@@ -400,13 +400,9 @@ export abstract class AbstractChart extends AbstractHistogram {
         this.hoveredBucketKey = data[i].key;
         if (data[i].key >= this.selectionInterval.startvalue && data[i].key <= this.selectionInterval.endvalue
           && this.isValueValid(data[i])) {
-          if (xy[1] < this.chartAxes.yDomain(data[i].value) && this.histogramParams.multiselectable) {
-            this.histogramParams.tooltip.xContent = 'Double click';
-            this.histogramParams.tooltip.yContent = 'to save this period';
-          } else {
             this.histogramParams.tooltip.xContent = HistogramUtils.toString(data[i].key, this.histogramParams, dataInterval);
             this.histogramParams.tooltip.yContent = formatNumber(data[i].value, this.histogramParams.numberFormatChar);
-          }
+
         } else {
           this.histogramParams.tooltip.xContent = HistogramUtils.toString(data[i].key, this.histogramParams, dataInterval);
           this.histogramParams.tooltip.yContent = formatNumber(data[i].value, this.histogramParams.numberFormatChar);
@@ -415,11 +411,10 @@ export abstract class AbstractChart extends AbstractHistogram {
       } else {
         if (data[i].key >= this.selectionInterval.startvalue
           && data[i].key <= this.selectionInterval.endvalue && this.histogramParams.multiselectable) {
-          this.histogramParams.tooltip.xContent = 'Double click';
-          this.histogramParams.tooltip.yContent = 'to save this period';
-        } else {
-          this.histogramParams.tooltip.isShown = false;
+          this.histogramParams.tooltip.xContent = '';
+          this.histogramParams.tooltip.yContent = '';
         }
+        this.histogramParams.tooltip.isShown = false;
       }
     }
     this.histogramParams.tooltip.xPosition = (xy[0] + dx);
