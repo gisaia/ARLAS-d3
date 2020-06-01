@@ -1,11 +1,16 @@
 # Change Log
 
-## [v7.1.0](https://github.com/gisaia/ARLAS-d3/tree/v7.1.0) (2020-05-28)
+## [v7.1.1](https://github.com/gisaia/ARLAS-d3/tree/v7.1.1) (2020-05-29)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.1.0...v7.1.1)
+
+## [v7.1.0](https://github.com/gisaia/ARLAS-d3/tree/v7.1.0) (2020-05-29)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.0.2...v7.1.0)
 
 **New stuff:**
 
+- \[Donut\] Add 'diameter' input to manually configure it [\#116](https://github.com/gisaia/ARLAS-d3/issues/116)
 - \[Swimlane\] Display ticks and tooltips with space between thousands, millions, ...  [\#110](https://github.com/gisaia/ARLAS-d3/issues/110)
 - \[Donut\] Display donut tooltips with space between thousands, millions, ... [\#109](https://github.com/gisaia/ARLAS-d3/issues/109)
 - \[Histogram\] Display histogram tooltips & ticks with space between thousands, millions, ... [\#108](https://github.com/gisaia/ARLAS-d3/issues/108)
