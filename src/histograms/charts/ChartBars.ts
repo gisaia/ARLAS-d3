@@ -23,6 +23,7 @@ import { AbstractChart } from './AbstractChart';
 import { scaleBand } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
 import { utcFormat } from 'd3-time-format';
+import { max, min } from 'd3-array';
 
 export class ChartBars extends AbstractChart {
 
@@ -45,7 +46,6 @@ export class ChartBars extends AbstractChart {
    * on top of each bar. Those headbands are added for styling purposes */
   protected plotHeadBand(data: Array<HistogramData>, axes: ChartAxes, xDataDomain: any, barWeight?: number) {
     const barWidth = barWeight ? axes.stepWidth * barWeight : axes.stepWidth * this.histogramParams.barWeight;
-    const hasHeadBand = this.histogramParams.barOptions && this.histogramParams.barOptions.head_band;
     this.headBandsContext = this.context.append('g').attr('class', 'bars_head_bands').selectAll('.bar')
       .data(data.filter(d => this.isValueValid(d)))
       .enter().append('rect')
@@ -247,24 +247,26 @@ export class ChartBars extends AbstractChart {
           .attr('stroke-width', selectedStrokeWidth)
           .attr('height', (d) => Math.min(selectedHeadBandHeight, barsHeight - this.chartAxes.yDomain(d.value)));
       } else {
+        const maximum = max(this.histogramParams.histogramData, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MIN_VALUE);
+        const minimum = min(this.histogramParams.histogramData, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MAX_VALUE);
         headBandContext.filter((d) => this.selectedBars.has(+d.key))
-        .attr('class', 'headband_fullyselected');
+        .attr('class', (d => this.getHeadBandCssName('fullyselected', d, minimum, maximum)));
 
         headBandContext.filter((d) => +d.key >= this.selectionInterval.startvalue
         && +d.key + this.histogramParams.barWeight * this.dataInterval <= this.selectionInterval.endvalue)
-          .attr('class', 'headband_currentselection');
+          .attr('class', (d => this.getHeadBandCssName('currentselection', d, minimum, maximum)));
 
         headBandContext.filter((d) => (+d.key < this.selectionInterval.startvalue || +d.key > this.selectionInterval.endvalue)
         && (!this.selectedBars.has(+d.key)))
-          .attr('class', 'headband_notselected');
+          .attr('class', (d => this.getHeadBandCssName('notselected', d, minimum, maximum)));
 
         headBandContext.filter((d) => +d.key < this.selectionInterval.startvalue && (!this.selectedBars.has(+d.key))
         && +d.key + this.histogramParams.barWeight * this.dataInterval > this.selectionInterval.startvalue)
-          .attr('class', 'headband_partlyselected');
+          .attr('class', (d => this.getHeadBandCssName('partlyselected', d, minimum, maximum)));
 
         headBandContext.filter((d) => +d.key <= this.selectionInterval.endvalue && (!this.selectedBars.has(+d.key))
         && +d.key + this.histogramParams.barWeight * this.dataInterval > this.selectionInterval.endvalue)
-          .attr('class', 'headband_partlyselected');
+          .attr('class', (d => this.getHeadBandCssName('partlyselected', d, minimum, maximum)));
       }
     }
   }
@@ -314,5 +316,17 @@ export class ChartBars extends AbstractChart {
 
   protected getAxes() {
     return this.chartAxes;
+  }
+
+  private getHeadBandCssName(selectionType: string, d: HistogramData, minimum: number, maximum: number): string {
+    const CSS_HEADBAND = 'headband_' + selectionType;
+    if (minimum !== maximum) {
+      if (d.value === minimum) {
+        return CSS_HEADBAND + ' ' + CSS_HEADBAND + '_min';
+      } else if (d.value === maximum) {
+        return CSS_HEADBAND + ' ' + CSS_HEADBAND + '_max';
+      }
+    }
+    return CSS_HEADBAND;
   }
 }
