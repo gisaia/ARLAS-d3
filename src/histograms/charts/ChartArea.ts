@@ -161,8 +161,10 @@ export class ChartArea extends AbstractChart {
     this.chartAxes.xLabelsAxis = axisBottom(this.chartAxes.xDomain).tickSize(0)
       .tickPadding(labelPadding).ticks(this.histogramParams.xLabels);
     this.applyFormatOnXticks(data);
-    if (this.histogramParams.dataType === DataType.time && this.histogramParams.ticksDateFormat) {
-      this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(utcFormat(this.histogramParams.ticksDateFormat));
+    if (this.histogramParams.dataType === DataType.time) {
+      if (this.histogramParams.ticksDateFormat) {
+        this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(utcFormat(this.histogramParams.ticksDateFormat));
+      }
     } else {
       /** apply space between thousands, millions */
       this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(d => tickNumberFormat(d, this.histogramParams.numberFormatChar));
