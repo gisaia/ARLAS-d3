@@ -28,6 +28,11 @@ import { min } from 'd3-array';
 import { axisLeft } from 'd3-axis';
 import { format } from 'd3-format';
 import { brushX } from 'd3-brush';
+import { Model } from './analysis/models/model';
+import { AvgModel } from './analysis/models/avg/avg_model';
+import { ModelResult } from './analysis/models/model_result';
+import { ModelPlotter } from './analysis/core/model_plotter';
+import { AvgPlotter } from './analysis/core/avg/avg_plotter';
 
 
 
@@ -194,6 +199,29 @@ export abstract class AbstractChart extends AbstractHistogram {
       const rect = this.getAppendedRectangle(v.startvalue, v.endvalue);
       this.selectedIntervals.set(guid, {rect: rect, startEndValues: {startvalue : v.startvalue, endvalue: v.endvalue}});
     });
+  }
+
+  public plotModel(modelName: string) {
+    let model: Model;
+    let modelPlotter: ModelPlotter;
+    switch (modelName) {
+      case 'avg':
+        model = new AvgModel();
+        modelPlotter = new AvgPlotter();
+        model.name = modelName;
+        break;
+    }
+    model.data = this.dataDomain;
+    modelPlotter.modelResult = model.apply();
+    modelPlotter.plot(this.context, this.chartAxes, this.chartDimensions);
+  }
+
+  public removeModel(modelName: string) {
+    switch (modelName) {
+      case 'avg':
+        this.context.selectAll('#avg_model').remove();
+        break;
+    }
   }
 
   protected updateSelectionStyle(id: string) {
