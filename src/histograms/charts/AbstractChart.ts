@@ -30,9 +30,10 @@ import { format } from 'd3-format';
 import { brushX } from 'd3-brush';
 import { Model } from './analysis/models/model';
 import { AvgModel } from './analysis/models/avg/avg_model';
-import { ModelResult } from './analysis/models/model_result';
 import { ModelPlotter } from './analysis/core/model_plotter';
 import { AvgPlotter } from './analysis/core/avg/avg_plotter';
+import { StdDevPlotter } from './analysis/core/stddev/stddev_plotter';
+import { StdDevModel } from './analysis/models/stddev/stddev_model';
 
 
 
@@ -208,9 +209,12 @@ export abstract class AbstractChart extends AbstractHistogram {
       case 'avg':
         model = new AvgModel();
         modelPlotter = new AvgPlotter();
-        model.name = modelName;
         break;
-    }
+        case 'stddev':
+          model = new StdDevModel();
+          modelPlotter = new StdDevPlotter();
+        }
+    model.name = modelName;
     model.data = this.dataDomain;
     modelPlotter.modelResult = model.apply();
     modelPlotter.plot(this.context, this.chartAxes, this.chartDimensions);
@@ -220,6 +224,9 @@ export abstract class AbstractChart extends AbstractHistogram {
     switch (modelName) {
       case 'avg':
         this.context.selectAll('#avg_model').remove();
+        break;
+      case 'stddev':
+        this.context.selectAll('#stddev_model').remove();
         break;
     }
   }
