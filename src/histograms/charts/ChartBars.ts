@@ -52,8 +52,16 @@ export class ChartBars extends AbstractChart {
       .attr('class', 'head_band')
       .attr('x', function (d) { return xDataDomain(d.key); })
       .attr('width', barWidth)
-      .attr('y', (d) =>  this.chartAxes.yDomain(d.value) - 1.5);
-      // 1.5px is to avoid the headband to be under the x axis
+      .attr('y', (d) =>  {
+        if (d.value > 0) {
+          return axes.yDomain(d.value) - 1.5;
+        } else if (d.value < 0) {
+          return axes.yDomain(d.value) + 1.5;
+        } else {
+           return axes.yDomain.domain()[1] > 0 ? axes.yDomain(d.value) - 1.5 : axes.yDomain(d.value) + 1.5;
+        }
+      });
+      // 1.5px is to avoid the headband to be under or above the x axis
   }
 
   /** Plots 3 rectangles behind data bars and selection brush. This rectangles are clippable in order to make a specific style for
@@ -102,11 +110,12 @@ export class ChartBars extends AbstractChart {
   protected plotChart(data: Array<HistogramData>): void {
     this.plotBackground();
     this.plotBars(data, this.chartAxes, this.chartAxes.xDataDomain);
+    // todo stripes
     const barsHeight = (this.yStartsFromMin && this.histogramParams.showStripes) ?
-     (0.9 * this.chartDimensions.height) : this.chartDimensions.height;
+     (0.9 * this.chartDimensions.height) : this.chartAxes.yDomain(0);
     this.barsContext
-      .attr('y', (d) =>  this.chartAxes.yDomain(d.value))
-      .attr('height', (d) => barsHeight - this.chartAxes.yDomain(d.value));
+      .attr('y', (d) =>  d.value >= 0 ? this.chartAxes.yDomain(d.value) : this.chartAxes.yDomain(0) + 1)
+      .attr('height', (d) => Math.abs(barsHeight - this.chartAxes.yDomain(d.value)));
 
     this.addStrippedPattern('no-data-stripes', this.NO_DATA_STRIPES_PATTERN, this.NO_DATA_STRIPES_SIZE, 'histogram__no-data-stripes');
 

@@ -212,9 +212,13 @@ export abstract class AbstractHistogram {
     // leftOffset is the width of Y labels, so x axes are translated by leftOffset
     // Y axis is translated to the left of 1px so that the chart doesn't hide it
     // Therefore, we substruct 1px (leftOffset - 1) so that the first tick of xAxis will coincide with y axis
+    let horizontalOffset = this.chartDimensions.height;
+    if (!!(chartAxes as any).yDomain) {
+      horizontalOffset = (chartAxes as ChartAxes).yDomain(0);
+    }
     this.xAxis = this.allAxesContext.append('g')
       .attr('class', 'histogram__only-axis')
-      .attr('transform', 'translate(' + (leftOffset - 1) + ',' + this.chartDimensions.height + ')')
+      .attr('transform', 'translate(' + (leftOffset - 1) + ',' + horizontalOffset + ')')
       .call(chartAxes.xAxis);
     this.xTicksAxis = this.allAxesContext.append('g')
       .attr('class', 'histogram__ticks-axis')
