@@ -308,7 +308,8 @@ export abstract class AbstractChart extends AbstractHistogram {
     let maxOffset = maximum * 0.05;
     const miniOffset = minimum * 0.05;
     const minYDomain = minimum > 0 ? 0 : minimum + miniOffset;
-    yDomain.domain([minYDomain, maximum + maxOffset]);
+    const maxYDomain = maximum < 0 ? 0 : maximum + maxOffset;
+    yDomain.domain([minYDomain, maxYDomain]);
     const yAllDomain = yDomain;
     /** if histogram y values are negative and positive, prohibit stripes */
     if (minimum < 0 && maximum > 0) {
