@@ -75,7 +75,7 @@ export class ChartArea extends AbstractChart {
 
     const curveType: CurveFactory = (this.histogramParams.isSmoothedCurve) ? curveMonotoneX : curveLinear;
     const areaYPositon = (this.yStartsFromMin && this.histogramParams.showStripes) ?
-      (0.9 * this.chartDimensions.height) : this.chartDimensions.height;
+      (0.9 * this.chartDimensions.height) : this.chartAxes.yDomain(0);
     const a = area()
       .curve(curveType)
       .x((d: any) => this.chartAxes.xDataDomain(d.key))

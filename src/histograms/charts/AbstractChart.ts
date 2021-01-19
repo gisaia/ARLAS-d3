@@ -306,8 +306,15 @@ export abstract class AbstractChart extends AbstractHistogram {
       maximum += 1;
     }
     let maxOffset = maximum * 0.05;
-    yDomain.domain([0, maximum + maxOffset]);
+    const miniOffset = minimum * 0.05;
+    const minYDomain = minimum > 0 ? 0 : minimum + miniOffset;
+    yDomain.domain([minYDomain, maximum + maxOffset]);
     const yAllDomain = yDomain;
+    /** if histogram y values are negative and positive, prohibit stripes */
+    if (minimum < 0 && maximum > 0) {
+      this.histogramParams.yAxisFromZero = true;
+      this.yStartsFromMin = false;
+    }
     // IF WE WANT TO START THE HISTOGRAM FROM MIN OF DATA INSTEAD OF 0
     if (!this.histogramParams.yAxisFromZero) {
       // FIRST WE CHECK IF THE MINIMUM OF DATA IS GREATER THAN 30% OF THE CHART HEIGHT
