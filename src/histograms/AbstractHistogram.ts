@@ -78,7 +78,7 @@ export abstract class AbstractHistogram {
     this.brushCornerTooltips = this.createEmptyBrushCornerTooltips();
   }
 
-  public plot(data: Array<HistogramData> | SwimlaneData) {}
+  public plot(data: Array<HistogramData> | SwimlaneData) { }
 
   public init() {
     this.setHistogramMargins();
@@ -165,7 +165,18 @@ export abstract class AbstractHistogram {
   protected getFollowingLastBucket(data): HistogramData {
     const dataInterval = this.getDataInterval(data);
     const followingLastBucketKey = +data[data.length - 1].key + dataInterval;
-    const followingLastBucket = { key: followingLastBucketKey, value: 0 };
+
+    let value = 0;
+    const minimum = min(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MAX_VALUE);
+    const maximum = max(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MIN_VALUE);
+    if (!this.histogramParams.yAxisFromZero) {
+      if (minimum >= 0) {
+        value = minimum;
+      } else {
+        value = maximum;
+      }
+    }
+    const followingLastBucket = { key: followingLastBucketKey, value };
     const parsedFollowingLastBucket = HistogramUtils.parseDataKey([followingLastBucket], this.histogramParams.dataType)[0];
     return parsedFollowingLastBucket;
   }
@@ -214,7 +225,17 @@ export abstract class AbstractHistogram {
     // Therefore, we substruct 1px (leftOffset - 1) so that the first tick of xAxis will coincide with y axis
     let horizontalOffset = this.chartDimensions.height;
     if (!!(chartAxes as any).yDomain) {
-      horizontalOffset = (chartAxes as ChartAxes).yDomain(0);
+      if (!this.histogramParams.yAxisFromZero) {
+        const minMax = (chartAxes as ChartAxes).yDomain.domain();
+        if (minMax[0] >= 0) {
+          horizontalOffset = (chartAxes as ChartAxes).yDomain(minMax[0]);
+        } else {
+          horizontalOffset = (chartAxes as ChartAxes).yDomain(minMax[1]);
+        }
+      } else {
+        horizontalOffset = (chartAxes as ChartAxes).yDomain(0);
+
+      }
     }
     this.xAxis = this.allAxesContext.append('g')
       .attr('class', 'histogram__only-axis')
@@ -273,23 +294,23 @@ export abstract class AbstractHistogram {
     // If the html container of each corner tooltip is set, then we proceed to set their positions
     if (this.brushCornerTooltips && this.brushCornerTooltips.leftCornerTooltip.htmlContainer &&
       this.brushCornerTooltips.rightCornerTooltip.htmlContainer) {
-        const leftTooltipWidth = this.brushCornerTooltips.leftCornerTooltip.htmlContainer.offsetWidth;
-        const rightTooltipWidth = this.brushCornerTooltips.rightCornerTooltip.htmlContainer.offsetWidth;
-        if (rightTooltipWidth !== 0 && leftTooltipWidth !== 0) {
-          if (leftPosition + leftTooltipWidth + 5 > rightPosition - rightTooltipWidth) {
-            // If left tooltip and right tooltip meet, switch from horizontal to vertical positions
-            this.brushCornerTooltips.horizontalCssVisibility = 'hidden';
-            this.brushCornerTooltips.verticalCssVisibility = 'visible';
-            this.setVerticalTooltipsWidth();
-            this.setBrushVerticalTooltipsXPositions(leftPosition, rightPosition);
-            this.setBrushVerticalTooltipsYPositions();
-          } else {
-            this.brushCornerTooltips.horizontalCssVisibility = 'visible';
-            this.brushCornerTooltips.verticalCssVisibility = 'hidden';
-            this.setBrushHorizontalTooltipsXPositions(leftPosition, rightPosition);
-            this.setBrushHorizontalTooltipsYPositions();
-          }
+      const leftTooltipWidth = this.brushCornerTooltips.leftCornerTooltip.htmlContainer.offsetWidth;
+      const rightTooltipWidth = this.brushCornerTooltips.rightCornerTooltip.htmlContainer.offsetWidth;
+      if (rightTooltipWidth !== 0 && leftTooltipWidth !== 0) {
+        if (leftPosition + leftTooltipWidth + 5 > rightPosition - rightTooltipWidth) {
+          // If left tooltip and right tooltip meet, switch from horizontal to vertical positions
+          this.brushCornerTooltips.horizontalCssVisibility = 'hidden';
+          this.brushCornerTooltips.verticalCssVisibility = 'visible';
+          this.setVerticalTooltipsWidth();
+          this.setBrushVerticalTooltipsXPositions(leftPosition, rightPosition);
+          this.setBrushVerticalTooltipsYPositions();
+        } else {
+          this.brushCornerTooltips.horizontalCssVisibility = 'visible';
+          this.brushCornerTooltips.verticalCssVisibility = 'hidden';
+          this.setBrushHorizontalTooltipsXPositions(leftPosition, rightPosition);
+          this.setBrushHorizontalTooltipsYPositions();
         }
+      }
     } else {
       this.brushCornerTooltips.verticalCssVisibility = 'hidden';
       this.brushCornerTooltips.horizontalCssVisibility = 'hidden';
@@ -350,10 +371,12 @@ export abstract class AbstractHistogram {
   protected abstract getDataInterval(data: Array<HistogramData> | Map<string, Array<HistogramData>>): number;
   protected abstract getAxes(): ChartAxes | SwimlaneAxes;
 
-  private createEmptyBrushCornerTooltips (): BrushCornerTooltips {
-    const emptyLeftCornerTooltip = {htmlContainer: null, content: '', xPosition: 0, yPosition: 0 };
-    const emptyRightCornerTooltip = {htmlContainer: null, content: '', xPosition: 0, yPosition: 0 };
-    return {leftCornerTooltip: emptyLeftCornerTooltip, rightCornerTooltip: emptyRightCornerTooltip,
-       verticalCssVisibility: 'hidden', horizontalCssVisibility: 'hidden'};
+  private createEmptyBrushCornerTooltips(): BrushCornerTooltips {
+    const emptyLeftCornerTooltip = { htmlContainer: null, content: '', xPosition: 0, yPosition: 0 };
+    const emptyRightCornerTooltip = { htmlContainer: null, content: '', xPosition: 0, yPosition: 0 };
+    return {
+      leftCornerTooltip: emptyLeftCornerTooltip, rightCornerTooltip: emptyRightCornerTooltip,
+      verticalCssVisibility: 'hidden', horizontalCssVisibility: 'hidden'
+    };
   }
 }

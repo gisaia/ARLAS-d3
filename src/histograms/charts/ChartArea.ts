@@ -18,11 +18,13 @@
  */
 
 import { AbstractChart } from './AbstractChart';
-import { HistogramData, HistogramUtils, ChartAxes, DataType, SelectedOutputValues, Position,
-  tickNumberFormat } from '../utils/HistogramUtils';
+import {
+  HistogramData, HistogramUtils, ChartAxes, DataType, SelectedOutputValues, Position,
+  tickNumberFormat
+} from '../utils/HistogramUtils';
 import { curveLinear, CurveFactory, curveMonotoneX, area } from 'd3-shape';
 import { axisBottom } from 'd3-axis';
-import { extent } from 'd3-array';
+import { extent, min, max } from 'd3-array';
 import { utcFormat } from 'd3-time-format';
 
 export class ChartArea extends AbstractChart {
@@ -43,12 +45,12 @@ export class ChartArea extends AbstractChart {
     this.dataInterval = 0;
   }
 
-  protected moveDataByHalfInterval(data: Array<{key: number, value: number}>): Array<{key: number, value: number}> {
+  protected moveDataByHalfInterval(data: Array<{ key: number, value: number }>): Array<{ key: number, value: number }> {
     const movedData = [];
     if (this.histogramParams.moveDataByHalfInterval) {
       const dataInterval = this.getDataInterval(data);
       data.forEach(d => {
-        movedData.push({key: +d.key + dataInterval / 2, value: d.value});
+        movedData.push({ key: +d.key + dataInterval / 2, value: d.value });
       });
       return movedData;
     } else {
@@ -71,11 +73,30 @@ export class ChartArea extends AbstractChart {
       .attr('x', this.chartAxes.xDomain(this.selectionInterval.startvalue))
       .attr('y', '0')
       .attr('width', this.chartAxes.xDomain(this.selectionInterval.endvalue) - this.chartAxes.xDomain(this.selectionInterval.startvalue))
-      .attr('height', this.chartDimensions.height );
+      .attr('height', this.chartDimensions.height);
 
     const curveType: CurveFactory = (this.histogramParams.isSmoothedCurve) ? curveMonotoneX : curveLinear;
-    const areaYPositon = (this.yStartsFromMin && this.histogramParams.showStripes) ?
-      (0.9 * this.chartDimensions.height) : this.chartAxes.yDomain(0);
+
+
+    const minimum = min(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MAX_VALUE);
+    const maximum = max(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MIN_VALUE);
+    const minOffset = this.histogramParams.showStripes ? 0 : 0.1 * (maximum - minimum);
+    const maxOffset = 0.05 * (maximum - minimum);
+    let areaYPositon = this.chartDimensions.height;
+    if (this.yStartsFromMin && this.histogramParams.showStripes) {
+      areaYPositon = 0.9 * this.chartDimensions.height;
+    } else {
+      if (this.yStartsFromMin) {
+        if (minimum >= 0) {
+          areaYPositon = this.chartAxes.yDomain(minimum - minOffset);
+        } else {
+          /** the maximum is also negative, otherwise yStartsFromMin is neceserrali false */
+          areaYPositon = this.chartAxes.yDomain(maximum + maxOffset);
+        }
+      } else {
+        areaYPositon = this.chartAxes.yDomain(0);
+      }
+    }
     const a = area()
       .curve(curveType)
       .x((d: any) => this.chartAxes.xDataDomain(d.key))
@@ -176,7 +197,7 @@ export class ChartArea extends AbstractChart {
     this.drawYAxis(chartAxes);
   }
 
-  protected onSelectionClick (): void {
+  protected onSelectionClick(): void {
     this.brushContext.on('click', () => {
       if (!this.isBrushed && this.rectangleCurrentClipper !== null) {
         this.rectangleCurrentClipper.remove();
@@ -190,7 +211,7 @@ export class ChartArea extends AbstractChart {
       1 / 2 * (chartAxes.xDomain(endvalue) - chartAxes.xDomain(startvalue)) - 24 / 2;
   }
 
-  protected updateSelectionStyle(id: string): void {}
+  protected updateSelectionStyle(id: string): void { }
 
   protected addSelectionBrush(chartAxes: ChartAxes, leftOffset: number): void {
     super.addSelectionBrush(chartAxes, leftOffset);
@@ -243,7 +264,7 @@ export class ChartArea extends AbstractChart {
       let stateChanged = false;
       let localData = [];
       let localWhole = [];
-      data.forEach( d => {
+      data.forEach(d => {
         stateChanged = (isValid !== this.isValueValid(d));
         isValid = this.isValueValid(d);
         if (stateChanged) {

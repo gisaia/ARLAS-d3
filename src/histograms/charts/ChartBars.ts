@@ -111,10 +111,38 @@ export class ChartBars extends AbstractChart {
     this.plotBackground();
     this.plotBars(data, this.chartAxes, this.chartAxes.xDataDomain);
     // todo stripes
-    const barsHeight = (this.yStartsFromMin && this.histogramParams.showStripes) ?
-     (0.9 * this.chartDimensions.height) : this.chartAxes.yDomain(0);
+    const minimum = min(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MAX_VALUE);
+    const maximum = max(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MIN_VALUE);
+    const minOffset = this.histogramParams.showStripes ? 0 : 0.1 * (maximum - minimum);
+    const maxOffset = 0.05 * (maximum - minimum);
+
+    let barsHeight = this.chartDimensions.height;
+    if (this.yStartsFromMin && this.histogramParams.showStripes) {
+      barsHeight = 0.9 * this.chartDimensions.height;
+    } else {
+      if (this.yStartsFromMin) {
+        if (minimum >= 0 ) {
+          barsHeight = this.chartAxes.yDomain(minimum - minOffset);
+        } else {
+          /** the maximum is also negative, otherwise yStartsFromMin is neceserrali false */
+          barsHeight = this.chartAxes.yDomain(maximum + maxOffset);
+        }
+      } else {
+        barsHeight = this.chartAxes.yDomain(0);
+      }
+    }
     this.barsContext
-      .attr('y', (d) =>  d.value >= 0 ? this.chartAxes.yDomain(d.value) : this.chartAxes.yDomain(0) + 1)
+      .attr('y', (d) =>  {
+        if (d.value >= 0) {
+          return this.chartAxes.yDomain(d.value);
+        } else {
+          if (this.yStartsFromMin) {
+            return this.chartAxes.yDomain(maximum + maxOffset) + 1;
+          } else {
+            return this.chartAxes.yDomain(0) + 1;
+          }
+        }
+      })
       .attr('height', (d) => Math.abs(barsHeight - this.chartAxes.yDomain(d.value)));
 
     this.addStrippedPattern('no-data-stripes', this.NO_DATA_STRIPES_PATTERN, this.NO_DATA_STRIPES_SIZE, 'histogram__no-data-stripes');
