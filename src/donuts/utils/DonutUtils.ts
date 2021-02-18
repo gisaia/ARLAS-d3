@@ -25,6 +25,7 @@ export interface DonutDimensions {
   svg: Selection< BaseType, any, BaseType, any>;
   width: number;
   height: number;
+  containerWidth: number;
   radius: number;
 }
 
