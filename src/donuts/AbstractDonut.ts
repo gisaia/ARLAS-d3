@@ -90,12 +90,18 @@ export abstract class AbstractDonut {
     if (this.donutParams.diameter !== null && this.donutParams.diameter !== undefined) {
       width = height = this.donutParams.diameter;
     }
+
+    let containerWidth = width;
+    if (this.donutParams.containerWidth !== null && this.donutParams.containerWidth !== undefined) {
+      containerWidth = this.donutParams.containerWidth;
+    }
+
     const radius = Math.min(width, height) / 2;
     const svg = select(this.donutParams.svgElement)
       .attr('class', 'donut__svg')
-      .attr('width', width)
+      .attr('width', containerWidth)
       .attr('height', height);
-    this.donutDimensions = { svg, width, height, radius };
+    this.donutDimensions = { svg, width, containerWidth, height, radius };
   }
 
   /**
@@ -129,7 +135,7 @@ export abstract class AbstractDonut {
     this.donutContext = this.donutDimensions.svg
       .append('g')
       .attr('class', 'donut__arc--container')
-      .attr('transform', 'translate(' + this.donutDimensions.width / 2 + ',' + this.donutDimensions.height / 2 + ')')
+      .attr('transform', 'translate(' + this.donutDimensions.containerWidth / 2 + ',' + this.donutDimensions.height / 2 + ')')
       .on('mouseleave', () => this.onMouseLeavesContext());
     const path = this.donutContext.selectAll('path')
       .data(this.donutParams.donutNodes)
@@ -344,13 +350,13 @@ export abstract class AbstractDonut {
   }
 
   protected setTooltipPosition() {
-    const xPosition = this.donutDimensions.width / 2 + mouse(<ContainerElement>this.donutContext.node())[0];
-    if (xPosition > this.donutDimensions.width / 2) {
+    const xPosition = this.donutDimensions.containerWidth / 2 + mouse(<ContainerElement>this.donutContext.node())[0];
+    if (xPosition > this.donutDimensions.containerWidth / 2) {
       this.donutParams.tooltip.isRightSide = true;
-      this.donutParams.tooltip.xPosition = this.donutDimensions.width - xPosition + 10;
+      this.donutParams.tooltip.xPosition = this.donutDimensions.containerWidth / 2 - xPosition + 60;
     } else {
-      this.donutParams.tooltip.isRightSide = false;
-      this.donutParams.tooltip.xPosition = xPosition + 15;
+        this.donutParams.tooltip.isRightSide = false;
+        this.donutParams.tooltip.xPosition = xPosition + 20;
     }
     this.donutParams.tooltip.yPosition = mouse(<ContainerElement>this.donutContext.node())[1] - 5 + (this.donutDimensions.height / 2);
     this.donutTooltip.xPosition = xPosition;

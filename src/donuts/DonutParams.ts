@@ -107,5 +107,6 @@ export class DonutParams {
 
   /** Dimensions */
   public diameter: number;
+  public containerWidth: number;
 
 }
