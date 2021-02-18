@@ -1,8 +1,20 @@
 # Change Log
 
+## [v7.2.0](https://github.com/gisaia/ARLAS-d3/tree/v7.2.0) (2021-02-18)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.1.6...v7.2.0)
+
+**New stuff:**
+
+- Add an input for donut containers [\#132](https://github.com/gisaia/ARLAS-d3/issues/132)
+
 ## [v7.1.6](https://github.com/gisaia/ARLAS-d3/tree/v7.1.6) (2021-02-01)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.1.5...v7.1.6)
+
+**Fixed bugs:**
+
+- Charts that yAxis don't start from 0 render incorrectly [\#131](https://github.com/gisaia/ARLAS-d3/issues/131)
 
 ## [v7.1.5](https://github.com/gisaia/ARLAS-d3/tree/v7.1.5) (2021-01-19)
 
