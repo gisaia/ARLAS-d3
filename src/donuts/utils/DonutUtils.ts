@@ -46,6 +46,7 @@ export interface TreeNode {
   metricValue?: number;
   isOther: boolean;
   children?: Array<TreeNode>;
+  color?: string;
 }
 
 export interface SimpleNode {
