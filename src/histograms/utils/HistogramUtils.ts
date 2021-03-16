@@ -21,7 +21,7 @@
 import * as tinycolor from 'tinycolor2';
 import * as moment from 'moment';
 import { Selection, BaseType } from 'd3-selection';
-import { utcFormat } from 'd3-time-format';
+import { timeFormat, utcFormat } from 'd3-time-format';
 import { Axis } from 'd3-axis';
 import { ScaleLinear } from 'd3-scale';
 import { isNumber } from 'util';
@@ -267,14 +267,25 @@ export class HistogramUtils {
   public static toString(value: Date | number, histogramParams: HistogramParams, dateInterval?: number): string {
     if (value instanceof Date) {
       if (histogramParams.valuesDateFormat) {
-        const timeFormat = utcFormat(histogramParams.valuesDateFormat);
-        return timeFormat(value);
+        if (histogramParams.useUtc) {
+          return utcFormat(histogramParams.valuesDateFormat)(value);
+        } else {
+          return timeFormat(histogramParams.valuesDateFormat)(value);
+        }
       } else {
         if (dateInterval !== undefined && dateInterval !== null && dateInterval > 0) {
-          const timeFormat = utcFormat(this.getFormatFromDateInterval(dateInterval));
-          return timeFormat(value);
+          if (histogramParams.useUtc) {
+            return utcFormat(this.getFormatFromDateInterval(dateInterval))(value);
+          } else {
+            return timeFormat(this.getFormatFromDateInterval(dateInterval))(value);
+          }
         } else {
-          return value.toUTCString().split(',')[1].replace('GMT', '');
+            const formatDate = '%d/%m/%Y %H:%M';
+          if (histogramParams.useUtc) {
+            return utcFormat(formatDate)(value);
+          } else {
+            return timeFormat(formatDate)(value);
+          }
         }
       }
     } else {
@@ -285,10 +296,18 @@ export class HistogramUtils {
         if (histogramParams.dataType === DataType.time) {
           const date = new Date(this.round(value, roundPrecision));
           if (dateInterval !== undefined && dateInterval !== null && dateInterval > 0) {
-            const timeFormat = utcFormat(this.getFormatFromDateInterval(dateInterval));
-            return timeFormat(date);
+            if (histogramParams.useUtc) {
+              return utcFormat(this.getFormatFromDateInterval(dateInterval))(date);
+            } else {
+              return timeFormat(this.getFormatFromDateInterval(dateInterval))(date);
+            }
           } else {
-            return date.toUTCString().split(',')[1].replace('GMT', '');
+            const formatDate = '%d/%m/%Y %H:%M';
+            if (histogramParams.useUtc) {
+              return utcFormat(formatDate)(date);
+            } else {
+              return timeFormat(formatDate)(date);
+            }
           }
         } else {
           if (dateInterval !== undefined && dateInterval !== null && dateInterval > 0 && dateInterval < 1) {

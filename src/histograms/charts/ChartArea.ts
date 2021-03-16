@@ -25,7 +25,7 @@ import {
 import { curveLinear, CurveFactory, curveMonotoneX, area } from 'd3-shape';
 import { axisBottom } from 'd3-axis';
 import { extent, min, max } from 'd3-array';
-import { utcFormat } from 'd3-time-format';
+import { timeFormat, utcFormat } from 'd3-time-format';
 
 export class ChartArea extends AbstractChart {
 
@@ -184,7 +184,11 @@ export class ChartArea extends AbstractChart {
     this.applyFormatOnXticks(data);
     if (this.histogramParams.dataType === DataType.time) {
       if (this.histogramParams.ticksDateFormat) {
-        this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(utcFormat(this.histogramParams.ticksDateFormat));
+        if (this.histogramParams.useUtc) {
+          this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(utcFormat(this.histogramParams.ticksDateFormat));
+        } else {
+          this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(timeFormat(this.histogramParams.ticksDateFormat));
+        }
       }
     } else {
       /** apply space between thousands, millions */

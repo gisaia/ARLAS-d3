@@ -130,6 +130,8 @@ export class HistogramParams {
   public uid: string;
   public displayHorizontal = 'hidden';
   public displayVertical = 'hidden';
+  public useUtc: boolean;
+
 }
 
 export interface BarOptions {

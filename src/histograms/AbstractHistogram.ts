@@ -23,7 +23,7 @@ import {
 } from './utils/HistogramUtils';
 import { HistogramParams } from './HistogramParams';
 import { BrushBehavior } from 'd3-brush';
-import { scaleUtc, scaleLinear } from 'd3-scale';
+import { scaleUtc, scaleLinear, scaleTime } from 'd3-scale';
 import { min, max } from 'd3-array';
 
 export abstract class AbstractHistogram {
@@ -152,7 +152,9 @@ export abstract class AbstractHistogram {
   }
 
   protected getXDomainScale(): any {
-    return (this.histogramParams.dataType === DataType.time) ? scaleUtc() : scaleLinear();
+    return (this.histogramParams.dataType === DataType.time) ?
+           (this.histogramParams.useUtc) ?
+          scaleUtc() : scaleTime() : scaleLinear();
   }
 
   protected getHistogramMinMaxBorders(data: Array<HistogramData>): [number | Date, number | Date] {
