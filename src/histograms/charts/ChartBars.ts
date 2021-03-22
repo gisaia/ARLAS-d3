@@ -18,7 +18,7 @@
 */
 
 import { HistogramData, ChartAxes, DataType, Position, tickNumberFormat,
-  getBarOptions, SelectedOutputValues, UNSELECTED_BARS, UNSELECTED_BARS_ZONE, SELECTED_BARS_ZONE, } from '../utils/HistogramUtils';
+  getBarOptions, UNSELECTED_BARS, UNSELECTED_BARS_ZONE, SELECTED_BARS_ZONE, } from '../utils/HistogramUtils';
 import { AbstractChart } from './AbstractChart';
 import { scaleBand } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
@@ -30,6 +30,10 @@ export class ChartBars extends AbstractChart {
   private strippedBarsContext;
   private headBandsContext;
 
+  private minimumData = Number.MAX_VALUE;
+  private maximumData = Number.MIN_VALUE;
+  private minOffset = 0;
+  private maxOffset = 0;
   public plot(inputData: Array<HistogramData>) {
     super.plot(inputData);
   }
@@ -115,6 +119,11 @@ export class ChartBars extends AbstractChart {
     const maximum = max(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MIN_VALUE);
     const minOffset = this.histogramParams.showStripes ? 0 : 0.1 * (maximum - minimum);
     const maxOffset = 0.05 * (maximum - minimum);
+
+    this.maximumData = maximum;
+    this.minimumData = minimum;
+    this.maxOffset = maxOffset;
+    this.minOffset = minOffset;
 
     let barsHeight = this.chartDimensions.height;
     if (this.yStartsFromMin && this.histogramParams.showStripes) {
@@ -233,6 +242,31 @@ export class ChartBars extends AbstractChart {
       this.applyStyleOnStrippedSelectedBars(this.strippedBarsContext);
     }
     this.applyStyleOnHeadBand(this.headBandsContext);
+  }
+
+  /**
+   * Draws a indicator behind the hovered bucket of the histogram. This has as objective to highlight it on the histogram
+   * @override For bars charts, a grey rectangle is drawn behind the bucket
+   * @param data
+   * @param axes
+   */
+  protected drawTooltipCursor(data: Array<HistogramData>, axes: ChartAxes) {
+    const barWidth = axes.stepWidth;
+    const barsHeight = this.chartDimensions.height;
+    this.tooltipCursorContext.selectAll('.bar')
+      .data(data.filter(d => this.isValueValid(d)))
+      .enter().append('rect')
+      .attr('x', (d) => axes.xDataDomain(d.key))
+      .attr('width', barWidth)
+      .attr('y', 0)
+      .attr('height', barsHeight);
+  }
+
+  /**
+   * @override For bars charts, removes the rectangle behind the hovered bucket of the histogram
+   */
+  protected clearTooltipCursor(): void {
+    this.tooltipCursorContext.selectAll('rect').remove();
   }
 
   protected applyStyleOnHeadBand(headBandContext: any): void {

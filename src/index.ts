@@ -28,7 +28,7 @@ export { AbstractChart } from './histograms/charts/AbstractChart';
 export { AbstractSwimlane } from './histograms/swimlanes/AbstractSwimlane';
 export {
   ChartType, DataType, SelectedInputValues, SelectedOutputValues,
-  Position, SwimlaneMode, HistogramUtils, SwimlaneOptions, SwimlaneRepresentation
+  Position, SwimlaneMode, HistogramUtils, SwimlaneOptions, SwimlaneRepresentation, HistogramTooltip
 } from './histograms/utils/HistogramUtils';
 export { TreeNode, SimpleNode, DonutNode, DonutDimensions, DonutUtils, DonutTooltip } from './donuts/utils/DonutUtils';
 export { AbstractDonut } from './donuts/AbstractDonut';

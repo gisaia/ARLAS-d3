@@ -51,6 +51,21 @@ export interface HistogramData {
   value: number;
 }
 
+export interface HistogramTooltip {
+  xValue: number | string | Date;
+  yValue: number | string;
+  max?: number;
+  min?: number;
+  xUnit?: string;
+  yUnit?: string;
+  xLabel?: string;
+  yLabel?: string;
+  shown?: boolean;
+  xPosition?: number;
+  yPosition?: number;
+  chartWidth?: number;
+}
+
 export interface BrushCornerTooltips {
   leftCornerTooltip: BrushTooltip;
   rightCornerTooltip: BrushTooltip;

@@ -55,9 +55,9 @@ export abstract class AbstractChart extends AbstractHistogram {
       const minMaxBorders = this.getHistogramMinMaxBorders(data);
       this.initializeDescriptionValues(minMaxBorders[0], minMaxBorders[1], inputData);
       this.initializeChartDimensions();
+      this.customizeData(data);
       this.createChartAxes(data);
       this.drawChartAxes(this.chartAxes, 0);
-      this.customizeData(data);
       this.plotChart(data);
       this.showTooltips(data);
       if (this.histogramParams.isHistogramSelectable) {
@@ -108,6 +108,7 @@ export abstract class AbstractChart extends AbstractHistogram {
 
   public removeSelectInterval(id: string) {
     this.histogramParams.tooltip.isShown = false;
+    this.clearTooltipCursor();
     const index = this.histogramParams.selectionListIntervalId.indexOf(id, 0);
     if (index > -1) {
       this.histogramParams.selectionListIntervalId.splice(index, 1);
@@ -145,6 +146,7 @@ export abstract class AbstractChart extends AbstractHistogram {
 
   public leaveRemove() {
     this.histogramParams.tooltip.isShown = false;
+    this.clearTooltipCursor();
   }
 
 
@@ -391,6 +393,14 @@ export abstract class AbstractChart extends AbstractHistogram {
       .on('mouseout', () => this.histogramParams.tooltip.isShown = false);
   }
 
+
+  /**
+   * Draws a indicator behind the hovered bucket of the histogram. This has as objective to highlight it on the histogram
+   * @param data
+   * @param axes
+   */
+  protected drawTooltipCursor(data: Array<HistogramData>, axes: ChartAxes): void {}
+
   protected setTooltipPositions(data: Array<HistogramData>, container: ContainerElement): void {
     const xy = mouse(container);
     let dx;
@@ -416,6 +426,16 @@ export abstract class AbstractChart extends AbstractHistogram {
           this.histogramParams.tooltip.xContent = HistogramUtils.toString(data[i].key, this.histogramParams, dataInterval);
           this.histogramParams.tooltip.yContent = formatNumber(data[i].value, this.histogramParams.numberFormatChar);
         }
+        this.clearTooltipCursor();
+        this.drawTooltipCursor([data[i]], this.chartAxes);
+        this.histogramParams.tooltipEvent.next({
+          xValue: this.histogramParams.tooltip.xContent,
+          yValue: this.histogramParams.tooltip.yContent,
+          shown: true,
+          xPosition: xy[0] + this.chartDimensions.margin.left,
+          yPosition: xy[1],
+          chartWidth: this.chartDimensions.width + this.chartDimensions.margin.left + this.chartDimensions.margin.right
+        });
         break;
       } else {
         if (data[i].key >= this.selectionInterval.startvalue
@@ -644,6 +664,7 @@ export abstract class AbstractChart extends AbstractHistogram {
         this.setBrushCornerTooltipsPositions();
         this.applyStyleOnSelection();
         this.translateBrushHandles(selection, chartAxes);
+        this.clearTooltipCursor();
       }
     });
   }

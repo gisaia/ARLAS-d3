@@ -22,7 +22,8 @@ import { SelectedInputValues, SelectedOutputValues, ChartType, DataType, Positio
    SwimlaneData,
    HistogramData,
    SwimlaneRepresentation,
-   SwimlaneOptions} from './utils/HistogramUtils';
+   SwimlaneOptions,
+   HistogramTooltip} from './utils/HistogramUtils';
 import { Subject } from 'rxjs';
 
 export class HistogramParams {
@@ -100,6 +101,7 @@ export class HistogramParams {
   public valuesListChangedEvent: Subject<SelectedOutputValues[]> = new Subject<SelectedOutputValues[]>();
   public hoveredBucketEvent: Subject<Date | number> = new Subject<Date | number>();
   public selectedSwimlanesEvent = new Subject<Set<string>>();
+  public tooltipEvent: Subject<HistogramTooltip> = new Subject();
 
   // ########################## Parameter binded with HTML ##########################
 
