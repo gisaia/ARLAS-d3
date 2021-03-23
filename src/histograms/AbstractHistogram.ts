@@ -38,6 +38,7 @@ export abstract class AbstractHistogram {
   protected barsContext: any;
   protected noDatabarsContext: any;
   protected brushContext: any;
+  protected tooltipCursorContext: any;
   protected allAxesContext: any;
 
   /** Chart dimensions */
@@ -215,12 +216,19 @@ export abstract class AbstractHistogram {
     return xDomainExtent;
   }
 
+  /**
+   *  Removes the indicator behind the hovered bucket of the histogram
+   */
+  protected clearTooltipCursor(): void {}
+
   protected drawChartAxes(chartAxes: ChartAxes | SwimlaneAxes, leftOffset: number): void {
     const marginTopBottom = this.chartDimensions.margin.top * this.histogramParams.xAxisPosition +
       this.chartDimensions.margin.bottom * (1 - this.histogramParams.xAxisPosition);
     this.context = this.chartDimensions.svg.append('g')
       .attr('class', 'context')
       .attr('transform', 'translate(' + this.chartDimensions.margin.left + ',' + marginTopBottom + ')');
+    this.tooltipCursorContext = this.context.append('g').attr('class', 'tooltip_histogram_bar');
+    this.context.on('mouseleave', () => this.clearTooltipCursor());
     this.allAxesContext = this.context.append('g').attr('class', 'histogram__all-axes');
     // leftOffset is the width of Y labels, so x axes are translated by leftOffset
     // Y axis is translated to the left of 1px so that the chart doesn't hide it

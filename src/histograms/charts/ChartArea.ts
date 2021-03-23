@@ -238,6 +238,38 @@ export class ChartArea extends AbstractChart {
     return this.chartAxes.xDomain(data[index].key) + 10;
   }
 
+  /**
+   * Draws a indicator behind the hovered bucket of the histogram. This has as objective to highlight it on the histogram
+   * @override For areas charts, a verticcal grey line is drawn + a circle on the bucket
+   * @param data
+   * @param axes
+   */
+  protected drawTooltipCursor(data: Array<HistogramData>, axes: ChartAxes) {
+    this.tooltipCursorContext.selectAll('.bar')
+      .data(data.filter(d => this.isValueValid(d)))
+      .enter().append('line')
+      .attr('x1', (d) => axes.xDataDomain(d.key))
+      .attr('x2', (d) => axes.xDataDomain(d.key))
+      .attr('y1', 1)
+      .attr('y2', (d) => this.chartDimensions.height);
+    this.context.append('g').attr('class', 'histogram__area_circle_container').selectAll('dot').data(data.filter(d => this.isValueValid(d)))
+      .enter().append('circle')
+      .attr('r', (d) => 2)
+      .attr('cx', (d) => axes.xDataDomain(d.key))
+      .attr('cy', (d) => axes.yDomain(d.value))
+      .attr('class', 'histogram__area_circle')
+      .style('opacity', '0.8');
+  }
+
+  /**
+   * @override For areas charts, removes the line behind the hovered bucket of the histogram + removes the circle on the hovered bucket
+   */
+  protected clearTooltipCursor(): void {
+    this.tooltipCursorContext.selectAll('line').remove();
+    this.context.selectAll('g.histogram__area_circle_container').remove();
+  }
+
+
   protected setTooltipXposition(xPosition: number): number {
     if (xPosition > this.chartDimensions.width / 2) {
       this.histogramParams.tooltip.isRightSide = true;
