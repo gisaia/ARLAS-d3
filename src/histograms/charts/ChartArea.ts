@@ -251,7 +251,8 @@ export class ChartArea extends AbstractChart {
       .attr('x1', (d) => axes.xDataDomain(d.key))
       .attr('x2', (d) => axes.xDataDomain(d.key))
       .attr('y1', 1)
-      .attr('y2', (d) => this.chartDimensions.height);
+      .attr('y2', (d) => this.chartDimensions.height)
+      .attr('class', 'histogram__tooltip_cursor_line');
     this.context.append('g').attr('class', 'histogram__area_circle_container').selectAll('dot').data(data.filter(d => this.isValueValid(d)))
       .enter().append('circle')
       .attr('r', (d) => 2)

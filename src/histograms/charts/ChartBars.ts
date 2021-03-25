@@ -263,7 +263,8 @@ export class ChartBars extends AbstractChart {
       .attr('x', (d) => axes.xDataDomain(d.key))
       .attr('width', barWidth)
       .attr('y', 0)
-      .attr('height', barsHeight);
+      .attr('height', barsHeight)
+      .attr('class', 'histogram__tooltip_cursor_rect');
   }
 
   /**
