@@ -271,7 +271,12 @@ export abstract class AbstractDonut {
    */
   protected styleNodes(): void {
     if (this.donutParams.selectedArcsList.length > 0) {
-      this.donutContext.selectAll('path').style('opacity', this.donutParams.opacity).style('stroke-width', '0px');
+      /** fixing values of opacity between [0 and 100] and transform them to [0 and 1] */
+      let donutOpacity = this.donutParams.opacity;
+      if (donutOpacity > 1) {
+        donutOpacity = this.donutParams.opacity / 100;
+      }
+      this.donutContext.selectAll('path').style('opacity', donutOpacity).style('stroke-width', '0px');
       this.donutParams.donutNodes.forEach(node => {
         if (node.isSelected) {
           const nodeAncestors = node.ancestors().reverse();
@@ -279,7 +284,7 @@ export abstract class AbstractDonut {
             .selectAll('path')
             .filter((n) => nodeAncestors.indexOf(n) >= 0)
             .style('opacity', 1)
-            .style('stroke-width', '0.5px');
+            .style('stroke-width', '1.5px');
         }
       });
     } else {
@@ -331,6 +336,7 @@ export abstract class AbstractDonut {
   protected onMouseOut(): void {
     this.donutParams.tooltip.isShown = false;
     this.donutParams.hoveredNodeTooltipEvent.next(null);
+    this.donutParams.tooltipEvent.next(null);
     this.unhoverNodesButNotSelected();
   }
 
@@ -340,13 +346,10 @@ export abstract class AbstractDonut {
 
   protected showTooltip(node: DonutNode): void {
     this.donutParams.tooltip.isShown = true;
-    this.donutParams.tooltip.xContent = DonutUtils.getNodePathAsString(node);
-    const metricValue = node.data ? formatNumber(+node.data.metricValue, this.donutParams.numberFormatChar) : '';
-    if (metricValue !== undefined) {
-      if (metricValue.toString() !== 'NaN') {
-        this.donutParams.tooltip.xContent += ' (' + metricValue + ')';
-      }
-    }
+    this.donutParams.tooltip.content = DonutUtils.getNodeToolipAsArray(node,
+      this.donutParams.donutNodeColorizer,
+      this.donutParams.keysToColors, this.donutParams.colorsSaturationWeight
+      );
   }
 
   protected setTooltipPosition() {
@@ -363,6 +366,7 @@ export abstract class AbstractDonut {
     this.donutTooltip.yPosition = this.donutParams.tooltip.yPosition;
     if (this.donutParams.tooltip.isShown) {
       this.donutParams.hoveredNodeTooltipEvent.next(this.donutTooltip);
+      this.donutParams.tooltipEvent.next(this.donutParams.tooltip);
     }
   }
 

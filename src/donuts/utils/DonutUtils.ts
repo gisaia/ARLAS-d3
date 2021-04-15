@@ -62,6 +62,22 @@ export interface DonutNode extends HierarchyRectangularNode<any> {
   endAngle: number;
 }
 
+export interface ARLASDonutTooltip {
+  isShown?: boolean;
+  isRightSide?: boolean;
+  xPosition?: number;
+  yPosition?: number;
+  content?: Array<DonutTooltipContent>;
+}
+export interface DonutTooltipContent {
+  percentage?: string;
+  value?: number;
+  field?: string;
+  function?: string;
+  metric?: number;
+  color?: string;
+}
+
 export class DonutUtils {
 
   public static getNode(nodePath: Array<SimpleNode>, donutNodes: Array<any>): DonutNode {
@@ -122,6 +138,39 @@ export class DonutUtils {
       }
     }
     return nodePathAsArray;
+  }
+
+  public static getNodeToolipAsArray(n: DonutNode, donutNodeColorizer: ColorGenerator,
+    keysToColors: Array<[string, string]>, colorsSaturationWeight: number) {
+    const tooltipArray: DonutTooltipContent[] = [];
+    if (n.depth > 0) {
+      const tooltipContent: DonutTooltipContent = {
+        field: n.data.fieldName,
+        value: n.data.fieldValue,
+        metric: n.data.size,
+        color: DonutUtils.getNodeColor(n, donutNodeColorizer, keysToColors, colorsSaturationWeight)
+      };
+      if (n.parent) {
+        tooltipContent.percentage = Math.round( n.data.size / n.parent.data.size * 100).toFixed(2);
+      }
+      tooltipArray.push(tooltipContent);
+      if (n.parent && n.parent.parent) {
+        while (n.parent.parent) {
+          n = <DonutNode>n.parent;
+          const tc: DonutTooltipContent = {
+            field: n.data.fieldName,
+            value: n.data.fieldValue,
+            metric: n.data.size,
+            color: DonutUtils.getNodeColor(n, donutNodeColorizer, keysToColors, colorsSaturationWeight)
+          };
+          if (n.parent) {
+            tc.percentage = Math.round( n.data.size / n.parent.data.size * 100).toFixed(2);
+          }
+          tooltipArray.push(tc);
+        }
+      }
+      return tooltipArray;
+    }
   }
 
   public static getNodePathAsString(n: DonutNode): string {
