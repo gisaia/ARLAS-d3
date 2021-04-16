@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { TreeNode, DonutNode, DonutTooltip } from './utils/DonutUtils';
+import { TreeNode, DonutNode, DonutTooltip, ARLASDonutTooltip } from './utils/DonutUtils';
 import { Subject } from 'rxjs';
 import { Tooltip } from '../histograms/utils/HistogramUtils';
 import { ColorGenerator } from '../utils/color-generator';
@@ -68,14 +68,21 @@ export class DonutParams {
   public hoveredNodesEvent: Subject<Map<string, string>> = new Subject<Map<string, string>>();
 
   /**
+   * @deprecated
    * @description Emits the tooltip of the hovered node.
    */
   public hoveredNodeTooltipEvent: Subject<DonutTooltip> = new Subject<DonutTooltip>();
 
   /**
+   * @description Emits the tooltip of the hovered node.
+   */
+  public tooltipEvent: Subject<ARLASDonutTooltip> = new Subject<ARLASDonutTooltip>();
+
+  /**
    * @description Tooltip displayed when a node is hovered.
    */
-  public tooltip: Tooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
+  public tooltip: ARLASDonutTooltip = {};
+
   /**
    * @description D3 nodes diplayed on the donut.
    */

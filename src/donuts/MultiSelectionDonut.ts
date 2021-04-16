@@ -37,8 +37,13 @@ export class MultiSelectionDonut extends AbstractDonut {
   }
 
   protected hoverNode(hoveredNode: DonutNode) {
+    /** fixing values of opacity between [0 and 100] and transform them to [0 and 1] */
+    let donutOpacity = this.donutParams.opacity;
+    if (donutOpacity > 1) {
+      donutOpacity = this.donutParams.opacity / 100;
+    }
     if (this.donutParams.selectedArcsList.length === 0 && hoveredNode.depth > 0 && !hoveredNode.data.isOther) {
-      this.donutContext.selectAll('path').style('opacity', this.donutParams.opacity);
+      this.donutContext.selectAll('path').style('opacity', donutOpacity);
     }
   }
   protected unhoverNodesButNotSelected() {
