@@ -1,5 +1,13 @@
 # Change Log
 
+## [v7.4.0](https://github.com/gisaia/ARLAS-d3/tree/v7.4.0) (2021-04-16)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.3.1...v7.4.0)
+
+**New stuff:**
+
+- Enhance donut tooltip [\#141](https://github.com/gisaia/ARLAS-d3/issues/141)
+
 ## [v7.3.1](https://github.com/gisaia/ARLAS-d3/tree/v7.3.1) (2021-03-26)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.3.0...v7.3.1)
