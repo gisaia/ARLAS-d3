@@ -14,23 +14,25 @@ const input = {
     "customizedCssClass": "arlas-timeline",
     "multiselectable": false,
     "brushHandlesHeightWeight": 0.8,
-    "dataType": "numeric",
+    "dataType": 0,
     "isHistogramSelectable": true,
     "ticksDateFormat": "%b %d %Y  %H:%M",
     "chartType": "bars",
-    "chartHeight": 128,
+    "chartHeight": 150,
     "chartWidth": 500,
-    "xAxisPosition": "bottom",
+    "xAxisPosition": 0,
     "yAxisStartsFromZero": true,
     "descriptionPosition": "top",
     "showXTicks": true,
     "showYTicks": true,
     "showXLabels": true,
     "showYLabels": true,
+    "showStripes": false,
     "showHorizontalLines": false,
     "isSmoothedCurve": true,
     "barWeight": 0.8,
-    "topOffsetRemoveInterval": 10
+    "topOffsetRemoveInterval": 10,
+    "uid": "test"
   }
 
 const histogramParams = new HistogramParams();
@@ -39,13 +41,10 @@ for (const [key, value] of Object.entries(input)) {
   }
 histogram.histogramParams = histogramParams;
 
-histogram.histogramParams.margin = {
-    bottom : 0
-};
+
 histogram.histogramParams.intervalSelectedMap = new Map();
 histogram.histogramParams.histogramContainer = document.getElementById('container')
 histogram.histogramParams.svgNode = document.getElementById('container').querySelector('svg');
-
 const defaultHistogramData = [
     {value: -400,   key: 0},
     {value: -123,  key: 1},
@@ -63,7 +62,10 @@ const defaultHistogramData = [
     {value: -222, key: 13},
     {value: -120, key: 14},
   ];
-
-histogram.histogramParams.histogramData = defaultHistogramData
-histogram.plot(defaultHistogramData)
+  histogram.selectionInterval = {
+    startvalue : defaultHistogramData[0].key,
+    endvalue : defaultHistogramData[defaultHistogramData.length - 1].key
+  };
+  histogram.histogramParams.histogramData = defaultHistogramData
+  histogram.plot(defaultHistogramData)
 histogram.resize(document.getElementById('container'))
