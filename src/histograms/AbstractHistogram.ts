@@ -287,7 +287,7 @@ export abstract class AbstractHistogram {
   }
 
   protected isValueValid(bucket: HistogramData): boolean {
-    return bucket ? !Number.isNaN(Number(bucket.value)) && !(bucket.value + '' === 'Infinity') : false;
+    return HistogramUtils.isValueValid(bucket);
   }
 
   /**

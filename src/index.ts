@@ -1,3 +1,4 @@
+import { ChartCurve } from './histograms/charts/ChartCurve';
 /*
  * Licensed to Gisaïa under one or more contributor
  * license agreements. See the NOTICE.txt file distributed with
@@ -20,6 +21,7 @@
 export { HistogramParams, BarOptions, BarHeadBand } from './histograms/HistogramParams';
 export { ChartBars } from './histograms/charts/ChartBars';
 export { ChartArea } from './histograms/charts/ChartArea';
+export { ChartCurve } from './histograms/charts/ChartCurve';
 export { ChartOneDimension } from './histograms/charts/ChartOneDimension';
 export { SwimlaneBars } from './histograms/swimlanes/SwimlaneBars';
 export { SwimlaneCircles } from './histograms/swimlanes/SwimlaneCircles';

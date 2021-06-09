@@ -290,20 +290,51 @@
 
 .histogram__chart--fixed-selected--area /* @doc Sets the style of the area's selected parts*/
 {
-  fill: #88c9c3;
+  fill: red;
   fill-opacity: 1;
+  stroke: #a5a5a5;
+
 }
 
 .histogram__chart--current-selected--area /* @doc Sets the style of the area's selected parts*/
 {
-  fill: #88c9c3;
+  fill: red;
   fill-opacity: 1;
+  stroke: #a5a5a5;
+
 }
 
 .histogram__chart--unselected--area /* @doc Sets the style of the area's unselected parts*/
 {
-  fill: #b7b7b7;
+  fill: #a5a5a5;
   fill-opacity: .7;
+  stroke: #a5a5a5;
+
+}
+
+
+.histogram__chart--fixed-selected--curve /* @doc Sets the style of the curve's selected parts*/
+{
+  fill: none;
+  fill-opacity: 1;
+  stroke: red;
+
+}
+
+.histogram__chart--current-selected--curve /* @doc Sets the style of the curve's selected parts*/
+{
+  fill: none;
+  fill-opacity: 1;
+  stroke: red;
+
+}
+
+.histogram__chart--unselected--curve /* @doc Sets the style of the curve's unselected parts*/
+{
+  fill: none;
+  fill-opacity: .7;
+  stroke: #a5a5a5;
+
 }
 
 .histogram__chart--bar__fullyselected /* @doc Sets the fixed selected bars style*/
