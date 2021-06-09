@@ -49,6 +49,8 @@ export interface MarginModel {
 export interface HistogramData {
   key: Date | number;
   value: number;
+  chartId?: string;
+  normalizeValue?: number;
 }
 
 export interface HistogramTooltip {
@@ -113,13 +115,18 @@ export interface ChartAxes {
   xDomain: any;
   xDataDomain: any;
   yDomain: ScaleLinear<number, number>;
+  yDomainRight?: ScaleLinear<number, number>;
   xTicksAxis: Axis<any>;
   xLabelsAxis: Axis<any>;
   yTicksAxis: Axis<any>;
   yLabelsAxis: Axis<any>;
+  yTicksAxisRight?: Axis<any>;
+  yLabelsAxisRight?: Axis<any>;
   stepWidth: number;
   xAxis: Axis<any>;
   yAxis: Axis<any>;
+  yAxisRight?: Axis<any>;
+
 }
 
 export interface SwimlaneAxes {
@@ -211,9 +218,9 @@ export class HistogramUtils {
     if (dataType === DataType.time) {
       return this.parseDataKeyToDate(inputData);
     } else {
-      const parsedInputData = [];
+      const parsedInputData: HistogramData[] = [];
       inputData.forEach(d => {
-        parsedInputData.push({ key: d.key, value: d.value });
+        parsedInputData.push({ key: d.key, value: d.value, chartId: d.chartId });
       });
       return parsedInputData;
     }
@@ -249,7 +256,7 @@ export class HistogramUtils {
   private static parseDataKeyToDate(inputData: Array<HistogramData>) {
     const parsedData = new Array<HistogramData>();
     inputData.forEach(d => {
-      parsedData.push({ key: new Date(+d.key), value: d.value });
+      parsedData.push({ key: new Date(+d.key), value: d.value, chartId: d.chartId });
     });
     return parsedData;
   }
@@ -418,6 +425,47 @@ export class HistogramUtils {
     }
     return newValue.toString();
   }
+
+  public static isValueValid(bucket: HistogramData): boolean {
+    return bucket ? !Number.isNaN(Number(bucket.value)) && !(bucket.value + '' === 'Infinity') : false;
+  }
+
+  public static splitData(data: Array<HistogramData>): [Array<Array<HistogramData>>, Array<Array<HistogramData>>] {
+    const splittedData = new Array();
+    const wholes = new Array();
+    if (data && data.length > 0) {
+        let isValid = this.isValueValid(data[0]);
+        let stateChanged = false;
+        let localData = [];
+        let localWhole = [];
+        data.forEach(d => {
+            stateChanged = (isValid !== this.isValueValid(d));
+            isValid = this.isValueValid(d);
+            if (stateChanged) {
+                if (isValid) {
+                    localWhole.push(d);
+                }
+                isValid ? wholes.push(localWhole) : splittedData.push(localData);
+                localData = [];
+                localWhole = [];
+                if (!isValid) {
+                    if (splittedData.length > 0) {
+                        const latestDataPart = splittedData[splittedData.length - 1];
+                        localWhole.push(latestDataPart[latestDataPart.length - 1]);
+                    }
+                }
+            }
+            isValid ? localData.push(d) : localWhole.push(d);
+        });
+        if (localData.length > 0) {
+            splittedData.push(localData);
+        }
+        if (localWhole.length > 0) {
+            wholes.push(localWhole);
+        }
+    }
+    return [splittedData, wholes];
+}
 }
 
 export enum SwimlaneMode {
