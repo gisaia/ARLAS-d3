@@ -254,7 +254,7 @@ export class ChartBars extends AbstractChart {
    * @param data
    * @param axes
    */
-  protected drawTooltipCursor(data: Array<HistogramData>, axes: ChartAxes) {
+  protected drawTooltipCursor(data: Array<HistogramData>, axes: ChartAxes, chartIsToSides?: Map<string, string>) {
     const barWidth = axes.stepWidth;
     const barsHeight = this.chartDimensions.height;
     this.tooltipCursorContext.selectAll('.bar')

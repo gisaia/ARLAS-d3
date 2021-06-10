@@ -3,14 +3,13 @@ import { min, max, extent } from 'd3-array';
 
 import { ChartAxes, DataType, HistogramData, HistogramUtils, Position, tickNumberFormat } from '../utils/HistogramUtils';
 import { AbstractChart } from './AbstractChart';
-import { axisBottom } from 'd3-axis';
+import { axisBottom, axisLeft, axisRight } from 'd3-axis';
 import { timeFormat, utcFormat } from 'd3-time-format';
+import { scaleLinear } from 'd3-scale';
+import { format } from 'd3-format';
 
 
 export class ChartCurve extends AbstractChart {
-    public clipPathContexts = [];
-    public currentClipPathContexts = [];
-    public rectangleCurrentClippers = [];
     public plot(inputData: HistogramData[]): void {
         super.init();
         this.dataDomain = inputData;
@@ -26,36 +25,71 @@ export class ChartCurve extends AbstractChart {
             if (chartIdToData.size === 0) {
                 chartIdToData.set('default', data);
             }
-            if (chartIdToData.size === 1) {
-                // We add just one Y axis
-                // No normalization
-            } else if (chartIdToData.size === 2) {
-                // We add on Y axis on right
-                // We add on Y axis on left
-                // No normalization
-            } else {
-                // No Y axis
-                // We normalize the data
-            }
-            const dataArray = Array.from(chartIdToData.values());
+            const chartIdsToSides = new Map();
+            let i = 0;
+            const dataArray = [];
+            chartIdToData.forEach((values, id) => {
+                if (chartIdToData.size === 2) {
+                    if (i === 0) {
+                        chartIdsToSides.set(id, 'left');
+                    } else {
+                        chartIdsToSides.set(id, 'right');
+                    }
+                    i++;
+                } else {
+                    chartIdsToSides.set(id, 'left');
+                    
+                }
+
+                dataArray.push(values);
+            });
             const dataArrayMerged: HistogramData[] = [].concat.apply([], dataArray);
             const minMaxBorders = dataArray.map(d => this.getHistogramMinMaxBorders(d));
             const minOfMin = min(minMaxBorders.map(d => d[0]));
             const maxOfMax = max(minMaxBorders.map(d => d[1]));
-
             this.histogramParams.dataLength = (new Set(dataArrayMerged.map(d => d.key))).size;
-
             this.initializeDescriptionValues(minOfMin, maxOfMax, dataArray[0]);
             this.initializeChartDimensions();
+            if (chartIdToData.size === 1) {
+                // We add just one Y axis on the left
+                // No normalization
+                this.createChartXAxes(dataArrayMerged);
+                this.createChartYLeftAxes(dataArrayMerged);
+                this.drawChartAxes(this.chartAxes, 0);
+                this.drawYAxis(this.chartAxes, 'left');
+                this.createClipperContext();
+                dataArray.map(d => this.plotChart(d));
+            } else if (chartIdToData.size === 2) {
+                // We add on Y axis on right
+                // We add on Y axis on left
+                // No normalization
+                this.createChartXAxes(dataArrayMerged);
+                this.createChartYLeftAxes(dataArray[0]);
+                this.createChartYRightAxes(dataArray[1]);
+                this.drawChartAxes(this.chartAxes, 0);
+                this.drawYAxis(this.chartAxes, 'left');
+                this.drawYAxis(this.chartAxes, 'right');
+                this.createClipperContext();
+                this.plotChart(dataArray[0], this.chartAxes.yDomain);
+                this.plotChart(dataArray[1], this.chartAxes.yDomainRight);
 
-            // merge all the data
-            this.createChartAxes(dataArrayMerged);
-            this.drawChartAxes(this.chartAxes, 0);
-
-            dataArray.map(d => this.plotChart(d));
-
-
-            this.showTooltips(data);
+            } else {
+                // No Y axis
+                // We normalize the data
+                this.createChartXAxes(dataArrayMerged);
+                this.createChartNormalizeLeftAxes();
+                this.drawChartAxes(this.chartAxes, 0);
+                this.createClipperContext();
+                dataArray.forEach(chartData => {
+                    const minus = min(chartData.map(d => d.value));
+                    const maxus = max(chartData.map(d => d.value));
+                    chartData.forEach(d => {
+                        d.normalizeValue = this.normalize(d.value, minus, maxus);
+                    });
+                });
+                dataArray.map(d => this.plotChart(d, this.chartAxes.yDomain, true));
+            }
+            this.showTooltips(data, chartIdsToSides);
             if (this.histogramParams.isHistogramSelectable) {
                 this.addSelectionBrush(this.chartAxes, 0);
             }
@@ -84,8 +118,148 @@ export class ChartCurve extends AbstractChart {
         }
     }
 
-    protected createChartAxes(data: Array<HistogramData>): void {
-        super.createChartAxes(data);
+    protected createNormalizeYDomain() {
+        const yDomain = scaleLinear().range([this.chartDimensions.height, 0]);
+        yDomain.domain([0, 1]);
+        return yDomain;
+    }
+
+    /**
+   * @override For areas charts, removes the line behind the hovered bucket of the histogram + removes the circle on the hovered bucket
+   */
+    protected clearTooltipCursor(): void {
+        this.tooltipCursorContext.selectAll('line').remove();
+        this.context.selectAll('g.histogram__area_circle_container').remove();
+    }
+
+    protected drawTooltipCursor(data: Array<HistogramData>, axes: ChartAxes, chartIsToSides?: Map<string, string>) {
+        this.tooltipCursorContext.selectAll('.bar')
+            .data([data[0]].filter(d => this.isValueValid(d)))
+            .enter().append('line')
+            .attr('x1', (d) => axes.xDataDomain(d.key))
+            .attr('x2', (d) => axes.xDataDomain(d.key))
+            .attr('y1', 1)
+            .attr('y2', (d) => this.chartDimensions.height)
+            .attr('class', 'histogram__tooltip_cursor_line');
+        this.context.append('g').attr('class', 'histogram__area_circle_container')
+            .selectAll('dot').data(data.filter(d => this.isValueValid(d)))
+            .enter().append('circle')
+            .attr('r', (d) => 3)
+            .attr('cx', (d) => axes.xDataDomain(d.key))
+            .attr('cy', (d) => {
+                console.log(chartIsToSides);
+                (chartIsToSides.size === 2 && chartIsToSides.get(d.chartId) === 'right') ? axes.yDomainRight(d.value) : axes.yDomain(d.value)
+                if (chartIsToSides.size === 2 && chartIsToSides.get(d.chartId) === 'right') {
+                    return  axes.yDomainRight(d.value)
+                } else if (chartIsToSides.size > 2) {
+                    console.log(d.normalizeValue)
+                    return  axes.yDomain(d.normalizeValue)
+                    console.log(axes.yDomain(d.normalizeValue))
+                } else {
+                    return axes.yDomain(d.value)
+                }
+            })
+            .attr('class', 'histogram__area_circle')
+            .style('opacity', '0.8');
+    }
+
+    protected createYDomain(data: Array<HistogramData>) {
+        let yDomain = scaleLinear().range([this.chartDimensions.height, 0]);
+        let maximum = max(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MIN_VALUE);
+        const minimum = min(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MAX_VALUE);
+        if (minimum === maximum) {
+            maximum += 1;
+        }
+        let maxOffset = maximum * 0.05;
+        const miniOffset = minimum * 0.05;
+        const minYDomain = minimum > 0 ? 0 : minimum + miniOffset;
+        const maxYDomain = maximum < 0 ? 0 : maximum + maxOffset;
+        yDomain.domain([minYDomain, maxYDomain]);
+        /** if histogram y values are negative and positive, prohibit stripes */
+        if (minimum < 0 && maximum > 0) {
+            this.histogramParams.yAxisFromZero = true;
+            this.yStartsFromMin = false;
+        }
+        // IF WE WANT TO START THE HISTOGRAM FROM MIN OF DATA INSTEAD OF 0
+        if (!this.histogramParams.yAxisFromZero) {
+            // FIRST WE CHECK IF THE MINIMUM OF DATA IS GREATER THAN 30% OF THE CHART HEIGHT
+            // IF SO, THEN THE CHART WILL START FROM THE MINIMUM OF DATA INSTEAD OF 0
+            if ((minimum >= 0 && this.chartDimensions.height - yDomain(minimum) >= 0.3 * this.chartDimensions.height)
+                || (maximum <= 0 && this.chartDimensions.height - yDomain(maximum) >= 0.3 * this.chartDimensions.height)) {
+                // THE `showStripes` OPTION DECIDES WETHER WE ADD STIPPED AREA/BARS TO THE HISTOGRAMS
+                // IF `showStripes == TRUE` THEN STRIPES WILL OCCUPY 10% OF
+                // THE CHARTHEIGHT AND THE DATA VARIATION WILL OCCUPY 90% OF THE CHART
+                // IF `showStripes == FALSE` THEN NO STRIPES WILL BE DISPLAYED. HOWEVER, THE CHART STARTS FROM MIN OF DATA - A DOMAINOFFSET
+                const yMaxRange = this.histogramParams.showStripes ? (0.9 * this.chartDimensions.height) : this.chartDimensions.height;
+                this.yStartsFromMin = true;
+                yDomain = scaleLinear().range([yMaxRange, 0]);
+                const minOffset = this.histogramParams.showStripes ? 0 : 0.1 * (maximum - minimum);
+                maxOffset = 0.05 * (maximum - minimum);
+                yDomain.domain([minimum - minOffset, maximum + maxOffset]);
+            } else {
+                this.yStartsFromMin = false;
+            }
+        }
+        return yDomain;
+    }
+
+    protected createChartNormalizeLeftAxes() {
+        const yDomain = this.createNormalizeYDomain();
+        const yAllDomain = yDomain;
+        const yTicksAxis = axisLeft(yDomain).ticks(this.histogramParams.yTicks).tickSizeOuter(0);
+        const yLabelsAxis = axisLeft(yDomain).tickSize(0).tickPadding(10).ticks(this.histogramParams.yLabels)
+            .tickFormat(d => !this.histogramParams.shortYLabels ?
+                tickNumberFormat(d, this.histogramParams.numberFormatChar) : format('~s')(d));
+        const yAxis = axisLeft(yAllDomain).tickSize(0).ticks(0);
+        this.chartAxes.yDomain = yDomain;
+        this.chartAxes.yTicksAxis = yTicksAxis;
+        this.chartAxes.yLabelsAxis = yLabelsAxis;
+        this.chartAxes.yAxis = yAxis;
+    }
+
+    protected createChartYLeftAxes(data: Array<HistogramData>) {
+        const yDomain = this.createYDomain(data);
+        const yAllDomain = yDomain;
+        const yTicksAxis = axisLeft(yDomain).ticks(this.histogramParams.yTicks).tickSizeOuter(0);
+        const yLabelsAxis = axisLeft(yDomain).tickSize(0).tickPadding(10).ticks(this.histogramParams.yLabels)
+            .tickFormat(d => !this.histogramParams.shortYLabels ?
+                tickNumberFormat(d, this.histogramParams.numberFormatChar) : format('~s')(d));
+        const yAxis = axisLeft(yAllDomain).tickSize(0).ticks(0);
+        this.chartAxes.yDomain = yDomain;
+        this.chartAxes.yTicksAxis = yTicksAxis;
+        this.chartAxes.yLabelsAxis = yLabelsAxis;
+        this.chartAxes.yAxis = yAxis;
+    }
+
+    protected createChartYRightAxes(data: Array<HistogramData>) {
+        const yDomain = this.createYDomain(data);
+        const yAllDomain = yDomain;
+        const yTicksAxis = axisRight(yDomain).ticks(this.histogramParams.yTicks).tickSizeOuter(0);
+        const yLabelsAxis = axisRight(yDomain).tickSize(0).tickPadding(10).ticks(this.histogramParams.yLabels)
+            .tickFormat(d => !this.histogramParams.shortYLabels ?
+                tickNumberFormat(d, this.histogramParams.numberFormatChar) : format('~s')(d));
+        const yAxis = axisLeft(yAllDomain).tickSize(0).ticks(0);
+        this.chartAxes.yDomainRight = yDomain;
+        this.chartAxes.yTicksAxisRight = yTicksAxis;
+        this.chartAxes.yLabelsAxisRight = yLabelsAxis;
+        this.chartAxes.yAxisRight = yAxis;
+    }
+
+    protected createChartXAxes(data: Array<HistogramData>): void {
+        const xDomain = (this.getXDomainScale()).range([0, this.chartDimensions.width]);
+        // The xDomain extent includes data domain and selected values
+        const xDomainExtent = this.getXDomainExtent(data, this.selectionInterval.startvalue,
+            this.selectionInterval.endvalue);
+        xDomain.domain(xDomainExtent);
+        // xDataDomain includes data domain only
+        const xAxis = null;
+        const xTicksAxis = null;
+        const xLabelsAxis = null;
+        const stepWidth = null;
+        this.chartAxes = {
+            xDomain, xDataDomain: undefined, yDomain: undefined, xTicksAxis,
+            yTicksAxis: undefined, stepWidth, xLabelsAxis, yLabelsAxis: undefined, xAxis, yAxis: undefined
+        };
         this.chartAxes.stepWidth = 0;
         const startRange = this.chartAxes.xDomain(data[0].key);
         const endRange = this.chartAxes.xDomain(+data[data.length - 1].key);
@@ -115,35 +289,23 @@ export class ChartCurve extends AbstractChart {
 
     protected drawChartAxes(chartAxes: ChartAxes, leftOffset: number): void {
         super.drawChartAxes(chartAxes, leftOffset);
-        this.drawYAxis(chartAxes);
     }
 
 
-    protected plotChart(data: Array<HistogramData>): void {
-        console.log(data);
-        const clipPathContext = this.context.append('defs').append('clipPath')
-            .attr('id', this.histogramParams.uid);
-        this.clipPathContexts.push(clipPathContext);
-        const currentClipPathContext = this.context.append('defs').append('clipPath')
-            .attr('id', this.histogramParams.uid + '-currentselection');
-        this.currentClipPathContexts.push(currentClipPathContext);
-
-        const rectangleCurrentClipper = currentClipPathContext.append('rect')
-            .attr('id', 'clip-rect')
-            .attr('x', this.chartAxes.xDomain(this.selectionInterval.startvalue))
-            .attr('y', '0')
-            .attr('width', this.chartAxes.xDomain(this.selectionInterval.endvalue) - this.chartAxes
-                .xDomain(this.selectionInterval.startvalue))
-            .attr('height', this.chartDimensions.height);
-
-
-        this.rectangleCurrentClippers.push(rectangleCurrentClipper);
+    protected plotChart(data: Array<HistogramData>, domain?: any, normalize?: boolean): void {
+        if (!domain) {
+            domain = this.chartAxes.yDomain;
+        }
+        let retrieveData = (d: any) => domain(d.value);
+        if (normalize) {
+            retrieveData = (d: any) => domain(d.normalizeValue);
+        }
         const curveType: CurveFactory = (this.histogramParams.isSmoothedCurve) ? curveMonotoneX : curveLinear;
 
         const a = line()
             .curve(curveType)
             .x((d: any) => this.chartAxes.xDataDomain(d.key))
-            .y((d: any) => this.chartAxes.yDomain(d.value));
+            .y(retrieveData);
 
         const urlFixedSelection = 'url(#' + this.histogramParams.uid + ')';
         const urlCurrentSelection = 'url(#' + this.histogramParams.uid + '-currentselection)';
@@ -184,21 +346,10 @@ export class ChartCurve extends AbstractChart {
         });
     }
 
-    protected getAppendedRectangle(start: Date | number, end: Date | number): any {
-        return this.clipPathContexts[0].append('rect')
-            .attr('id', 'clip-rect')
-            .attr('x', this.chartAxes.xDomain(start))
-            .attr('y', '0')
-            .attr('width', this.chartAxes.xDomain(end) - this.chartAxes.xDomain(start))
-            .attr('height', this.chartDimensions.height);
-    }
+
 
     protected applyStyleOnSelection(): void {
-        this.rectangleCurrentClippers.forEach(r => {
-            r.attr('x', this.chartAxes.xDomain(this.selectionInterval.startvalue))
-                .attr('width', this.chartAxes.xDomain(this.selectionInterval.endvalue) -
-                    this.chartAxes.xDomain(this.selectionInterval.startvalue));
-        });
+        this.applyStyleOnClipper();
     }
     protected getStartPosition(data: Array<HistogramData>, index: number): number {
         return this.chartAxes.xDomain(data[index].key) - 10;
@@ -213,5 +364,23 @@ export class ChartCurve extends AbstractChart {
     protected setTooltipYposition(yPosition: number): number {
         // Deprecated method
         return 0;
+    }
+
+    private normalize(x, xMin, xMax) {
+        return (x - xMin) / (xMax - xMin);
+    }
+
+    private createClipperContext() {
+        this.clipPathContext = this.context.append('defs').append('clipPath')
+            .attr('id', this.histogramParams.uid);
+        this.currentClipPathContext = this.context.append('defs').append('clipPath')
+            .attr('id', this.histogramParams.uid + '-currentselection');
+        this.rectangleCurrentClipper = this.currentClipPathContext.append('rect')
+            .attr('id', 'clip-rect')
+            .attr('x', this.chartAxes.xDomain(this.selectionInterval.startvalue))
+            .attr('y', '0')
+            .attr('width', this.chartAxes.xDomain(this.selectionInterval.endvalue) - this.chartAxes
+                .xDomain(this.selectionInterval.startvalue))
+            .attr('height', this.chartDimensions.height);
     }
 }

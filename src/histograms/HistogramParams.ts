@@ -102,6 +102,7 @@ export class HistogramParams {
   public hoveredBucketEvent: Subject<Date | number> = new Subject<Date | number>();
   public selectedSwimlanesEvent = new Subject<Set<string>>();
   public tooltipEvent: Subject<HistogramTooltip> = new Subject();
+  public tooltipsEvent: Subject<HistogramTooltip[]> = new Subject();
 
   // ########################## Parameter binded with HTML ##########################
 
@@ -110,6 +111,7 @@ export class HistogramParams {
 
   public margin: MarginModel = { top: 4, right: 10, bottom: 20, left: 60 };
   public tooltip: Tooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
+  public tooltips: HistogramTooltip[] = [];
 
   public legend;
   public displaySvg = 'none';
