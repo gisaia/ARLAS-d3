@@ -135,6 +135,7 @@ export class HistogramParams {
  public displayHorizontal = 'hidden';
  public displayVertical = 'hidden';
  public useUtc: boolean;
+ public colorGenerator: ColorGenerator;
 }
 
 export interface BarOptions {

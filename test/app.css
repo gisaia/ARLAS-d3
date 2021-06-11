@@ -67,12 +67,6 @@
     text-align: right;
 }
 
-.histogram__description__startvalue--background, /* @doc Sets startvalue background style*/
-.histogram__description__endvalue--background  /* @doc Sets endvalue background style*/
-{
-
-}
-
 .histogram__ticks /* @doc Sets the ticks style*/
 {
   stroke: #757575;
@@ -131,14 +125,6 @@
   pointer-events: none;
   color: #000;
   z-index: 20000;
-}
-
-.histogram__brush-tooltip__horizontal--left, /* @doc Sets the horizontal left brush tooltip style*/
-.histogram__brush-tooltip__horizontal--right, /* @doc Sets the horizontal right brush tooltip style*/
-.histogram__brush-tooltip__vertical--left, /* @doc Sets the vertical left brush tooltip style*/
-.histogram__brush-tooltip__vertical--right /* @doc Sets the vertical right brush tooltip style*/
-{
-
 }
 
 .histogram__brush-tooltip__vertical--left__rotation {
@@ -268,10 +254,12 @@
   stroke: #bbbbbb;
   opacity: 0.5;
 }
+
 .histogram__tooltip_cursor_line
 {
   fill: #bbbbbb;
   stroke: #bbbbbb;
+  stroke-width: 0.8px;
 }
 
 .swimlane_legend_color, .swimlane_legend_value {
@@ -313,27 +301,29 @@
 }
 
 
-.histogram__chart--fixed-selected--curve /* @doc Sets the style of the curve's selected parts*/
+.histogram__chart--fixed-selected--curve, .histogram__chart--fixed-selected--curve--without_color /* @doc Sets the style of the curve's selected parts*/
 {
+  stroke-width: 1.5px;
   fill: none;
-  fill-opacity: 1;
-  stroke: red;
-
 }
 
-.histogram__chart--current-selected--curve /* @doc Sets the style of the curve's selected parts*/
+.histogram__chart--fixed-selected--curve{
+  stroke: #88c9c3;
+}
+.histogram__chart--current-selected--curve, .histogram__chart--current-selected--curve--without_color /* @doc Sets the style of the curve's selected parts*/
 {
+  stroke-width: 1.5px;
   fill: none;
-  fill-opacity: 1;
-  stroke: red;
-
+}
+.histogram__chart--current-selected--curve{
+   stroke: #88c9c3;
 }
 
 .histogram__chart--unselected--curve /* @doc Sets the style of the curve's unselected parts*/
 {
   fill: none;
-  fill-opacity: .7;
   stroke: #a5a5a5;
+  stroke-width: 0.8px;
 
 }
 
@@ -435,19 +425,6 @@
 .swimlane-label-container-hovered /* @doc Sets the hovered label container style of the swimlane*/
 {
   fill: #efefef;
-}
-
-.swimlane-label-container-neutral /* @doc Sets all labels containers style of the swimlane when none of them are selected*/
-{
-
-}
-.swimlane-label-container-selected /* @doc Sets the selected labels containers style of the swimlane*/
-{
-
-}
-.swimlane-label-container-unselected /* @doc Sets the unselected labels containers style of the swimlane*/
-{
-
 }
 
 .selection {

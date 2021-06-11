@@ -27,6 +27,9 @@ import { axisBottom } from 'd3-axis';
 import { extent, min, max } from 'd3-array';
 import { timeFormat, utcFormat } from 'd3-time-format';
 import { HistogramUtils } from '../utils/HistogramUtils';
+import * as tinycolor from 'tinycolor2';
+import { ColorGenerator } from 'utils/color-generator';
+import { mix } from 'tinycolor2';
 
 export class ChartArea extends AbstractChart {
 
@@ -294,3 +297,5 @@ export class ChartArea extends AbstractChart {
     return -10;
   }
 }
+
+

@@ -7,6 +7,8 @@ import { axisBottom, axisLeft, axisRight } from 'd3-axis';
 import { timeFormat, utcFormat } from 'd3-time-format';
 import { scaleLinear } from 'd3-scale';
 import { format } from 'd3-format';
+import { ColorGenerator } from 'utils/color-generator';
+import { mix } from 'tinycolor2';
 
 
 export class ChartCurve extends AbstractChart {
@@ -153,8 +155,23 @@ export class ChartCurve extends AbstractChart {
                     return axes.yDomain(d.value);
                 }
             })
-            .attr('class', 'histogram__area_circle')
+            .attr('class', (d) => {
+                console.log(d.chartId)
+                if (!!this.histogramParams.colorGenerator && !!this.histogramParams.colorGenerator.getColor(d.chartId)) {
+                    return 'histogram__area_circle-without_color';
+                } else {
+                    return 'histogram__area_circle';
+                }
+            })
+            .attr('fill', (d) => {
+                if (!!this.histogramParams.colorGenerator && !!this.histogramParams.colorGenerator.getColor(d.chartId)) {
+                    return this.histogramParams.colorGenerator.getColor(d.chartId);
+                } else {
+                    return 'none';
+                }
+            })
             .style('opacity', '0.8');
+
     }
 
     protected createYDomain(data: Array<HistogramData>) {
@@ -287,6 +304,7 @@ export class ChartCurve extends AbstractChart {
 
 
     protected plotChart(data: Array<HistogramData>, domain?: any, normalize?: boolean): void {
+        const chartId = data[0].chartId;
         if (!domain) {
             domain = this.chartAxes.yDomain;
         }
@@ -309,23 +327,30 @@ export class ChartCurve extends AbstractChart {
                 .append('path')
                 .datum(part)
                 .attr('class', 'histogram__chart--unselected--curve')
-                .style('stroke', (d) => 'black')
                 .style('opacity', 1)
                 .attr('d', a);
-            this.context.append('g').attr('class', 'histogram__curve-data').attr('clip-path', urlFixedSelection)
+            const fixedSelectionCurve = this.context.append('g').attr('class', 'histogram__curve-data').attr('clip-path', urlFixedSelection)
                 .append('path')
                 .datum(part)
                 .attr('class', 'histogram__chart--fixed-selected--curve')
-                .style('stroke', (d) => 'blue')
                 .style('opacity', 1)
                 .attr('d', a);
-            this.context.append('g').attr('class', 'histogram__curve-data').attr('clip-path', urlCurrentSelection)
+            const currentSelectionCurve = this.context.append('g').attr('class', 'histogram__curve-data')
+                .attr('clip-path', urlCurrentSelection)
                 .append('path')
                 .datum(part)
                 .attr('class', 'histogram__chart--current-selected--curve')
-                .style('stroke', (d) => 'blue')
                 .style('opacity', 1)
                 .attr('d', a);
+            if (!!this.histogramParams.colorGenerator && !!this.histogramParams.colorGenerator.getColor(chartId)) {
+                fixedSelectionCurve.attr('stroke', this.histogramParams.colorGenerator.getColor(chartId))
+                    .attr('class', 'histogram__chart--fixed-selected--curve--without_color');
+                currentSelectionCurve.attr('stroke', this.histogramParams.colorGenerator.getColor(chartId))
+                    .attr('class', 'histogram__chart--current-selected--curve--without_color');
+            } else {
+                fixedSelectionCurve.attr('class', 'histogram__chart--fixed-selected--curve');
+                currentSelectionCurve.attr('class', 'histogram__chart--current-selected--curve');
+            }
         });
         this.addStrippedPattern('no-data-stripes', this.NO_DATA_STRIPES_PATTERN, this.NO_DATA_STRIPES_SIZE, 'histogram__no-data-stripes');
         discontinuedData[1].forEach(part => {

@@ -1,6 +1,7 @@
 import {ChartCurve,HistogramParams} from '../dist/index.js'
 const histogram= new ChartCurve();
 
+
 const input = {
     "xTicks": 9,
     "yTicks": 2,
@@ -40,7 +41,7 @@ for (const [key, value] of Object.entries(input)) {
   }
 histogram.histogramParams = histogramParams;
 histogram.histogramParams.multiselectable = true;
-
+histogram.histogramParams.colorGenerator = 
 histogram.histogramParams.intervalSelectedMap = new Map();
 histogram.histogramParams.histogramContainer = document.getElementById('container')
 histogram.histogramParams.svgNode = document.getElementById('container').querySelector('svg');
