@@ -245,7 +245,7 @@ export class ChartArea extends AbstractChart {
    * @param data
    * @param axes
    */
-  protected drawTooltipCursor(data: Array<HistogramData>, axes: ChartAxes) {
+  protected drawTooltipCursor(data: Array<HistogramData>, axes: ChartAxes, chartIsToSides?: Map<string, string>) {
     this.tooltipCursorContext.selectAll('.bar')
       .data(data.filter(d => this.isValueValid(d)))
       .enter().append('line')

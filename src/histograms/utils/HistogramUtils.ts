@@ -54,8 +54,11 @@ export interface HistogramData {
 }
 
 export interface HistogramTooltip {
-  xValue: number | string | Date;
-  yValue: number | string;
+  xValue?: number | string | Date;
+  y?: {
+    value: number | string;
+    chartId?: string;
+  }[];
   max?: number;
   min?: number;
   xUnit?: string;
@@ -186,6 +189,7 @@ export interface Tooltip {
   yContent: string;
   yAdditonalInfo?: string;
   width?: number;
+  chartId?: string;
 }
 
 export class HistogramUtils {

@@ -25,7 +25,22 @@ export class ChartCurve extends AbstractChart {
             if (chartIdToData.size === 0) {
                 chartIdToData.set('default', data);
             }
-            const dataArray = Array.from(chartIdToData.values());
+            const chartIdsToSides = new Map();
+            let i = 0;
+            const dataArray = [];
+            chartIdToData.forEach((values, id) => {
+                if (chartIdToData.size === 2) {
+                    if (i === 0) {
+                        chartIdsToSides.set(id, 'left');
+                    } else {
+                        chartIdsToSides.set(id, 'right');
+                    }
+                    i++;
+                } else {
+                    chartIdsToSides.set(id, 'left');
+                }
+                dataArray.push(values);
+            });
             const dataArrayMerged: HistogramData[] = [].concat.apply([], dataArray);
             const minMaxBorders = dataArray.map(d => this.getHistogramMinMaxBorders(d));
             const minOfMin = min(minMaxBorders.map(d => d[0]));
@@ -72,7 +87,7 @@ export class ChartCurve extends AbstractChart {
                 });
                 dataArray.map(d => this.plotChart(d, this.chartAxes.yDomain, true));
             }
-            this.showTooltips(data);
+            this.showTooltips(data, chartIdsToSides);
             if (this.histogramParams.isHistogramSelectable) {
                 this.addSelectionBrush(this.chartAxes, 0);
             }
@@ -105,6 +120,41 @@ export class ChartCurve extends AbstractChart {
         const yDomain = scaleLinear().range([this.chartDimensions.height, 0]);
         yDomain.domain([0, 1]);
         return yDomain;
+    }
+
+    /**
+   * @override For areas charts, removes the line behind the hovered bucket of the histogram + removes the circle on the hovered bucket
+   */
+    protected clearTooltipCursor(): void {
+        this.tooltipCursorContext.selectAll('line').remove();
+        this.context.selectAll('g.histogram__area_circle_container').remove();
+    }
+
+    protected drawTooltipCursor(data: Array<HistogramData>, axes: ChartAxes, chartIsToSides?: Map<string, string>) {
+        this.tooltipCursorContext.selectAll('.bar')
+            .data([data[0]].filter(d => this.isValueValid(d)))
+            .enter().append('line')
+            .attr('x1', (d) => axes.xDataDomain(d.key))
+            .attr('x2', (d) => axes.xDataDomain(d.key))
+            .attr('y1', 1)
+            .attr('y2', (d) => this.chartDimensions.height)
+            .attr('class', 'histogram__tooltip_cursor_line');
+        this.context.append('g').attr('class', 'histogram__area_circle_container')
+            .selectAll('dot').data(data.filter(d => this.isValueValid(d)))
+            .enter().append('circle')
+            .attr('r', (d) => 3)
+            .attr('cx', (d) => axes.xDataDomain(d.key))
+            .attr('cy', (d) => {
+                if (chartIsToSides.size === 2 && chartIsToSides.get(d.chartId) === 'right') {
+                    return  axes.yDomainRight(d.value);
+                } else if (chartIsToSides.size > 2) {
+                    return  axes.yDomain(d.normalizeValue);
+                } else {
+                    return axes.yDomain(d.value);
+                }
+            })
+            .attr('class', 'histogram__area_circle')
+            .style('opacity', '0.8');
     }
 
     protected createYDomain(data: Array<HistogramData>) {

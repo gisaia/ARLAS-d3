@@ -21,7 +21,7 @@ import { AbstractHistogram } from '../AbstractHistogram';
 import {
   HistogramData, HistogramUtils, ChartAxes, DataType, SelectedInputValues, tickNumberFormat,
   formatNumber, getBarOptions, SelectedOutputValues,
-  FULLY_SELECTED_BARS, CURRENTLY_SELECTED_BARS, UNSELECTED_BARS, PARTLY_SELECTED_BARS
+  FULLY_SELECTED_BARS, CURRENTLY_SELECTED_BARS, UNSELECTED_BARS, PARTLY_SELECTED_BARS, Tooltip, HistogramTooltip
 } from '../utils/HistogramUtils';
 import { select, ContainerElement, mouse, event } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
@@ -30,7 +30,6 @@ import { min } from 'd3-array';
 import { axisLeft } from 'd3-axis';
 import { format } from 'd3-format';
 import { brushX } from 'd3-brush';
-
 
 
 export abstract class AbstractChart extends AbstractHistogram {
@@ -376,8 +375,8 @@ export abstract class AbstractChart extends AbstractHistogram {
         .attr('class', 'histogram__labels-axis-right')
         .call(chartAxes.yLabelsAxisRight);
       yAxis
-      .attr('class', 'histogram__only-axis-right')
-      .call(chartAxes.yAxisRight);
+        .attr('class', 'histogram__only-axis-right')
+        .call(chartAxes.yAxisRight);
     } else {
       yTicksAxis.call(chartAxes.yTicksAxis);
       yLabelsAxis.call(chartAxes.yLabelsAxis);
@@ -404,13 +403,13 @@ export abstract class AbstractChart extends AbstractHistogram {
     }
   }
 
-  protected showTooltips(data: Array<HistogramData>): void {
+  protected showTooltips(data: Array<HistogramData>, chartIsToSides?: Map<string, string>): void {
     if (this.histogramParams.dataUnit !== '') { this.histogramParams.dataUnit = '(' + this.histogramParams.dataUnit + ')'; }
     this.context
       .on('mousemove', () => {
         const previousHoveredBucketKey = this.hoveredBucketKey;
         this.hoveredBucketKey = null;
-        this.setTooltipPositions(data, <ContainerElement>this.context.node());
+        this.setTooltipPositions(data, <ContainerElement>this.context.node(), chartIsToSides);
         if (this.hoveredBucketKey !== previousHoveredBucketKey && this.hoveredBucketKey !== null) {
           this.histogramParams.hoveredBucketEvent.next(this.hoveredBucketKey);
         }
@@ -424,55 +423,39 @@ export abstract class AbstractChart extends AbstractHistogram {
    * @param data
    * @param axes
    */
-  protected drawTooltipCursor(data: Array<HistogramData>, axes: ChartAxes): void { }
+  protected drawTooltipCursor(data: Array<HistogramData>, axes: ChartAxes, chartIsToSides?: Map<string, string>): void { }
 
-  protected setTooltipPositions(data: Array<HistogramData>, container: ContainerElement): void {
+  protected setTooltipPositions(data: Array<HistogramData>, container: ContainerElement, chartIsToSides?: Map<string, string>): void {
     const xy = mouse(container);
-    let dx;
-    let dy;
-    let startPosition;
-    let endPosition;
+    const xDomainValue = +this.chartAxes.xDomain.invert(xy[0]);
     const dataInterval = this.getDataInterval(<Array<HistogramData>>this.histogramParams.histogramData);
+    /** Get all buckets near xDomainValue */
+    const hoveredBuckets = data.filter(b => +b.key <= xDomainValue && +b.key > xDomainValue - dataInterval);
+    const ys = [];
+    let x;
+    hoveredBuckets.forEach(hb => {
+      if (HistogramUtils.isValueValid(hb)) {
+        x = HistogramUtils.toString(hb.key, this.histogramParams, dataInterval),
 
-    for (let i = 0; i < data.length; i++) {
-      this.histogramParams.tooltip.isShown = true;
-      startPosition = this.getStartPosition(data, i);
-      endPosition = this.getEndPosition(data, i);
-      dx = this.setTooltipXposition(xy[0]);
-      dy = this.setTooltipYposition(xy[1]);
-      if (xy[0] >= startPosition && xy[0] < endPosition && !this.isBrushing) {
-        this.hoveredBucketKey = data[i].key;
-        if (data[i].key >= this.selectionInterval.startvalue && data[i].key <= this.selectionInterval.endvalue
-          && this.isValueValid(data[i])) {
-          this.histogramParams.tooltip.xContent = HistogramUtils.toString(data[i].key, this.histogramParams, dataInterval);
-          this.histogramParams.tooltip.yContent = formatNumber(data[i].value, this.histogramParams.numberFormatChar);
-
-        } else {
-          this.histogramParams.tooltip.xContent = HistogramUtils.toString(data[i].key, this.histogramParams, dataInterval);
-          this.histogramParams.tooltip.yContent = formatNumber(data[i].value, this.histogramParams.numberFormatChar);
-        }
-        this.clearTooltipCursor();
-        this.drawTooltipCursor([data[i]], this.chartAxes);
-        this.histogramParams.tooltipEvent.next({
-          xValue: this.histogramParams.tooltip.xContent,
-          yValue: this.histogramParams.tooltip.yContent,
-          shown: true,
-          xPosition: xy[0] + this.chartDimensions.margin.left,
-          yPosition: xy[1],
-          chartWidth: this.chartDimensions.width + this.chartDimensions.margin.left + this.chartDimensions.margin.right
+        ys.push({
+          value: formatNumber(hb.value, this.histogramParams.numberFormatChar),
+          chartId: hb.chartId
         });
-        break;
-      } else {
-        if (data[i].key >= this.selectionInterval.startvalue
-          && data[i].key <= this.selectionInterval.endvalue && this.histogramParams.multiselectable) {
-          this.histogramParams.tooltip.xContent = '';
-          this.histogramParams.tooltip.yContent = '';
-        }
-        this.histogramParams.tooltip.isShown = false;
+
+        this.clearTooltipCursor();
+        this.drawTooltipCursor(hoveredBuckets, this.chartAxes, chartIsToSides);
       }
-    }
-    this.histogramParams.tooltip.xPosition = (xy[0] + dx);
-    this.histogramParams.tooltip.yPosition = (xy[1] + dy);
+    });
+    this.histogramParams.tooltipEvent.next(
+      {
+        xValue: x,
+        y: ys,
+        shown: true,
+        xPosition: xy[0] + this.chartDimensions.margin.left,
+        yPosition: xy[1],
+        chartWidth: this.chartDimensions.width + this.chartDimensions.margin.left + this.chartDimensions.margin.right
+      }
+    );
   }
 
   protected getIntervalMiddlePositon(chartAxes: ChartAxes, startvalue: number, endvalue: number): number {
