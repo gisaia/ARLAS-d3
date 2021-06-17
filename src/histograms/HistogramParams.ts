@@ -25,7 +25,7 @@ import { SelectedInputValues, SelectedOutputValues, ChartType, DataType, Positio
   SwimlaneOptions,
   HistogramTooltip} from './utils/HistogramUtils';
 import { Subject } from 'rxjs';
-import { ColorGenerator } from 'utils/color-generator';
+import { ColorGenerator } from '../utils/color-generator';
 
 export class HistogramParams {
 

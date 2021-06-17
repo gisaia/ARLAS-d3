@@ -152,8 +152,8 @@ export abstract class AbstractHistogram {
 
   protected getXDomainScale(): any {
     return (this.histogramParams.dataType === DataType.time) ?
-           (this.histogramParams.useUtc) ?
-          scaleUtc() : scaleTime() : scaleLinear();
+      (this.histogramParams.useUtc) ?
+        scaleUtc() : scaleTime() : scaleLinear();
   }
 
   protected getHistogramMinMaxBorders(data: Array<HistogramData>): [number | Date, number | Date] {
@@ -217,7 +217,7 @@ export abstract class AbstractHistogram {
   /**
    *  Removes the indicator behind the hovered bucket of the histogram
    */
-  protected clearTooltipCursor(): void {}
+  protected clearTooltipCursor(): void { }
 
   protected drawChartAxes(chartAxes: ChartAxes | SwimlaneAxes, leftOffset: number): void {
     const marginTopBottom = this.chartDimensions.margin.top * this.histogramParams.xAxisPosition +
@@ -361,6 +361,12 @@ export abstract class AbstractHistogram {
     let interval = Number.MAX_VALUE;
     if (data.length > 1) {
       interval = +data[1].key - +data[0].key;
+      for (let i = 1; i < data.length; i++) {
+        interval = +data[i].key - +data[0].key;
+        if (interval > 0) {
+          break;
+        }
+      }
       // ##### Work around of substruction bug in js #####
       if (interval < 1) {
         const roundPrecision = HistogramUtils.getRoundPrecision(interval);

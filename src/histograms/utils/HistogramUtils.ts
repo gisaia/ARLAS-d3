@@ -484,7 +484,7 @@ export enum DataType {
 }
 
 export enum ChartType {
-  area, bars, oneDimension, swimlane
+  area, bars, oneDimension, swimlane, curve
 }
 
 export enum Position {

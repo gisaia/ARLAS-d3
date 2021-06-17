@@ -7,8 +7,7 @@ import { axisBottom, axisLeft, axisRight } from 'd3-axis';
 import { timeFormat, utcFormat } from 'd3-time-format';
 import { scaleLinear } from 'd3-scale';
 import { format } from 'd3-format';
-import { ColorGenerator } from 'utils/color-generator';
-import { mix } from 'tinycolor2';
+
 
 
 export class ChartCurve extends AbstractChart {
@@ -148,23 +147,22 @@ export class ChartCurve extends AbstractChart {
             .attr('cx', (d) => axes.xDataDomain(d.key))
             .attr('cy', (d) => {
                 if (chartIsToSides.size === 2 && chartIsToSides.get(d.chartId) === 'right') {
-                    return  axes.yDomainRight(d.value);
+                    return axes.yDomainRight(d.value);
                 } else if (chartIsToSides.size > 2) {
-                    return  axes.yDomain(d.normalizeValue);
+                    return axes.yDomain(d.normalizeValue);
                 } else {
                     return axes.yDomain(d.value);
                 }
             })
             .attr('class', (d) => {
-                console.log(d.chartId)
-                if (!!this.histogramParams.colorGenerator && !!this.histogramParams.colorGenerator.getColor(d.chartId)) {
+                if (!!d.chartId && !!this.histogramParams.colorGenerator && !!this.histogramParams.colorGenerator.getColor(d.chartId)) {
                     return 'histogram__area_circle-without_color';
                 } else {
                     return 'histogram__area_circle';
                 }
             })
             .attr('fill', (d) => {
-                if (!!this.histogramParams.colorGenerator && !!this.histogramParams.colorGenerator.getColor(d.chartId)) {
+                if (!!d.chartId && !!this.histogramParams.colorGenerator && !!this.histogramParams.colorGenerator.getColor(d.chartId)) {
                     return this.histogramParams.colorGenerator.getColor(d.chartId);
                 } else {
                     return 'none';
@@ -342,7 +340,7 @@ export class ChartCurve extends AbstractChart {
                 .attr('class', 'histogram__chart--current-selected--curve')
                 .style('opacity', 1)
                 .attr('d', a);
-            if (!!this.histogramParams.colorGenerator && !!this.histogramParams.colorGenerator.getColor(chartId)) {
+            if (!!chartId && !!this.histogramParams.colorGenerator && !!this.histogramParams.colorGenerator.getColor(chartId)) {
                 fixedSelectionCurve.attr('stroke', this.histogramParams.colorGenerator.getColor(chartId))
                     .attr('class', 'histogram__chart--fixed-selected--curve--without_color');
                 currentSelectionCurve.attr('stroke', this.histogramParams.colorGenerator.getColor(chartId))
