@@ -58,6 +58,7 @@ export interface HistogramTooltip {
   y?: {
     value: number | string;
     chartId?: string;
+    color?: string
   }[];
   max?: number;
   min?: number;

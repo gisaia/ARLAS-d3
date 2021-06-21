@@ -350,11 +350,22 @@ export abstract class AbstractChart extends AbstractHistogram {
     this.chartAxes = { xDomain, xDataDomain, yDomain, xTicksAxis, yTicksAxis, stepWidth, xLabelsAxis, yLabelsAxis, xAxis, yAxis };
   }
 
-  protected drawYAxis(chartAxes: ChartAxes, side = 'left'): void {
+  protected drawYAxis(chartAxes: ChartAxes, chartIdsToSide?: Map<string, string>, chartId?: string): void {
     // yTicksAxis and yLabelsAxis are translated of 1px to the left so that they are not hidden by the histogram
     let translate = 'translate(-1, 0)';
+    let side;
+    if (!!chartId && !!chartIdsToSide) {
+      side = chartIdsToSide.get(chartId);
+    }
+    if (!side) {
+      side = 'left'
+    }
     if (side === 'right') {
       translate = 'translate('.concat((this.chartDimensions.width + 1).toString()).concat(', 0)');
+    }
+    let axisColor;
+    if (!!chartId && !!this.histogramParams.colorGenerator) {
+      axisColor = this.histogramParams.colorGenerator.getColor(chartId);
     }
     const yTicksAxis = this.allAxesContext.append('g')
       .attr('class', 'histogram__ticks-axis')
@@ -385,6 +396,11 @@ export abstract class AbstractChart extends AbstractHistogram {
 
     // Define css classes for the ticks, labels and the axes
     yTicksAxis.selectAll('path').attr('class', 'histogram__axis');
+    if (!!axisColor) {
+      yAxis.selectAll('path').attr('stroke', axisColor).attr('stroke-width', '1.8px');
+    } else {
+      yAxis.selectAll('path').attr('class', 'line');
+    }
     yTicksAxis.selectAll('line').attr('class', 'histogram__ticks');
     yLabelsAxis.selectAll('text').attr('class', 'histogram__labels');
     if (!this.histogramParams.showYTicks) {
@@ -430,32 +446,78 @@ export abstract class AbstractChart extends AbstractHistogram {
     const xDomainValue = +this.chartAxes.xDomain.invert(xy[0]);
     const dataInterval = this.getDataInterval(<Array<HistogramData>>this.histogramParams.histogramData);
     /** Get all buckets near xDomainValue */
-    const hoveredBuckets = data.filter(b => +b.key <= xDomainValue && +b.key > xDomainValue - dataInterval);
+    const bucketPixelSize = this.chartAxes.xDomain(xDomainValue) - this.chartAxes.xDomain(xDomainValue - dataInterval);
+    let hoveredBuckets = [];
+    if (bucketPixelSize < 1 /**px */) {
+      /** in case 2 buckets are within a space that is less that 1 px, the cursor will not be able to detect all buckets
+       * In order to fix this, we give the current cursor a buffer of 2px to the right and 2px to the left
+       * and then we pick the closest key to the cursor
+       * This will allow to have a tooltip for isolated points in a dense histogram
+       */
+      const chartIdDistanceToCursor = new Map<string, number>();
+      data.forEach(b => {
+        if (this.chartAxes.xDomain(b.key) - 2 /**px */ <= xy[0] && this.chartAxes.xDomain(b.key) + 2 /**px */ > xy[0]) {
+          const distance = xDomainValue - +b.key;
+          const existingDistance = chartIdDistanceToCursor.get(b.chartId);
+          if ((!!b.chartId && existingDistance === undefined)) {
+            chartIdDistanceToCursor.set(b.chartId, distance)
+          } else if (!!b.chartId && existingDistance !== undefined && distance < existingDistance) {
+            chartIdDistanceToCursor.set(b.chartId, distance)
+          }
+        }
+      });
+      hoveredBuckets = data.filter(b => {
+        const distance = xDomainValue - +b.key;
+        const cursorWellPositioned = this.chartAxes.xDomain(b.key) - 2 /**px */ <= xy[0] && this.chartAxes.xDomain(b.key) + 2 /**px */ > xy[0];
+        const minimalDistance = chartIdDistanceToCursor.get(b.chartId) === distance;
+        return cursorWellPositioned && minimalDistance;
+      })
+    } else {
+      hoveredBuckets = data.filter(b => +b.key <= xDomainValue && +b.key > xDomainValue - dataInterval);
+    }
     const ys = [];
     let x;
     hoveredBuckets.forEach(hb => {
       if (HistogramUtils.isValueValid(hb)) {
+        let color;
+        if (!!hb.chartId && !!this.histogramParams.colorGenerator) {
+          color = this.histogramParams.colorGenerator.getColor(hb.chartId);
+        }
         x = HistogramUtils.toString(hb.key, this.histogramParams, dataInterval),
-
         ys.push({
           value: formatNumber(hb.value, this.histogramParams.numberFormatChar),
-          chartId: hb.chartId
+          chartId: hb.chartId,
+          color
         });
 
         this.clearTooltipCursor();
         this.drawTooltipCursor(hoveredBuckets, this.chartAxes, chartIsToSides);
       }
     });
-    this.histogramParams.tooltipEvent.next(
-      {
-        xValue: x,
-        y: ys,
-        shown: true,
-        xPosition: xy[0] + this.chartDimensions.margin.left,
-        yPosition: xy[1],
-        chartWidth: this.chartDimensions.width + this.chartDimensions.margin.left + this.chartDimensions.margin.right
-      }
-    );
+    if (hoveredBuckets.length > 0) {
+      this.histogramParams.tooltipEvent.next(
+        {
+          xValue: x,
+          y: ys,
+          shown: true,
+          xPosition: xy[0] + this.chartDimensions.margin.left,
+          yPosition: xy[1],
+          chartWidth: this.chartDimensions.width + this.chartDimensions.margin.left + this.chartDimensions.margin.right
+        }
+      );
+    } else {
+      this.clearTooltipCursor();
+      this.histogramParams.tooltipEvent.next(
+        {
+          xValue: x,
+          y: ys,
+          shown: false,
+          xPosition: xy[0] + this.chartDimensions.margin.left,
+          yPosition: xy[1],
+          chartWidth: this.chartDimensions.width + this.chartDimensions.margin.left + this.chartDimensions.margin.right
+        }
+      );
+    }
   }
 
   protected getIntervalMiddlePositon(chartAxes: ChartAxes, startvalue: number, endvalue: number): number {

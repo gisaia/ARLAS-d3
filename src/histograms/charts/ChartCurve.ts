@@ -11,6 +11,16 @@ import { format } from 'd3-format';
 
 
 export class ChartCurve extends AbstractChart {
+
+    /** Replots the chart with new dimensions + repositionates selected areas correctly */
+    public resize(histogramContainer: HTMLElement): void {
+        super.resize(histogramContainer);
+        this.plot(<HistogramData[]>this.histogramParams.histogramData);
+        if (this.histogramParams.multiselectable) {
+          this.resizeSelectedIntervals(this.chartAxes);
+        }
+    }
+
     public plot(inputData: HistogramData[]): void {
         super.init();
         this.dataDomain = inputData;
@@ -42,32 +52,39 @@ export class ChartCurve extends AbstractChart {
                 }
                 dataArray.push(values);
             });
-            const dataArrayMerged: HistogramData[] = [].concat.apply([], dataArray);
             const minMaxBorders = dataArray.map(d => this.getHistogramMinMaxBorders(d));
             const minOfMin = min(minMaxBorders.map(d => d[0]));
             const maxOfMax = max(minMaxBorders.map(d => d[1]));
-            this.histogramParams.dataLength = (new Set(dataArrayMerged.map(d => d.key))).size;
+            this.histogramParams.dataLength = (new Set(data.map(d => d.key))).size;
             this.initializeDescriptionValues(minOfMin, maxOfMax, dataArray[0]);
+            /*** add margin to right to show 2nd y axis */
+            if (chartIdToData.size === 2) {
+                this.histogramParams.margin.right = 60;
+            } else if (chartIdToData.size > 2) {
+                /** reduce left/right margins when no y labels are shown */
+                this.histogramParams.margin.left = 10;
+                this.histogramParams.margin.right = 10;
+            }
             this.initializeChartDimensions();
             if (chartIdToData.size === 1) {
                 // We add just one Y axis on the left
                 // No normalization
-                this.createChartXAxes(dataArrayMerged);
-                this.createChartYLeftAxes(dataArrayMerged);
+                this.createChartXAxes(data);
+                this.createChartYLeftAxes(data);
                 this.drawChartAxes(this.chartAxes, 0);
-                this.drawYAxis(this.chartAxes, 'left');
+                this.drawYAxis(this.chartAxes, chartIdsToSides, Array.from(chartIds)[0]);
                 this.createClipperContext();
                 dataArray.map(d => this.plotChart(d));
             } else if (chartIdToData.size === 2) {
                 // We add on Y axis on right
                 // We add on Y axis on left
                 // No normalization
-                this.createChartXAxes(dataArrayMerged);
+                this.createChartXAxes(data);
                 this.createChartYLeftAxes(dataArray[0]);
                 this.createChartYRightAxes(dataArray[1]);
                 this.drawChartAxes(this.chartAxes, 0);
-                this.drawYAxis(this.chartAxes, 'left');
-                this.drawYAxis(this.chartAxes, 'right');
+                this.drawYAxis(this.chartAxes, chartIdsToSides, Array.from(chartIds)[0]);
+                this.drawYAxis(this.chartAxes, chartIdsToSides, Array.from(chartIds)[1]);
                 this.createClipperContext();
                 this.plotChart(dataArray[0], this.chartAxes.yDomain);
                 this.plotChart(dataArray[1], this.chartAxes.yDomainRight);
@@ -75,16 +92,23 @@ export class ChartCurve extends AbstractChart {
             } else {
                 // No Y axis
                 // We normalize the data
-                this.createChartXAxes(dataArrayMerged);
+                this.createChartXAxes(data);
                 this.createChartNormalizeLeftAxes();
                 this.drawChartAxes(this.chartAxes, 0);
                 this.createClipperContext();
                 dataArray.forEach(chartData => {
-                    const minus = min(chartData.map(d => d.value));
-                    const maxus = max(chartData.map(d => d.value));
-                    chartData.forEach(d => {
-                        d.normalizeValue = this.normalize(d.value, minus, maxus);
-                    });
+                    const minimum = min(chartData.map(d => d.value));
+                    const maximum = max(chartData.map(d => d.value));
+                    if (minimum === maximum) {
+                        /** all the values are the same ==> normalizedValue === 1 */
+                        chartData.forEach(d => {
+                            d.normalizeValue = 1;
+                        });
+                    } else {
+                        chartData.forEach(d => {
+                            d.normalizeValue = this.normalize(d.value, minimum, maximum);
+                        });
+                    }
                 });
                 dataArray.map(d => this.plotChart(d, this.chartAxes.yDomain, true));
             }
@@ -310,46 +334,75 @@ export class ChartCurve extends AbstractChart {
         if (normalize) {
             retrieveData = (d: any) => domain(d.normalizeValue);
         }
-        const curveType: CurveFactory = (this.histogramParams.isSmoothedCurve) ? curveMonotoneX : curveLinear;
-
-        const a = line()
-            .curve(curveType)
-            .x((d: any) => this.chartAxes.xDataDomain(d.key))
-            .y(retrieveData);
-
         const urlFixedSelection = 'url(#' + this.histogramParams.uid + ')';
         const urlCurrentSelection = 'url(#' + this.histogramParams.uid + '-currentselection)';
         const discontinuedData = HistogramUtils.splitData(data);
-        discontinuedData[0].forEach(part => {
-            this.context.append('g').attr('class', 'histogram__curve-data')
-                .append('path')
-                .datum(part)
+        if (!!data && data.length > 1) {
+            const curveType: CurveFactory = (this.histogramParams.isSmoothedCurve) ? curveMonotoneX : curveLinear;
+            const a = line()
+                .curve(curveType)
+                .x((d: any) => this.chartAxes.xDataDomain(d.key))
+                .y(retrieveData);
+            discontinuedData[0].forEach(part => {
+                this.context.append('g').attr('class', 'histogram__curve-data')
+                    .append('path')
+                    .datum(part)
+                    .attr('class', 'histogram__chart--unselected--curve')
+                    .style('opacity', 1)
+                    .attr('d', a);
+                const fixedSelectionCurve = this.context.append('g').attr('class', 'histogram__curve-data').attr('clip-path', urlFixedSelection)
+                    .append('path')
+                    .datum(part)
+                    .attr('class', 'histogram__chart--fixed-selected--curve')
+                    .style('opacity', 1)
+                    .attr('d', a);
+                const currentSelectionCurve = this.context.append('g').attr('class', 'histogram__curve-data')
+                    .attr('clip-path', urlCurrentSelection)
+                    .append('path')
+                    .datum(part)
+                    .attr('class', 'histogram__chart--current-selected--curve')
+                    .style('opacity', 1)
+                    .attr('d', a);
+                if (!!chartId && !!this.histogramParams.colorGenerator && !!this.histogramParams.colorGenerator.getColor(chartId)) {
+                    fixedSelectionCurve.attr('stroke', this.histogramParams.colorGenerator.getColor(chartId))
+                        .attr('class', 'histogram__chart--fixed-selected--curve--without_color');
+                    currentSelectionCurve.attr('stroke', this.histogramParams.colorGenerator.getColor(chartId))
+                        .attr('class', 'histogram__chart--current-selected--curve--without_color');
+                } else {
+                    fixedSelectionCurve.attr('class', 'histogram__chart--fixed-selected--curve');
+                    currentSelectionCurve.attr('class', 'histogram__chart--current-selected--curve');
+                }
+            });
+        } else if (!!data && data.length === 1) {
+            this.context.append('g')
+                .attr('class', 'histogram__curve-data')
+                .selectAll('dot').data(data).enter().append('circle')
+                .attr('r', (d) => chartId === 'demo_ais_course' ? 2 : 3)
+                .attr('cx', (d) => this.chartAxes.xDataDomain(d.key))
+                .attr('cy', retrieveData)
                 .attr('class', 'histogram__chart--unselected--curve')
-                .style('opacity', 1)
-                .attr('d', a);
-            const fixedSelectionCurve = this.context.append('g').attr('class', 'histogram__curve-data').attr('clip-path', urlFixedSelection)
-                .append('path')
-                .datum(part)
-                .attr('class', 'histogram__chart--fixed-selected--curve')
-                .style('opacity', 1)
-                .attr('d', a);
-            const currentSelectionCurve = this.context.append('g').attr('class', 'histogram__curve-data')
-                .attr('clip-path', urlCurrentSelection)
-                .append('path')
-                .datum(part)
-                .attr('class', 'histogram__chart--current-selected--curve')
-                .style('opacity', 1)
-                .attr('d', a);
-            if (!!chartId && !!this.histogramParams.colorGenerator && !!this.histogramParams.colorGenerator.getColor(chartId)) {
-                fixedSelectionCurve.attr('stroke', this.histogramParams.colorGenerator.getColor(chartId))
-                    .attr('class', 'histogram__chart--fixed-selected--curve--without_color');
-                currentSelectionCurve.attr('stroke', this.histogramParams.colorGenerator.getColor(chartId))
-                    .attr('class', 'histogram__chart--current-selected--curve--without_color');
-            } else {
-                fixedSelectionCurve.attr('class', 'histogram__chart--fixed-selected--curve');
-                currentSelectionCurve.attr('class', 'histogram__chart--current-selected--curve');
-            }
-        });
+                .style('opacity', 1);
+            const fixedSelectionCurve = this.context.append('g')
+                .attr('class', 'histogram__curve-data').attr('clip-path', urlFixedSelection)
+                .selectAll('dot').data(data).enter().append('circle')
+                .attr('r', (d) => chartId === 'demo_ais_course' ? 2 : 3)
+                .attr('cx', (d) => this.chartAxes.xDataDomain(d.key))
+                .attr('cy', retrieveData)
+                .attr('class', 'histogram__chart--unselected--curve')
+                .style('fill', this.histogramParams.colorGenerator.getColor(chartId))
+                .style('stroke', this.histogramParams.colorGenerator.getColor(chartId))
+                .style('opacity', 1);
+            const currentSelectionCurve = this.context.append('g')
+                .attr('class', 'histogram__curve-data').attr('clip-path', urlCurrentSelection)
+                .selectAll('dot').data(data).enter().append('circle')
+                .attr('r', (d) => chartId === 'demo_ais_course' ? 2 : 3)
+                .attr('cx', (d) => this.chartAxes.xDataDomain(d.key))
+                .attr('cy', retrieveData)
+                .attr('class', 'histogram__chart--unselected--curve')
+                .style('fill', this.histogramParams.colorGenerator.getColor(chartId))
+                .style('stroke', this.histogramParams.colorGenerator.getColor(chartId))
+                .style('opacity', 1);
+        }
         this.addStrippedPattern('no-data-stripes', this.NO_DATA_STRIPES_PATTERN, this.NO_DATA_STRIPES_SIZE, 'histogram__no-data-stripes');
         discontinuedData[1].forEach(part => {
             this.context.append('g')
@@ -362,8 +415,6 @@ export class ChartCurve extends AbstractChart {
                 .attr('fill-opacity', 0.5);
         });
     }
-
-
 
     protected applyStyleOnSelection(): void {
         this.applyStyleOnClipper();
@@ -395,9 +446,9 @@ export class ChartCurve extends AbstractChart {
         this.rectangleCurrentClipper = this.currentClipPathContext.append('rect')
             .attr('id', 'clip-rect')
             .attr('x', this.chartAxes.xDomain(this.selectionInterval.startvalue))
-            .attr('y', '0')
+            .attr('y', -this.chartDimensions.margin.top)
             .attr('width', this.chartAxes.xDomain(this.selectionInterval.endvalue) - this.chartAxes
                 .xDomain(this.selectionInterval.startvalue))
-            .attr('height', this.chartDimensions.height);
+            .attr('height', this.chartDimensions.height + this.chartDimensions.margin.top);
     }
 }
