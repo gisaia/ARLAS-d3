@@ -31,6 +31,7 @@ export class HistogramParams {
 
  /** Id of the histogram */
  public id;
+ public mainChartId: string;
 
  // ########################## Inputs ##########################
 
@@ -41,6 +42,11 @@ export class HistogramParams {
  public dataUnit = '';
  public chartType: ChartType = ChartType.area;
  public moveDataByHalfInterval = false;
+ public bucketRange: number;
+ public bucketInterval: {
+   value: number;
+   unit?: string
+ };
 
  /** Dimensions */
  public chartWidth: number = null;

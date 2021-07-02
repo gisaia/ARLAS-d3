@@ -54,7 +54,10 @@ export interface HistogramData {
 }
 
 export interface HistogramTooltip {
+  title?: string;
+  dataType?: string;
   xValue?: number | string | Date;
+  xRange?: {value: number; unit?: string; };
   y?: {
     value: number | string;
     chartId?: string;
@@ -471,6 +474,10 @@ export class HistogramUtils {
     }
     return [splittedData, wholes];
 }
+}
+
+export function roundToNearestMultiple(i, multiple) {
+  return ((i % multiple) > multiple / 2) ? i + multiple - i % multiple : i - i % multiple;
 }
 
 export enum SwimlaneMode {

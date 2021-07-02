@@ -303,7 +303,6 @@
 
 .histogram__chart--fixed-selected--curve, .histogram__chart--fixed-selected--curve--without_color /* @doc Sets the style of the curve's selected parts*/
 {
-  stroke-width: 1.5px;
   fill: none;
 }
 
