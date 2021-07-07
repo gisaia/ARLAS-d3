@@ -19,13 +19,17 @@
 
 import { AbstractChart } from './AbstractChart';
 import {
-  HistogramData, HistogramUtils, ChartAxes, DataType, SelectedOutputValues, Position,
+  HistogramData, ChartAxes, DataType, Position,
   tickNumberFormat
 } from '../utils/HistogramUtils';
 import { curveLinear, CurveFactory, curveMonotoneX, area } from 'd3-shape';
 import { axisBottom } from 'd3-axis';
 import { extent, min, max } from 'd3-array';
 import { timeFormat, utcFormat } from 'd3-time-format';
+import { HistogramUtils } from '../utils/HistogramUtils';
+import * as tinycolor from 'tinycolor2';
+import { ColorGenerator } from 'utils/color-generator';
+import { mix } from 'tinycolor2';
 
 export class ChartArea extends AbstractChart {
 
@@ -45,12 +49,12 @@ export class ChartArea extends AbstractChart {
     this.dataInterval = 0;
   }
 
-  protected moveDataByHalfInterval(data: Array<{ key: number, value: number }>): Array<{ key: number, value: number }> {
-    const movedData = [];
+  protected moveDataByHalfInterval(data: Array<HistogramData>): Array<HistogramData> {
+    const movedData: HistogramData[] = [];
     if (this.histogramParams.moveDataByHalfInterval) {
       const dataInterval = this.getDataInterval(data);
       data.forEach(d => {
-        movedData.push({ key: +d.key + dataInterval / 2, value: d.value });
+        movedData.push({ key: +d.key + dataInterval / 2, value: d.value, chartId: d.chartId });
       });
       return movedData;
     } else {
@@ -105,7 +109,7 @@ export class ChartArea extends AbstractChart {
 
     const urlFixedSelection = 'url(#' + this.histogramParams.uid + ')';
     const urlCurrentSelection = 'url(#' + this.histogramParams.uid + '-currentselection)';
-    const discontinuedData = this.splitData(data);
+    const discontinuedData = HistogramUtils.splitData(data);
     discontinuedData[0].forEach(part => {
       this.context.append('g').attr('class', 'histogram__area-data')
         .append('path')
@@ -244,7 +248,7 @@ export class ChartArea extends AbstractChart {
    * @param data
    * @param axes
    */
-  protected drawTooltipCursor(data: Array<HistogramData>, axes: ChartAxes) {
+  protected drawTooltipCursor(data: Array<HistogramData>, axes: ChartAxes, chartIsToSides?: Map<string, string>) {
     this.tooltipCursorContext.selectAll('.bar')
       .data(data.filter(d => this.isValueValid(d)))
       .enter().append('line')
@@ -292,41 +296,6 @@ export class ChartArea extends AbstractChart {
   protected setTooltipYposition(yPosition: number): number {
     return -10;
   }
-
-  private splitData(data: Array<HistogramData>): [Array<Array<HistogramData>>, Array<Array<HistogramData>>] {
-    const splittedData = new Array();
-    const wholes = new Array();
-    if (data && data.length > 0) {
-      let isValid = this.isValueValid(data[0]);
-      let stateChanged = false;
-      let localData = [];
-      let localWhole = [];
-      data.forEach(d => {
-        stateChanged = (isValid !== this.isValueValid(d));
-        isValid = this.isValueValid(d);
-        if (stateChanged) {
-          if (isValid) {
-            localWhole.push(d);
-          }
-          isValid ? wholes.push(localWhole) : splittedData.push(localData);
-          localData = [];
-          localWhole = [];
-          if (!isValid) {
-            if (splittedData.length > 0) {
-              const latestDataPart = splittedData[splittedData.length - 1];
-              localWhole.push(latestDataPart[latestDataPart.length - 1]);
-            }
-          }
-        }
-        isValid ? localData.push(d) : localWhole.push(d);
-      });
-      if (localData.length > 0) {
-        splittedData.push(localData);
-      }
-      if (localWhole.length > 0) {
-        wholes.push(localWhole);
-      }
-    }
-    return [splittedData, wholes];
-  }
 }
+
+

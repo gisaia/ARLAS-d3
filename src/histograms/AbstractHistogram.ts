@@ -65,9 +65,7 @@ export abstract class AbstractHistogram {
   protected xTicksAxis;
   protected xLabelsAxis;
   protected xAxis;
-  protected yAxis;
-  protected yTicksAxis;
-  protected yLabelsAxis;
+
 
   protected hoveredBucketKey: Date | number;
 
@@ -82,6 +80,8 @@ export abstract class AbstractHistogram {
   public plot(data: Array<HistogramData> | SwimlaneData) { }
 
   public init() {
+    /** each time we [re]plot, the bucket range is reset */
+    this.histogramParams.bucketRange = undefined;
     this.setHistogramMargins();
     if (this.context) {
       this.context.remove();
@@ -122,14 +122,10 @@ export abstract class AbstractHistogram {
     }
   }
 
-  protected initializeDescriptionValues(start: Date | number, end: Date | number,
-    data: Array<HistogramData> | Map<string, Array<HistogramData>>) {
+  protected initializeDescriptionValues(start: Date | number, end: Date | number, dataInterval: number) {
     if (!this.fromSetInterval && this.histogramParams.hasDataChanged) {
-      const dataInterval = this.getDataInterval(data);
-
       this.histogramParams.startValue = HistogramUtils.toString(start, this.histogramParams, dataInterval);
       this.selectionInterval.startvalue = start;
-
       this.histogramParams.endValue = HistogramUtils.toString(end, this.histogramParams, dataInterval);
       this.selectionInterval.endvalue = end;
     }
@@ -154,8 +150,8 @@ export abstract class AbstractHistogram {
 
   protected getXDomainScale(): any {
     return (this.histogramParams.dataType === DataType.time) ?
-           (this.histogramParams.useUtc) ?
-          scaleUtc() : scaleTime() : scaleLinear();
+      (this.histogramParams.useUtc) ?
+        scaleUtc() : scaleTime() : scaleLinear();
   }
 
   protected getHistogramMinMaxBorders(data: Array<HistogramData>): [number | Date, number | Date] {
@@ -219,7 +215,7 @@ export abstract class AbstractHistogram {
   /**
    *  Removes the indicator behind the hovered bucket of the histogram
    */
-  protected clearTooltipCursor(): void {}
+  protected clearTooltipCursor(): void { }
 
   protected drawChartAxes(chartAxes: ChartAxes | SwimlaneAxes, leftOffset: number): void {
     const marginTopBottom = this.chartDimensions.margin.top * this.histogramParams.xAxisPosition +
@@ -287,7 +283,7 @@ export abstract class AbstractHistogram {
   }
 
   protected isValueValid(bucket: HistogramData): boolean {
-    return bucket ? !Number.isNaN(Number(bucket.value)) && !(bucket.value + '' === 'Infinity') : false;
+    return HistogramUtils.isValueValid(bucket);
   }
 
   /**
@@ -362,15 +358,23 @@ export abstract class AbstractHistogram {
   protected getHistogramDataInterval(data: Array<HistogramData>): number {
     let interval = Number.MAX_VALUE;
     if (data.length > 1) {
-      interval = +data[1].key - +data[0].key;
-      // ##### Work around of substruction bug in js #####
-      if (interval < 1) {
-        const roundPrecision = HistogramUtils.getRoundPrecision(interval);
-        interval = HistogramUtils.round(+data[1].key * Math.pow(10, roundPrecision) - +data[0].key * Math.pow(10, roundPrecision),
-          roundPrecision);
-        interval = interval * Math.pow(10, -roundPrecision);
+      /** We need to get the smallest difference between 2 buckets that is different from 0 */
+      for (let i = 0; i < data.length - 1; i++) {
+        const diff = +data[i + 1].key - +data[i].key;
+        if (diff > 0) {
+          interval = Math.min(interval, diff);
+        }
       }
-      // #################################################
+      /** this means that all the buckets have the same key (with different chart ids) */
+      if (interval === Number.MAX_VALUE) {
+        if (this.histogramParams.dataType === DataType.time) {
+          /** interval = 1 day */
+          interval = 24 /** h */ * 3600 /** s */ * 1000 /** ms */;
+        } else {
+          /** interval = 1 unit */
+          interval = 1;
+        }
+      }
     } else {
       interval = 0;
     }

@@ -1,0 +1,431 @@
+/*
+ * Licensed to Gisaïa under one or more contributor
+ * license agreements. See the NOTICE.txt file distributed with
+ * this work for additional information regarding copyright
+ * ownership. Gisaïa licenses this file to you under
+ * the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+ .histogram{
+    background: rgba(0,0,255,0);
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.histogram text {
+    font-size: 0.8em;
+    fill-opacity: 1;
+}
+
+.histogram__description /* @doc Sets the description part that includes title and start/end values*/
+{
+    font-family: "Roboto", "Helvetica Neue", sans-serif;
+    font-size: 0.9em;
+    line-height: 1.3;
+    color: #555;
+    opacity: 1;
+    z-index: 10000;
+}
+
+.histogram__description--display{
+    display: flex;
+}
+
+.histogram__description__title /* @doc Sets title's style*/
+{
+    font-family: "Roboto", "Helvetica Neue", sans-serif;
+    font-size: 1.0em;
+    flex: 1 1 100%;
+    max-width: 40%;
+    color: #555;
+    opacity: 1;
+    text-align: center;
+    z-index: 8000;
+}
+
+.histogram__description__startvalue /* @doc Sets startvalue part style*/
+{
+    flex: 1 1 100%;
+    max-width: 30%;
+}
+
+.histogram__description__endvalue /* @doc Sets endvalue part style*/{
+    flex: 1 1 100%;
+    max-width: 30%;
+    text-align: right;
+}
+
+.histogram__ticks /* @doc Sets the ticks style*/
+{
+  stroke: #757575;
+  stroke-width: 1px;
+}
+
+.histogram__axis /* @doc Sets the axes style*/
+{
+  stroke: #757575;
+  stroke-width: 1px;
+}
+
+.tick text /* @doc Sets the labels style*/
+{
+  fill: #757575;
+  font-size: 0.9em;
+}
+
+
+.histogram__no-chart__key, .histogram__no-chart__value {
+  display: block;
+  text-align: center;
+  padding: 5px;
+}
+
+.histogram__tooltip /* @doc Sets the tooltip style*/
+{
+  position: absolute;
+  text-align: left;
+  padding: 4px;
+  font: 12px sans-serif;
+  background: #fff;
+  border: 0px;
+  border-radius: 1px;
+  pointer-events: none;
+  color: #555;
+  z-index: 20000;
+  min-width: 100px;
+
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+    0 1px 10px 0 rgba(0, 0, 0, 0.12);
+}
+
+.selected_bars_zone {
+  fill: #b7b7b7;
+  fill-opacity: 0.1;
+}
+
+.histogram__brush-tooltip /* @doc Sets all the brush tooltips styles*/
+{
+  font: 0.7em sans-serif;
+  text-align: center;
+  position: absolute;
+  padding: 2px;
+  background: white;
+  pointer-events: none;
+  color: #000;
+  z-index: 20000;
+}
+
+.histogram__brush-tooltip__vertical--left__rotation {
+  transform: rotate(-90deg);
+  transform-origin: bottom right;
+}
+
+.histogram__brush-tooltip__vertical--right__rotation {
+  transform: rotate(90deg);
+  transform-origin: bottom left;}
+
+.histogram__remove /* @doc Sets the remove tooltip's style*/
+{
+  position: absolute;
+  text-align: left;
+  padding: 2px;
+  font: 12px sans-serif;
+  border: 0px;
+  border-radius: 2px;
+  color: #043b53;
+  z-index: 20000;
+  cursor: pointer;
+}
+
+.histogram__tooltip-xcontent-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  border-bottom: 0.4px solid #b7b7b7;
+  padding-bottom: 5px;
+  color: #222;
+}
+
+.histogram__tooltip-ycontent-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding-top: 5px;
+  color: #555;
+}
+.histogram__tooltip-content {
+  display: block;
+}
+
+.histogram__tooltip-xcontent {
+  font-size: 1.1em;
+}
+.histogram__tooltip-xlabel {
+  font-size: 1.1em;
+  font-weight: bold;
+  padding-right: 5px;
+}
+.histogram__tooltip-ylabel {
+  font-weight: bold;
+  padding-right: 5px;
+}
+
+.histogram__ticks-axis text {
+  display: none;
+}
+
+.histogram__horizontal-axis__text {
+  display: none;
+}
+
+.histogram__horizontal-axis__line /* public */ /* Sets the horizontal lines style.*/
+{
+  stroke-opacity: 0.5;
+  stroke-width: 0.3px;
+  stroke-dasharray: 5
+}
+
+.histogram__horizontal-axis {
+  stroke-opacity: 0;
+}
+
+.histogram__only-axis text {
+  display: none;
+}
+
+.histogram__ticks-axis line {
+  stroke: #B3B1B1;
+}
+
+.histogram__line-separator text {
+  display: none;
+}
+
+.histogram__line-separator .domain {
+  stroke: #B3B1B1;
+}
+
+.histogram__ticks-axis__hidden {
+  display: none;
+}
+
+.histogram__labels-axis .domain {
+  stroke-opacity: 0;
+}
+
+.histogram__labels-axis__hidden {
+  display: none;
+}
+
+.brush .selection /* @doc Sets the brush selection style*/
+{
+  opacity: 0.1;
+}
+
+.histogram__brush--handles /* @doc Sets the brush handles style*/
+{
+  stroke: #868686;
+  fill: #868686;
+  opacity: 1;
+  z-index: 30000;
+}
+
+.histogram__area_circle
+{
+  fill: #7fa5a1;
+  stroke: #7fa5a1;
+}
+
+.histogram__tooltip_cursor_rect
+{
+  fill: #bbbbbb;
+  stroke: #bbbbbb;
+  opacity: 0.5;
+}
+
+.histogram__tooltip_cursor_line
+{
+  fill: #bbbbbb;
+  stroke: #bbbbbb;
+  stroke-width: 0.8px;
+}
+
+.swimlane_legend_color, .swimlane_legend_value {
+  display: inline-block;
+  font-size: 0.7em;
+}
+
+.swimlane_legend_color {
+  height: 8px;
+}
+
+.swimlane_legend {
+  display: flex;
+  justify-content: center;
+}
+
+.histogram__chart--fixed-selected--area /* @doc Sets the style of the area's selected parts*/
+{
+  fill: red;
+  fill-opacity: 1;
+  stroke: #a5a5a5;
+
+}
+
+.histogram__chart--current-selected--area /* @doc Sets the style of the area's selected parts*/
+{
+  fill: red;
+  fill-opacity: 1;
+  stroke: #a5a5a5;
+
+}
+
+.histogram__chart--unselected--area /* @doc Sets the style of the area's unselected parts*/
+{
+  fill: #a5a5a5;
+  fill-opacity: .7;
+  stroke: #a5a5a5;
+
+}
+
+
+.histogram__chart--fixed-selected--curve, .histogram__chart--fixed-selected--curve--without_color /* @doc Sets the style of the curve's selected parts*/
+{
+  fill: none;
+}
+
+.histogram__chart--fixed-selected--curve{
+  stroke: #88c9c3;
+}
+.histogram__chart--current-selected--curve, .histogram__chart--current-selected--curve--without_color /* @doc Sets the style of the curve's selected parts*/
+{
+  stroke-width: 1.5px;
+  fill: none;
+}
+.histogram__chart--current-selected--curve{
+   stroke: #88c9c3;
+}
+
+.histogram__chart--unselected--curve /* @doc Sets the style of the curve's unselected parts*/
+{
+  fill: none;
+  stroke: #a5a5a5;
+  stroke-width: 0.8px;
+
+}
+
+.histogram__chart--bar__fullyselected /* @doc Sets the fixed selected bars style*/
+{
+  fill: #FFF;
+  stroke: #a5a5a5;
+  stroke-width: 0.4px;
+}
+
+.histogram__chart--bar__currentselection /* @doc Sets the currently selected bars style*/
+{
+  fill: #FFF;
+  stroke: #a5a5a5;
+  stroke-width: 0.4px;
+}
+
+.histogram__chart--bar__partlyselected /* @doc Sets the partly selected bars style*/
+{
+  fill: #FFF;
+  stroke: #a5a5a5;
+  stroke-width: 0.4px;
+}
+
+.histogram__chart--bar /* @doc Sets the unselected selected bars style*/
+{
+  fill: #FFF;
+  stroke: #b7b7b7;
+  stroke-width: 0.4px;
+}
+
+.histogram__swimlane--vertical-tooltip-line /* @doc Sets the vertical line that's shown when hovering bars in swimlane*/
+{
+  stroke-width: 2px;
+  stroke: #000;
+  fill: none;
+}
+
+.headband_currentselection /* @doc Sets the currently selected headbands style (a headband is a band over the bar)*/
+{
+  fill: #88c9c3 !important;
+  stroke: #88c9c3 !important;
+  stroke-width: 0.4px !important;;
+  height: 1.5px !important;
+}
+
+.headband_currentselection_min /* @doc Sets the currently selected headbands style (a headband is a band over the bar)*/
+{
+  fill: #e62938 !important;
+  stroke: #e62938 !important;
+  stroke-width: 0.4px !important;;
+  height: 1.5px !important;
+}
+
+.headband_currentselection_max /* @doc Sets the currently selected headbands style (a headband is a band over the bar)*/
+{
+  fill: #e62938 !important;
+  stroke: #e62938 !important;
+  stroke-width: 0.4px !important;;
+  height: 1.5px !important;
+}
+.headband_partlyselected /* @doc Sets the partly selected headbands style (a headband is a band over the bar)*/
+{
+  fill: #88c9c3 !important;
+  stroke: #88c9c3 !important;
+  stroke-width: 0.4px !important;
+  height: 1.5px !important;
+}
+.headband_fullyselected /* @doc Sets the fully selected headbands style (a headband is a band over the bar)*/
+{
+  fill: #88c9c3 !important;
+  stroke: #88c9c3 !important;
+  stroke-width: 0.4px !important;
+  height: 1.5px !important;
+}
+.headband_notselected /* @doc Sets the not selected headbands style (a headband is a band over the bar)*/
+{
+  fill: #FFF !important;
+  stroke: #b7b7b7 !important;
+  stroke-width: 0 !important;
+  height: 0 !important;
+}
+
+.swimlane-label-unselected /* @doc Sets the unselected labels style of the swimlane*/
+{
+  fill: gray;
+}
+
+.swimlane-label-selected /* @doc Sets the selected labels style of the swimlane*/
+{
+  fill: #FF4081;
+}
+
+.swimlane-label-neutral /* @doc Sets all labels style of the swimlane when none of them are selected*/
+{
+  fill: black;
+}
+
+.swimlane-label-container-hovered /* @doc Sets the hovered label container style of the swimlane*/
+{
+  fill: #efefef;
+}
+
+.selection {
+  opacity: 0.6;
+}

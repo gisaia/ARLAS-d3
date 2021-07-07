@@ -45,7 +45,8 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     if (inputData !== null && inputData.lanes.size > 0) {
       swimlanesMapData = HistogramUtils.parseSwimlaneDataKey(inputData.lanes, this.histogramParams.dataType);
       this.setSwimlaneMinMaxBorders(inputData.stats);
-      this.initializeDescriptionValues(this.swimlaneIntervalBorders[0], this.swimlaneIntervalBorders[1], inputData.lanes);
+      this.histogramParams.bucketRange = this.getDataInterval(inputData.lanes);
+      this.initializeDescriptionValues(this.swimlaneIntervalBorders[0], this.swimlaneIntervalBorders[1], this.histogramParams.bucketRange);
       this.initializeChartDimensions();
       this.createSwimlaneAxes(swimlanesMapData);
       this.drawChartAxes(this.swimlaneAxes);
