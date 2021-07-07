@@ -1,6 +1,18 @@
 # Change Log
 
-## [v7.4.0](https://github.com/gisaia/ARLAS-d3/tree/v7.4.0) (2021-04-16)
+## [v8.0.0](https://github.com/gisaia/ARLAS-d3/tree/v8.0.0) (2021-07-07)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.4.0...v8.0.0)
+
+**New stuff:**
+
+- \[DONUT\] Add percentage in "donut" widget [\#121](https://github.com/gisaia/ARLAS-d3/issues/121)
+
+**Fixed bugs:**
+
+- HISTOGRAM : tooltip position has a consequent offset when data occupies o small part of the histogram  [\#18](https://github.com/gisaia/ARLAS-d3/issues/18)
+
+## [v7.4.0](https://github.com/gisaia/ARLAS-d3/tree/v7.4.0) (2021-04-21)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.3.1...v7.4.0)
 
