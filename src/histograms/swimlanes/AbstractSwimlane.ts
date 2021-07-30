@@ -101,8 +101,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
           legend.push({key: ' ', color: '#fff'});
           legend.push({key: '>0', color: color});
         } else {
-          const key = (i % 5 === 0) ? HistogramUtils.numToString(colorValue) : ' ';
-
+          const key = (i % 5 === 0) ? HistogramUtils.numToString(HistogramUtils.round(colorValue, 2)) : ' ';
           legend.push({key, color});
         }
       }
@@ -364,11 +363,16 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
         tooltip.xPosition = (xy[0] + dx);
         tooltip.yPosition = this.histogramParams.swimlaneHeight * (indexOfKey + 0.2);
         tooltip.xContent = HistogramUtils.toString(data[i].key, this.histogramParams, this.dataInterval);
-        tooltip.yContent = formatNumber(data[i].value, this.histogramParams.numberFormatChar);
-        if (representation === SwimlaneRepresentation.column) {
-          const sum = swimStats.columnStats.get(+data[i].key).sum;
-          const percentage = (sum > 0 ) ? 100 * Math.round(data[i].value / sum * 1000) / 1000 : 0;
-          tooltip.yAdditonalInfo = ' - ' + percentage + '%';
+        if (HistogramUtils.isValueValid(data[i])) {
+          tooltip.yContent = formatNumber(data[i].value, this.histogramParams.numberFormatChar);
+          if (representation === SwimlaneRepresentation.column) {
+            const sum = swimStats.columnStats.get(+data[i].key).sum;
+            const percentage = (sum > 0 ) ? 100 * Math.round(data[i].value / sum * 1000) / 1000 : 0;
+            tooltip.yAdditonalInfo = ' - ' + percentage + '%';
+          }
+        } else {
+          tooltip.yContent = undefined;
+          tooltip.yAdditonalInfo = undefined
         }
         this.histogramParams.swimlaneXTooltip = tooltip;
         this.histogramParams.swimlaneTooltipsMap.set(key, tooltip);
@@ -392,7 +396,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
       dx = (this.chartDimensions.width) - 2 * xPosition + 25;
     } else {
       tooltip.isRightSide = false;
-      dx = 25;
+      dx = 70;
     }
     return dx;
   }
