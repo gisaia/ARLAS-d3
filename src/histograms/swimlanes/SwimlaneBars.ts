@@ -65,21 +65,17 @@ export class SwimlaneBars extends AbstractSwimlane {
     if (swimMode === SwimlaneMode.fixedHeight) {
       return laneHeight;
     } else {
-      const isValueValid = HistogramUtils.isValueValid(bucket);
-      if (isValueValid) {
-        const value = +bucket.value;
-        if (representation === SwimlaneRepresentation.global) {
-          return value / globalMax * laneHeight;
+      const value = bucket.value.toString() !== NaN.toString() ? +bucket.value : 0;
+      if (representation === SwimlaneRepresentation.global) {
+        return value / globalMax * laneHeight;
+      } else {
+        const bucketSum = swimStats.columnStats.get(+bucket.key).sum;
+        if (bucketSum === 0) {
+          return 0;
         } else {
-          const bucketSum = swimStats.columnStats.get(+bucket.key).sum;
-          if (bucketSum === 0) {
-            return 0;
-          } else {
-            return value / bucketSum * laneHeight;
-          }
+          return value / bucketSum * laneHeight;
         }
       }
-      return 0;
     }
   }
 
