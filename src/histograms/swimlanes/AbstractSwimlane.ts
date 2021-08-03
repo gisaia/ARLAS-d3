@@ -372,7 +372,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
           }
         } else {
           tooltip.yContent = undefined;
-          tooltip.yAdditonalInfo = undefined
+          tooltip.yAdditonalInfo = undefined;
         }
         this.histogramParams.swimlaneXTooltip = tooltip;
         this.histogramParams.swimlaneTooltipsMap.set(key, tooltip);

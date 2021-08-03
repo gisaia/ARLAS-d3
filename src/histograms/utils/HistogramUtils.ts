@@ -335,7 +335,8 @@ export class HistogramUtils {
   }
 
   public static isValueValid(bucket: HistogramData): boolean {
-    return bucket ? !Number.isNaN(Number(bucket.value)) && !(bucket.value + '' === 'Infinity') && !(bucket.value + '' === '-Infinity'): false;
+    return bucket ? !Number.isNaN(Number(bucket.value)) && !(bucket.value + '' === 'Infinity') &&
+      !(bucket.value + '' === '-Infinity') : false;
   }
 
   public static getFormatFromDateInterval(dateInterval): string {
