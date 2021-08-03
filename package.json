@@ -1,6 +1,6 @@
 {
   "name": "arlas-d3",
-  "version": "7.4.0",
+  "version": "7.4.1",
   "description": "D3 components library for ARLAS Web App",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
