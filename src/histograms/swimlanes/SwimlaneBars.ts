@@ -61,7 +61,7 @@ export class SwimlaneBars extends AbstractSwimlane {
    */
   private getBucketHeight(bucket: HistogramData, swimStats: SwimlaneStats, representation: SwimlaneRepresentation,
     swimMode: SwimlaneMode, laneHeight: number): number {
-    const globalMax = swimStats.globalStats.max;
+    const globalMax = Math.max(Math.abs(swimStats.globalStats.max), Math.abs(swimStats.globalStats.min));
     if (swimMode === SwimlaneMode.fixedHeight) {
       return laneHeight;
     } else {
@@ -69,7 +69,7 @@ export class SwimlaneBars extends AbstractSwimlane {
       if (isValueValid) {
         const value = +bucket.value;
         if (representation === SwimlaneRepresentation.global) {
-          return value / globalMax * laneHeight;
+          return Math.abs(value) / globalMax * laneHeight;
         } else {
           const bucketSum = swimStats.columnStats.get(+bucket.key).sum;
           if (bucketSum === 0) {

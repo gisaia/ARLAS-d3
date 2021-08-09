@@ -86,6 +86,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     } else {
       const min = stats.globalStats.min;
       const max = stats.globalStats.max;
+      const globalMax = Math.max(Math.abs(max), Math.abs(min));
       const span = (max - min) / 10;
       for (let i = 0; i <= 10; i ++ ) {
         const colorValue = min + span * i;
@@ -94,7 +95,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
           color = this.histogramParams.swimlaneOptions.zeros_color;
           legend.push({key: colorValue, color: color});
         } else {
-          color = HistogramUtils.getColor(colorValue / max, this.histogramParams.paletteColors).toHexString();
+          color = HistogramUtils.getColor(colorValue / globalMax, this.histogramParams.paletteColors).toHexString();
         }
         if (i === 0 && this.histogramParams.swimlaneOptions && this.histogramParams.swimlaneOptions.zeros_color) {
           color = HistogramUtils.getColor(i / 100, this.histogramParams.paletteColors).toHexString();
@@ -417,7 +418,9 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
   protected getBucketColor(bucket: HistogramData, swimOptions: SwimlaneOptions, swimStats: SwimlaneStats,
     representation: SwimlaneRepresentation, colors: string | [number, number]): string {
      const columnStats: Map<number, LaneStats> = swimStats.columnStats;
-     const globalMax = swimStats.globalStats.max;
+     const absMax = Math.abs(swimStats.globalStats.max);
+     const absMin = Math.abs(swimStats.globalStats.min);
+     const globalMax = Math.max(absMax, absMin);
      const bucketValue = bucket.value;
      if (bucketValue.toString() === NaN.toString()) {
        if (swimOptions && swimOptions.nan_color) {
