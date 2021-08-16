@@ -1,5 +1,17 @@
 # Change Log
 
+## [v7.4.2](https://github.com/gisaia/ARLAS-d3/tree/v7.4.2) (2021-08-16)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v8.0.1...v7.4.2)
+
+## [v8.0.1](https://github.com/gisaia/ARLAS-d3/tree/v8.0.1) (2021-08-06)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.4.1...v8.0.1)
+
+**Fixed bugs:**
+
+- Swimlane doesn't handle Infinity values  [\#149](https://github.com/gisaia/ARLAS-d3/issues/149)
+
 ## [v7.4.1](https://github.com/gisaia/ARLAS-d3/tree/v7.4.1) (2021-08-03)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v8.0.0...v7.4.1)
@@ -223,7 +235,6 @@
 
 **Breaking changes:**
 
-- DONUT : remove sum policy for nodes hierarchy [\#52](https://github.com/gisaia/ARLAS-d3/issues/52)
 - SWIMLANE : Remove brush selection & add the possibility to filter on terms [\#49](https://github.com/gisaia/ARLAS-d3/issues/49)
 
 **New stuff:**
@@ -232,6 +243,7 @@
 
 **Fixed bugs:**
 
+- DONUT : remove sum policy for nodes hierarchy [\#52](https://github.com/gisaia/ARLAS-d3/issues/52)
 - SWIMLANE : Swimlane bars get thin after applying filters on ARLAS-wui [\#48](https://github.com/gisaia/ARLAS-d3/issues/48)
 
 ## [v4.2.4](https://github.com/gisaia/ARLAS-d3/tree/v4.2.4) (2018-08-09)
