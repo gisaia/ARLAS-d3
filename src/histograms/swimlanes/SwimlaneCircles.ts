@@ -40,11 +40,11 @@ export class SwimlaneCircles extends AbstractSwimlane {
   }
 
   private getBucketRadius(bucket: HistogramData, swimStats: SwimlaneStats, representation: SwimlaneRepresentation): number {
-    const globalMax = swimStats.globalStats.max;
+    const globalMax = Math.max(Math.abs(swimStats.globalStats.max), Math.abs(swimStats.globalStats.min));
     const bucketValue = bucket.value.toString() !== NaN.toString() ? +bucket.value : 0;
     const fixedCoefficient = Math.min(this.swimlaneAxes.stepWidth, this.histogramParams.swimlaneHeight) * this.swimlaneBarsWeight;
     if (representation === SwimlaneRepresentation.global) {
-      return Math.sqrt(bucketValue / globalMax) * 3 / 5 * fixedCoefficient;
+      return Math.sqrt(Math.abs(bucketValue) / globalMax) * 3 / 5 * fixedCoefficient;
     } else {
       const bucketSum = swimStats.columnStats.get(+bucket.key).sum;
       if (bucketSum === 0) {
