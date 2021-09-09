@@ -501,7 +501,7 @@ export enum Position {
 }
 
 export function formatNumber(x, formatChar = ' '): string {
-  if (isNumber(x)) {
+  if (isNumber(x) && +x > 1) {
     if (formatChar === NUMBER_FORMAT_CHAR) {
       formatChar = ' ';
     }
