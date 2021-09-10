@@ -1,5 +1,13 @@
 # Change Log
 
+## [v8.0.3](https://github.com/gisaia/ARLAS-d3/tree/v8.0.3) (2021-09-10)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v8.0.2...v8.0.3)
+
+**Fixed bugs:**
+
+- labels in histograms axis are all shown as 0 [\#156](https://github.com/gisaia/ARLAS-d3/issues/156)
+
 ## [v8.0.2](https://github.com/gisaia/ARLAS-d3/tree/v8.0.2) (2021-08-16)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.4.3...v8.0.2)
