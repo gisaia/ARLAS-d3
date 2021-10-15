@@ -447,36 +447,7 @@ export abstract class AbstractChart extends AbstractHistogram {
     const xy = mouse(container);
     const xDomainValue = +this.chartAxes.xDomain.invert(xy[0]);
     const dataInterval = this.histogramParams.bucketRange;
-    /** Get all buckets near xDomainValue */
-    const bucketPixelSize = this.chartAxes.xDomain(xDomainValue) - this.chartAxes.xDomain(xDomainValue - dataInterval);
-    let hoveredBuckets = [];
-    if (bucketPixelSize < 1 /**px */) {
-      /** in case 2 buckets are within a space that is less that 1 px, the cursor will not be able to detect all buckets
-       * In order to fix this, we give the current cursor a buffer of 2px to the right and 2px to the left
-       * and then we pick the closest key to the cursor
-       * This will allow to have a tooltip for isolated points in a dense histogram
-       */
-      const chartIdDistanceToCursor = new Map<string, number>();
-      data.forEach(b => {
-        if (this.chartAxes.xDomain(b.key) - 2 /**px */ <= xy[0] && this.chartAxes.xDomain(b.key) + 2 /**px */ > xy[0]) {
-          const distance = xDomainValue - +b.key;
-          const existingDistance = chartIdDistanceToCursor.get(b.chartId);
-          if ((!!b.chartId && existingDistance === undefined) ||
-            (!!b.chartId && existingDistance !== undefined && distance < existingDistance)) {
-            chartIdDistanceToCursor.set(b.chartId, distance);
-          }
-        }
-      });
-      hoveredBuckets = data.filter(b => {
-        const distance = xDomainValue - +b.key;
-        const cursorWellPositioned = this.chartAxes.xDomain(b.key) - 2 /**px */ <= xy[0]
-          && this.chartAxes.xDomain(b.key) + 2 /**px */ > xy[0];
-        const minimalDistance = chartIdDistanceToCursor.get(b.chartId) === distance;
-        return cursorWellPositioned && minimalDistance;
-      });
-    } else {
-      hoveredBuckets = data.filter(b => +b.key <= xDomainValue && +b.key > xDomainValue - dataInterval);
-    }
+    const hoveredBuckets = data.filter(b => +b.key <= xDomainValue && +b.key > xDomainValue - dataInterval);
     const ys = [];
     let x;
     hoveredBuckets.forEach(hb => {
