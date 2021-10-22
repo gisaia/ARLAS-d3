@@ -69,6 +69,9 @@ export class SwimlaneBars extends AbstractSwimlane {
       if (isValueValid) {
         const value = +bucket.value;
         if (representation === SwimlaneRepresentation.global) {
+          if (globalMax === 0) {
+            return 0;
+          }
           return Math.abs(value) / globalMax * laneHeight;
         } else {
           const bucketSum = swimStats.columnStats.get(+bucket.key).sum;
