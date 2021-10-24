@@ -103,7 +103,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
           legend.push({key: ' ', color: '#fff'});
           legend.push({key: '>0', color: color});
         } else {
-          const key = (i % 5 === 0) ? HistogramUtils.numToString(HistogramUtils.round(colorValue, 2)) : ' ';
+          const key = (i % 5 === 0) ? HistogramUtils.numToString(colorValue) : ' ';
           legend.push({key, color});
         }
       }
