@@ -436,6 +436,7 @@ export class HistogramUtils {
         shortNum = shortValue.toFixed(1);
       }
       newValue = shortNum + suffixes[suffixNum];
+      return newValue;
     } else {
       return formatNumber(value);
     }
