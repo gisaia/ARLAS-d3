@@ -57,7 +57,7 @@ export interface HistogramTooltip {
   title?: string;
   dataType?: string;
   xValue?: number | string | Date;
-  xRange?: {value: number; unit?: string; };
+  xRange?: { value: number; unit?: string; };
   y?: {
     value: number | string;
     chartId?: string;
@@ -310,7 +310,7 @@ export class HistogramUtils {
             return timeFormat(this.getFormatFromDateInterval(dateInterval))(value);
           }
         } else {
-            const formatDate = '%d/%m/%Y %H:%M';
+          const formatDate = '%d/%m/%Y %H:%M';
           if (histogramParams.useUtc) {
             return utcFormat(formatDate)(value);
           } else {
@@ -342,8 +342,9 @@ export class HistogramUtils {
         } else {
           if (dateInterval !== undefined && dateInterval !== null && dateInterval > 0 && dateInterval < 1) {
             roundPrecision = this.getRoundPrecision(dateInterval);
+            return formatNumber(value, histogramParams.numberFormatChar, roundPrecision);
           }
-          return formatNumber(this.round(value, roundPrecision), histogramParams.numberFormatChar);
+          return formatNumber(value, histogramParams.numberFormatChar);
         }
       }
     }
@@ -426,7 +427,7 @@ export class HistogramUtils {
       let shortValue: number;
       for (let precision = 3; precision >= 1; precision--) {
         shortValue = shortValue = Math.round(parseFloat((suffixNum !== 0 ? (value / Math.pow(1000, suffixNum)) : value)
-        .toPrecision(precision)));
+          .toPrecision(precision)));
         const dotLessShortValue = (shortValue + '').replace(/[^a-zA-Z]+/g, '');
         if (dotLessShortValue.length <= 2) { break; }
       }
@@ -435,46 +436,47 @@ export class HistogramUtils {
         shortNum = shortValue.toFixed(1);
       }
       newValue = shortNum + suffixes[suffixNum];
+    } else {
+      return formatNumber(value);
     }
-    return newValue.toString();
   }
 
   public static splitData(data: Array<HistogramData>): [Array<Array<HistogramData>>, Array<Array<HistogramData>>] {
     const splittedData = new Array();
     const wholes = new Array();
     if (data && data.length > 0) {
-        let isValid = this.isValueValid(data[0]);
-        let stateChanged = false;
-        let localData = [];
-        let localWhole = [];
-        data.forEach(d => {
-            stateChanged = (isValid !== this.isValueValid(d));
-            isValid = this.isValueValid(d);
-            if (stateChanged) {
-                if (isValid) {
-                    localWhole.push(d);
-                }
-                isValid ? wholes.push(localWhole) : splittedData.push(localData);
-                localData = [];
-                localWhole = [];
-                if (!isValid) {
-                    if (splittedData.length > 0) {
-                        const latestDataPart = splittedData[splittedData.length - 1];
-                        localWhole.push(latestDataPart[latestDataPart.length - 1]);
-                    }
-                }
+      let isValid = this.isValueValid(data[0]);
+      let stateChanged = false;
+      let localData = [];
+      let localWhole = [];
+      data.forEach(d => {
+        stateChanged = (isValid !== this.isValueValid(d));
+        isValid = this.isValueValid(d);
+        if (stateChanged) {
+          if (isValid) {
+            localWhole.push(d);
+          }
+          isValid ? wholes.push(localWhole) : splittedData.push(localData);
+          localData = [];
+          localWhole = [];
+          if (!isValid) {
+            if (splittedData.length > 0) {
+              const latestDataPart = splittedData[splittedData.length - 1];
+              localWhole.push(latestDataPart[latestDataPart.length - 1]);
             }
-            isValid ? localData.push(d) : localWhole.push(d);
-        });
-        if (localData.length > 0) {
-            splittedData.push(localData);
+          }
         }
-        if (localWhole.length > 0) {
-            wholes.push(localWhole);
-        }
+        isValid ? localData.push(d) : localWhole.push(d);
+      });
+      if (localData.length > 0) {
+        splittedData.push(localData);
+      }
+      if (localWhole.length > 0) {
+        wholes.push(localWhole);
+      }
     }
     return [splittedData, wholes];
-}
+  }
 }
 
 export function roundToNearestMultiple(i, multiple) {
@@ -500,17 +502,43 @@ export enum Position {
   top, bottom
 }
 
-export function formatNumber(x, formatChar = ' '): string {
-  if (isNumber(x) && +x > 1) {
+export function formatNumber(x, formatChar = ' ', roundPrecision?: number): string {
+  if (isNumber(x)) {
     if (formatChar === NUMBER_FORMAT_CHAR) {
       formatChar = ' ';
     }
-    x = Math.round(x * 100) / 100;
     const trunc = Math.trunc(x);
-    const decimal = (x + '').split('.');
+    const integerFraction = (x + '').split('.');
     const spacedNumber = Math.abs(trunc).toString().replace(/\B(?=(\d{3})+(?!\d))/g, formatChar);
-    const spacedNumberString = trunc < 0 ? '-' + spacedNumber : spacedNumber;
-    return decimal.length === 2 ? spacedNumberString + '.' + decimal[1] : spacedNumberString;
+    const spacedNumberString = x < 0 ? '-' + spacedNumber : spacedNumber;
+    if (integerFraction.length === 2) {
+      const fraction: string = integerFraction[1];
+      let precision = 0;
+      if (roundPrecision === undefined) {
+        let numberOfZeros = 0;
+        for (let i = 0; i < fraction.length; i++) {
+          if (fraction.charAt(i) === '0') {
+            numberOfZeros++;
+          } else {
+            break;
+          }
+        }
+        /** number of zeros + 1 (before comma) + 2 for precision */
+        precision = numberOfZeros + 1 + 2;
+      } else {
+        precision = roundPrecision + 1;
+      }
+      const roundedNumber = Math.round(x * Math.pow(10, precision)) /
+        Math.pow(10, precision);
+      const roundedIntergerFraction = (roundedNumber + '').split('.');
+      if (roundedIntergerFraction.length === 2) {
+        return spacedNumberString + '.' + roundedIntergerFraction[1];
+      } else {
+        return spacedNumberString;
+      }
+    } else {
+      return spacedNumberString;
+    }
   }
   return x;
 }
@@ -584,16 +612,16 @@ export function getBarOptions(barOptions: BarOptions): BarOptions {
   if (!returnedBarOptions.unselected_style) {
     returnedBarOptions.unselected_style = UNSELECTED_STYLE;
   } else {
-      returnedBarOptions.unselected_style.fill = returnedBarOptions.unselected_style.fill ?
-        returnedBarOptions.unselected_style.fill : UNSELECTED_STYLE.fill;
-      returnedBarOptions.unselected_style.stroke = returnedBarOptions.unselected_style.stroke ?
-        returnedBarOptions.unselected_style.stroke : UNSELECTED_STYLE.stroke;
-      returnedBarOptions.unselected_style.background_color = returnedBarOptions.unselected_style.background_color ?
-        returnedBarOptions.unselected_style.background_color : UNSELECTED_STYLE.background_color;
-      returnedBarOptions.unselected_style.stroke_width = returnedBarOptions.unselected_style.stroke_width !== undefined ?
-        returnedBarOptions.unselected_style.stroke_width : UNSELECTED_STYLE.stroke_width;
-      returnedBarOptions.unselected_style.background_opacity = returnedBarOptions.unselected_style.background_opacity !== undefined ?
-        returnedBarOptions.unselected_style.background_opacity : UNSELECTED_STYLE.background_opacity;
+    returnedBarOptions.unselected_style.fill = returnedBarOptions.unselected_style.fill ?
+      returnedBarOptions.unselected_style.fill : UNSELECTED_STYLE.fill;
+    returnedBarOptions.unselected_style.stroke = returnedBarOptions.unselected_style.stroke ?
+      returnedBarOptions.unselected_style.stroke : UNSELECTED_STYLE.stroke;
+    returnedBarOptions.unselected_style.background_color = returnedBarOptions.unselected_style.background_color ?
+      returnedBarOptions.unselected_style.background_color : UNSELECTED_STYLE.background_color;
+    returnedBarOptions.unselected_style.stroke_width = returnedBarOptions.unselected_style.stroke_width !== undefined ?
+      returnedBarOptions.unselected_style.stroke_width : UNSELECTED_STYLE.stroke_width;
+    returnedBarOptions.unselected_style.background_opacity = returnedBarOptions.unselected_style.background_opacity !== undefined ?
+      returnedBarOptions.unselected_style.background_opacity : UNSELECTED_STYLE.background_opacity;
   }
 
   return returnedBarOptions;

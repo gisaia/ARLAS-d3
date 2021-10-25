@@ -24,7 +24,6 @@ import { arc, Arc, DefaultArcObject } from 'd3-shape';
 import { select, mouse, ContainerElement } from 'd3-selection';
 import { hierarchy, partition, HierarchyNode } from 'd3-hierarchy';
 import { interpolate } from 'd3-interpolate';
-import { formatNumber } from '../histograms/utils/HistogramUtils';
 
 export abstract class AbstractDonut {
   public donutParams: DonutParams;
