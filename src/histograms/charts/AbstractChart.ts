@@ -607,7 +607,9 @@ export abstract class AbstractChart extends AbstractHistogram {
           }
       }
     } else {
-      return { value: +HistogramUtils.toString(bucketRange, this.histogramParams, bucketRange)};
+      const histogramParams = Object.assign({}, this.histogramParams);
+      histogramParams.numberFormatChar = '';
+      return { value: +HistogramUtils.toString(bucketRange, histogramParams, bucketRange)};
     }
   }
 
