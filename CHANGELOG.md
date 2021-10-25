@@ -1,5 +1,18 @@
 # Change Log
 
+## [v8.0.4](https://github.com/gisaia/ARLAS-d3/tree/v8.0.4) (2021-10-25)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v8.0.3...v8.0.4)
+
+**New stuff:**
+
+- \[Swimlane\] : Add X axis tooltip  [\#94](https://github.com/gisaia/ARLAS-d3/issues/94)
+- HISTOGRAM : create new zoom in data mode [\#67](https://github.com/gisaia/ARLAS-d3/issues/67)
+
+**Fixed bugs:**
+
+-  numbers in charts and swimlanes tooltips are not rounded [\#159](https://github.com/gisaia/ARLAS-d3/issues/159)
+
 ## [v8.0.3](https://github.com/gisaia/ARLAS-d3/tree/v8.0.3) (2021-09-10)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v8.0.2...v8.0.3)
