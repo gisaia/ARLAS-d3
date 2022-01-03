@@ -7,7 +7,7 @@
   "scripts": {
     "gulp": "gulp",
     "build-release": "tsc -p tsconfig.json && gulp",
-    "tslint": "tslint -c tslint.json 'src/**/*.ts?(x)'"
+    "lint": "tslint -c tslint.json 'src/**/*.ts?(x)'"
   },
   "repository": {
     "type": "git",
