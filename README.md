@@ -22,8 +22,8 @@ Please find the documentation of all the d3 components [here](http://docs.arlas.
 ## Build
 
 To build the project you need to have installed
-- [Node](https://nodejs.org/en/) version >= 8.0.0 
-- [npm](https://github.com/npm/npm) version >= 5.2.0
+- [Node](https://nodejs.org/en/) version >= 16.3.0 
+- [npm](https://github.com/npm/npm) version >= 8.3.0
 
 Then, clone the project
 
