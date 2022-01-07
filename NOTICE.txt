@@ -1,12 +1,12 @@
 ARLAS-d3
-Copyright 2017-2018 and onwards Gisaïa
+Copyright 2017-2022 and onwards Gisaïa
 
 
 ARLAS-d3 embeds the following components and their dependencies :
 
 
 + Chart Tools
-    - D3.js                 (Copyright 2010-2017 Mike Bostock - https://d3js.org/)
+    - D3.js                 (Copyright 2010-2021 Mike Bostock - https://d3js.org/)
 
 + Build Tools
     - gulp.js               (The MIT License - https://gulpjs.com/)
