@@ -1,8 +1,16 @@
 # Change Log
 
+## [v9.0.0](https://github.com/gisaia/ARLAS-d3/tree/v9.0.0) (2022-01-07)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v9.0.0-rc.1...v9.0.0)
+
 ## [v9.0.0-rc.1](https://github.com/gisaia/ARLAS-d3/tree/v9.0.0-rc.1) (2022-01-07)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v9.0.0-beta.5...v9.0.0-rc.1)
+
+**Miscellaneous:**
+
+- Upgrade typescript & rxjs [\#164](https://github.com/gisaia/ARLAS-d3/issues/164)
 
 ## [v9.0.0-beta.5](https://github.com/gisaia/ARLAS-d3/tree/v9.0.0-beta.5) (2022-01-03)
 
