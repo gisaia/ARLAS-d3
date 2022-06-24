@@ -361,11 +361,17 @@ export class HistogramUtils {
       case duration.asYears() >= 1: {
         return '%Y';
       }
-      case duration.asMonths() >= 1: {
+      case duration.asMonths() >= 1 && duration.asYears() > 1: {
         return '%B %Y';
+      }
+      case duration.asMonths() >= 1 && duration.asYears() <= 1: {
+        return '%d %B %Y';
       }
       case duration.asDays() >= 1: {
         return '%d %B %Y';
+      }
+      case duration.asHours() >= 1: {
+        return '%d %B %Y %Hh';
       }
       case duration.asHours() >= 1: {
         return '%d %B %Y %Hh';

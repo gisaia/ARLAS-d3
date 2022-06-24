@@ -456,7 +456,7 @@ export abstract class AbstractChart extends AbstractHistogram {
         if (!!hb.chartId && !!this.histogramParams.colorGenerator) {
           color = this.histogramParams.colorGenerator.getColor(hb.chartId);
         }
-        x = HistogramUtils.toString(hb.key, this.histogramParams, dataInterval),
+        x = HistogramUtils.toString(hb.key, this.histogramParams, dataInterval);
         ys.push({
           value: formatNumber(hb.value, this.histogramParams.numberFormatChar),
           chartId: hb.chartId,
@@ -543,73 +543,59 @@ export abstract class AbstractChart extends AbstractHistogram {
     return this.getHistogramDataInterval(data);
   }
 
-  protected getbucketInterval(bucketRange: number, dataType: DataType): {
+  protected getbucketInterval(bucketInterval: number, dataType: DataType): {
     value: number,
     unit?: string
   } {
-    const DAY_IN_MILLISECOND = 86400000;
-    const HOUR_IN_MILLISECOND = 3600000;
-    const MINUTE_IN_MILLISECOND = 60000;
-    const SECOND_IN_MILLISECOND = 1000;
     if (dataType === DataType.time) {
-      let intervalValue = bucketRange / DAY_IN_MILLISECOND;
-      if (intervalValue > 1) {
-          if (intervalValue >= 1 && intervalValue <= 3) {
-              /**Nb days between 1 and 3 => aggregation in hours (multiple of 24) */
-              intervalValue = Math.round(bucketRange / HOUR_IN_MILLISECOND);
-              intervalValue = roundToNearestMultiple(intervalValue, 24);
-              return { value: intervalValue, unit: 'hour' + (intervalValue === 1 ? '' : 's') };
-          } else if (intervalValue > 3 && intervalValue <= 15) {
-              /**Nb days between 4 and 15 => aggregation in days */
-              intervalValue = Math.round(intervalValue);
-              return { value: intervalValue, unit: 'day' + (intervalValue === 1 ? '' : 's') };
-          } else {
-              /**Nb days greater than 15 => aggregation in days (multiple of 15) */
-              intervalValue = Math.round(intervalValue);
-              intervalValue = roundToNearestMultiple(intervalValue, 15);
-              return { value: intervalValue, unit: 'day' + (intervalValue === 1 ? '' : 's') };
-          }
-      } else {
-          intervalValue = bucketRange / HOUR_IN_MILLISECOND;
-          if (intervalValue > 6 && intervalValue < 24) {
-              /**Nb hours between 6 than 24 => aggregation in hours */
-              intervalValue = Math.round(intervalValue);
-              return { value: intervalValue, unit: 'hour' + (intervalValue === 1 ? '' : 's') };
-          } else if (intervalValue > 1 && intervalValue <= 6) {
-              /**Nb hours between 1 than 6 => aggregation in minutes (multiple of 60) */
-              intervalValue = bucketRange / MINUTE_IN_MILLISECOND;
-              intervalValue = Math.round(intervalValue);
-              intervalValue = roundToNearestMultiple(intervalValue, 60);
-              return { value: intervalValue / 60, unit: 'hour' + (intervalValue / 60 === 1 ? '' : 's') };
-          } else {
-              intervalValue = bucketRange / MINUTE_IN_MILLISECOND;
-              /**Nb minutes between 5 than 60 => aggregation in minutes (multiple of 5) */
-              if (intervalValue > 5) {
-                  intervalValue = Math.round(intervalValue);
-                  intervalValue = roundToNearestMultiple(intervalValue, 5);
-                  if (intervalValue % 60 === 0 ) {
-                    return { value: intervalValue / 60, unit: 'hour' + (intervalValue / 60 === 1 ? '' : 's') };
-                  }
-                  return { value: intervalValue, unit: 'minute' + (intervalValue === 1 ? '' : 's') };
-              } else if (intervalValue > 1 && intervalValue < 5) {
-                  /**Nb minutes less than 5 => aggregation in minutes */
-                  intervalValue = Math.round(intervalValue);
-                  return { value: intervalValue, unit: 'minute' + (intervalValue === 1 ? '' : 's') };
-              } else {
-                  /**Nb seconds less than or equal 60 => aggregation in seconds */
-                  intervalValue = bucketRange / SECOND_IN_MILLISECOND;
-                  intervalValue = Math.max(1, Math.round(intervalValue));
-                  if (intervalValue % 60 === 0 ) {
-                    return { value: intervalValue / 60, unit: 'minute' + (intervalValue / 60 === 1 ? '' : 's') };
-                  }
-                  return { value: intervalValue, unit: 'second' + (intervalValue === 1 ? '' : 's') };
-              }
-          }
-      }
+      const D_2_MS = 86400000;
+      const M_2_MS = 30 * D_2_MS;
+      const Y_2_MS = 12 * M_2_MS;
+      const H_2_MS = 3600000;
+      const timestampToInterval = new Map<number, { value: number, unit: string }>();
+      /** seconds */
+      timestampToInterval.set(1000, { value: 1, unit: 'second' });
+      timestampToInterval.set(2000, { value: 2, unit: 'seconds' });
+      timestampToInterval.set(5000, { value: 5, unit: 'seconds' });
+      timestampToInterval.set(10000, { value: 10, unit: 'seconds' });
+      timestampToInterval.set(30000, { value: 30, unit: 'seconds' });
+      /** minutes */
+      timestampToInterval.set(60000, { value: 1, unit: 'minute' });
+      timestampToInterval.set(120000, { value: 2, unit: 'minutes' });
+      timestampToInterval.set(300000, { value: 5, unit: 'minutes' });
+      timestampToInterval.set(600000, { value: 10, unit: 'minutes' });
+      timestampToInterval.set(900000, { value: 15, unit: 'minutes' });
+      timestampToInterval.set(1800000, { value: 30, unit: 'minutes' });
+      /** hours */
+      timestampToInterval.set(H_2_MS, { value: 1, unit: 'hour' });
+      timestampToInterval.set(2 * H_2_MS, { value: 2, unit: 'hours' });
+      timestampToInterval.set(3 * H_2_MS, { value: 3, unit: 'hours' });
+      timestampToInterval.set(6 * H_2_MS, { value: 6, unit: 'hours' });
+      timestampToInterval.set(12 * H_2_MS, { value: 12, unit: 'hours' });
+      /** days */
+      timestampToInterval.set(D_2_MS, { value: 1, unit: 'day' });
+      timestampToInterval.set(2 * D_2_MS, { value: 2, unit: 'days' });
+      timestampToInterval.set(7 * D_2_MS, { value: 1, unit: 'week' });
+      timestampToInterval.set(10 * D_2_MS, { value: 10, unit: 'days' });
+      timestampToInterval.set(14 * D_2_MS, { value: 2, unit: 'weeks' });
+      timestampToInterval.set(15 * D_2_MS, { value: 15, unit: 'days' });
+      /** months */
+      timestampToInterval.set(M_2_MS, { value: 30, unit: 'days (~ 1 month)' });
+      timestampToInterval.set(2 * M_2_MS, { value: 60, unit: 'days (~ 2 months)' });
+      timestampToInterval.set(3 * M_2_MS, { value: 90, unit: 'days (~ 3 months)' });
+      timestampToInterval.set(4 * M_2_MS, { value: 120, unit: 'days (~ 4 months)' });
+      timestampToInterval.set(6 * M_2_MS, { value: 180, unit: 'days (~ 6 months)' });
+      /** years */
+      timestampToInterval.set(Y_2_MS, { value: 365, unit: 'days (~ 1 year)' });
+      timestampToInterval.set(2 * Y_2_MS, { value: 730, unit: '~ 2 years' });
+      timestampToInterval.set(5 * Y_2_MS, { value: 1825, unit: '~ 5 years' });
+      timestampToInterval.set(10 * Y_2_MS, { value: 3650, unit: '~ 10 years' });
+      const allIntervals = Object.keys(timestampToInterval).map(i => +i).sort();
+      return timestampToInterval.get(bucketInterval);
     } else {
       const histogramParams = Object.assign({}, this.histogramParams);
       histogramParams.numberFormatChar = '';
-      return { value: +HistogramUtils.toString(bucketRange, histogramParams, bucketRange)};
+      return { value: +HistogramUtils.toString(bucketInterval, histogramParams, bucketInterval) };
     }
   }
 
