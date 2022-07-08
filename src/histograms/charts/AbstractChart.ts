@@ -590,7 +590,6 @@ export abstract class AbstractChart extends AbstractHistogram {
       timestampToInterval.set(2 * Y_2_MS, { value: 730, unit: '~ 2 years' });
       timestampToInterval.set(5 * Y_2_MS, { value: 1825, unit: '~ 5 years' });
       timestampToInterval.set(10 * Y_2_MS, { value: 3650, unit: '~ 10 years' });
-      const allIntervals = Object.keys(timestampToInterval).map(i => +i).sort();
       return timestampToInterval.get(bucketInterval);
     } else {
       const histogramParams = Object.assign({}, this.histogramParams);
