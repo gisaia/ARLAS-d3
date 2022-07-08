@@ -1,6 +1,14 @@
 # Change Log
 
-## [v9.0.0](https://github.com/gisaia/ARLAS-d3/tree/v9.0.0) (2022-01-07)
+## [v9.1.0-beta.1](https://github.com/gisaia/ARLAS-d3/tree/v9.1.0-beta.1) (2022-07-08)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v9.0.0...v9.1.0-beta.1)
+
+**New stuff:**
+
+- Enhance granularity of dates units in timeline tooltip [\#176](https://github.com/gisaia/ARLAS-d3/issues/176)
+
+## [v9.0.0](https://github.com/gisaia/ARLAS-d3/tree/v9.0.0) (2022-02-01)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v9.0.0-rc.1...v9.0.0)
 
