@@ -585,12 +585,32 @@ export abstract class AbstractChart extends AbstractHistogram {
       timestampToInterval.set(3 * M_2_MS, { value: 90, unit: 'days (~ 3 months)' });
       timestampToInterval.set(4 * M_2_MS, { value: 120, unit: 'days (~ 4 months)' });
       timestampToInterval.set(6 * M_2_MS, { value: 180, unit: 'days (~ 6 months)' });
-      /** years */
+      /** years 1, 2, 5, 10*/
       timestampToInterval.set(Y_2_MS, { value: 365, unit: 'days (~ 1 year)' });
-      timestampToInterval.set(2 * Y_2_MS, { value: 730, unit: '~ 2 years' });
-      timestampToInterval.set(5 * Y_2_MS, { value: 1825, unit: '~ 5 years' });
-      timestampToInterval.set(10 * Y_2_MS, { value: 3650, unit: '~ 10 years' });
-      return timestampToInterval.get(bucketInterval);
+      timestampToInterval.set(2 * Y_2_MS, { value: 730, unit: 'days (~ 2 years)' });
+      timestampToInterval.set(5 * Y_2_MS, { value: 1825, unit: 'days (~ 5 years)' });
+      timestampToInterval.set(10 * Y_2_MS, { value: 3650, unit: 'days (~ 10 years)' });
+      const allIntervals = Array.from(timestampToInterval.keys()).map(i => +i).sort((a, b) => a - b);
+      let value = allIntervals[0];
+      for (let i = 0; i < allIntervals.length; i++) {
+          if (i < allIntervals.length - 1) {
+              const current = allIntervals[i];
+              const next = allIntervals[i + 1];
+              if (bucketInterval >= current && bucketInterval < next) {
+                  const leftDistance = Math.abs(bucketInterval - current);
+                  const rightDistance = Math.abs(bucketInterval - next);
+                  if (leftDistance < rightDistance) {
+                      value = current;
+                  } else {
+                      value = next;
+                  }
+                  break;
+              }
+          } else {
+              value = allIntervals[i];
+          }
+      }
+      return timestampToInterval.get(value);
     } else {
       const histogramParams = Object.assign({}, this.histogramParams);
       histogramParams.numberFormatChar = '';
