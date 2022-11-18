@@ -21,7 +21,7 @@
 import { SwimlaneAxes, HistogramData, HistogramUtils,
    DataType, Tooltip, Position, SwimlaneData, SwimlaneStats, SwimlaneRepresentation,
    LaneStats, SwimlaneOptions, NAN_COLOR, formatNumber, FULLY_SELECTED_BARS, UNSELECTED_BARS } from '../utils/HistogramUtils';
-import { select, mouse, ContainerElement } from 'd3-selection';
+import { select, pointer, ContainerElement } from 'd3-selection';
 import { scaleBand } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
 
@@ -319,13 +319,13 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
       .attr('y2', this.chartDimensions.height)
       .style('display', 'none');
     this.chartDimensions.svg
-      .on('mousemove', () => {
+      .on('mousemove', (event) => {
         let i = 0;
         this.aBucketIsEncountred = false;
         const previousHoveredBucketKey = this.hoveredBucketKey;
         this.hoveredBucketKey = null;
         swimlaneMapData.forEach((swimlane, key) => {
-          this.setTooltipPositionForSwimlane(swimlane, key, i, swimStats, representation, <ContainerElement>this.context.node());
+          this.setTooltipPositionForSwimlane(event, swimlane, key, i, swimStats, representation, <ContainerElement>this.context.node());
           i++;
         });
         if (!this.aBucketIsEncountred) {
@@ -347,9 +347,9 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
       });
   }
 
-  protected setTooltipPositionForSwimlane(data: Array<HistogramData>, key: string, indexOfKey: number, swimStats: SwimlaneStats,
+  protected setTooltipPositionForSwimlane(event, data: Array<HistogramData>, key: string, indexOfKey: number, swimStats: SwimlaneStats,
     representation: SwimlaneRepresentation, container: ContainerElement): void {
-    const xy = mouse(container);
+    const xy = pointer(event);
     let dx, dy, startPosition, endPosition, middlePosition;
     const tooltip: Tooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
     for (let i = 0; i < data.length; i++) {

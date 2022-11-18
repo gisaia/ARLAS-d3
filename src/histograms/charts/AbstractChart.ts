@@ -23,7 +23,7 @@ import {
   formatNumber, getBarOptions, SelectedOutputValues,
   FULLY_SELECTED_BARS, CURRENTLY_SELECTED_BARS, UNSELECTED_BARS, PARTLY_SELECTED_BARS, roundToNearestMultiple
 } from '../utils/HistogramUtils';
-import { select, ContainerElement, mouse, event } from 'd3-selection';
+import { select, ContainerElement, pointer } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
 import { max } from 'd3-array';
 import { min } from 'd3-array';
@@ -444,7 +444,7 @@ export abstract class AbstractChart extends AbstractHistogram {
   protected drawTooltipCursor(data: Array<HistogramData>, axes: ChartAxes, chartIsToSides?: Map<string, string>): void { }
 
   protected setTooltipPositions(data: Array<HistogramData>, container: ContainerElement, chartIsToSides?: Map<string, string>): void {
-    const xy = mouse(container);
+    const xy = pointer(container);
     const xDomainValue = +this.chartAxes.xDomain.invert(xy[0]);
     const dataInterval = this.histogramParams.bucketRange;
     const hoveredBuckets = data.filter(b => +b.key <= xDomainValue && +b.key > xDomainValue - dataInterval);
@@ -763,7 +763,7 @@ export abstract class AbstractChart extends AbstractHistogram {
     } else {
       this.brushHandlesHeight = this.chartDimensions.height;
     }
-    this.selectionBrush.on('start', () => {
+    this.selectionBrush.on('start', (event) => {
       const selection = event.selection;
       this.isBrushed = false;
       this.translateBrushHandles(selection, chartAxes);
@@ -771,7 +771,7 @@ export abstract class AbstractChart extends AbstractHistogram {
   }
 
   private handleOnBrushingEvent(chartAxes: ChartAxes): void {
-    this.selectionBrush.on('brush', (datum: any, index: number) => {
+    this.selectionBrush.on('brush', (event) => {
       this.isBrushing = true;
       const selection = event.selection;
       if (selection !== null) {
@@ -790,7 +790,7 @@ export abstract class AbstractChart extends AbstractHistogram {
   }
 
   private handleEndOfBrushingEvent(chartAxes: ChartAxes): void {
-    this.selectionBrush.on('end', (datum: any, index: number) => {
+    this.selectionBrush.on('end', (event) => {
       const selection = event.selection;
       if (selection !== null) {
         if (!this.fromSetInterval && this.isBrushing) {
