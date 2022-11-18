@@ -1,8 +1,16 @@
 # Change Log
 
+## [v9.2.0-beta.1](https://github.com/gisaia/ARLAS-d3/tree/v9.2.0-beta.1) (2022-11-18)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v9.1.1...v9.2.0-beta.1)
+
 ## [v9.1.1](https://github.com/gisaia/ARLAS-d3/tree/v9.1.1) (2022-09-27)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v9.1.0...v9.1.1)
+
+**Fixed bugs:**
+
+- The tooltip of the timeline is not displayed when we choose a 1year/1month bucket interval [\#179](https://github.com/gisaia/ARLAS-d3/issues/179)
 
 ## [v9.1.0](https://github.com/gisaia/ARLAS-d3/tree/v9.1.0) (2022-07-11)
 
