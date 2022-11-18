@@ -24,7 +24,6 @@ import { Selection, BaseType } from 'd3-selection';
 import { timeFormat, utcFormat } from 'd3-time-format';
 import { Axis } from 'd3-axis';
 import { ScaleLinear } from 'd3-scale';
-import { isNumber } from 'util';
 import { format } from 'd3-format';
 import { HistogramParams, Style, BarOptions } from '../HistogramParams';
 
@@ -510,7 +509,7 @@ export enum Position {
 }
 
 export function formatNumber(x, formatChar = ' ', roundPrecision?: number): string {
-  if (isNumber(x)) {
+  if (!isNaN(+x)) {
     if (formatChar === NUMBER_FORMAT_CHAR) {
       formatChar = ' ';
     }
