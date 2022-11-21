@@ -318,7 +318,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
       .attr('x2', 0)
       .attr('y2', this.chartDimensions.height)
       .style('display', 'none');
-    this.chartDimensions.svg
+    this.chartDimensions.svg.select('.context')
       .on('mousemove', (event) => {
         let i = 0;
         this.aBucketIsEncountred = false;

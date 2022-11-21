@@ -6,8 +6,9 @@
   "typings": "dist/index.d.ts",
   "scripts": {
     "gulp": "gulp",
-    "build-release": "tsc -p tsconfig.json && gulp",
-    "lint": "tslint -c tslint.json 'src/**/*.ts?(x)'"
+    "build-release": "tsc -p tsconfig.json && gulp && cp -r patches dist/",
+    "lint": "tslint -c tslint.json 'src/**/*.ts?(x)'",
+    "postinstall": "patch-package"
   },
   "repository": {
     "type": "git",
@@ -35,6 +36,7 @@
     "d3-brush": "^3.0.0",
     "d3-interpolate": "^3.0.1",
     "moment": "^2.22.2",
+    "patch-package": "^6.4.7",
     "rxjs": "~7.4.0",
     "tinycolor2": "^1.4.1"
   },

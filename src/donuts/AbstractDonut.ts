@@ -145,7 +145,7 @@ export abstract class AbstractDonut {
       .style('opacity', 1)
       .attr('d', this.arc)
       .on('click', (d) => this.onClick(d))
-      .on('mouseover', (d) => this.onMouseOver(d))
+      .on('mouseover', (event, hoveredNode) => this.onMouseOver(event, hoveredNode))
       .on('mousemove', (event) => this.setTooltipPosition(event))
       .on('mouseout', (d) => this.onMouseOut());
   }
@@ -309,7 +309,7 @@ export abstract class AbstractDonut {
       .attrTween('d', (d) => (() => this.arc(d)));
   }
 
-  protected onMouseOver(hoveredNode: DonutNode): void {
+  protected onMouseOver(event: MouseEvent, hoveredNode: DonutNode): void {
     this.showTooltip(hoveredNode);
     const hoveredNodeAncestors = <Array<DonutNode>>hoveredNode.ancestors().reverse();
     hoveredNodeAncestors.shift();
