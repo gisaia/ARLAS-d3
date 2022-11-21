@@ -424,10 +424,10 @@ export abstract class AbstractChart extends AbstractHistogram {
   protected showTooltips(data: Array<HistogramData>, chartIsToSides?: Map<string, string>): void {
     if (this.histogramParams.dataUnit !== '') { this.histogramParams.dataUnit = '(' + this.histogramParams.dataUnit + ')'; }
     this.context
-      .on('mousemove', () => {
+      .on('mousemove', (event) => {
         const previousHoveredBucketKey = this.hoveredBucketKey;
         this.hoveredBucketKey = null;
-        this.setTooltipPositions(data, <ContainerElement>this.context.node(), chartIsToSides);
+        this.setTooltipPositions(data, event, chartIsToSides);
         if (this.hoveredBucketKey !== previousHoveredBucketKey && this.hoveredBucketKey !== null) {
           this.histogramParams.hoveredBucketEvent.next(this.hoveredBucketKey);
         }
@@ -443,8 +443,8 @@ export abstract class AbstractChart extends AbstractHistogram {
    */
   protected drawTooltipCursor(data: Array<HistogramData>, axes: ChartAxes, chartIsToSides?: Map<string, string>): void { }
 
-  protected setTooltipPositions(data: Array<HistogramData>, container: ContainerElement, chartIsToSides?: Map<string, string>): void {
-    const xy = pointer(container);
+  protected setTooltipPositions(data: Array<HistogramData>, event: MouseEvent, chartIsToSides?: Map<string, string>): void {
+    const xy = pointer(event);
     const xDomainValue = +this.chartAxes.xDomain.invert(xy[0]);
     const dataInterval = this.histogramParams.bucketRange;
     const hoveredBuckets = data.filter(b => +b.key <= xDomainValue && +b.key > xDomainValue - dataInterval);
