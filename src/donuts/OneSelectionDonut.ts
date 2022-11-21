@@ -55,7 +55,7 @@ export class OneSelectionDonut extends AbstractDonut {
     this.donutContext.selectAll('path').style('opacity', 1);
   }
 
-  protected onClick(clickedNode: DonutNode) {
+  protected onClick(event: PointerEvent, clickedNode: DonutNode) {
     if (clickedNode.depth > 0 && !clickedNode.data.isOther) {
       this.donutParams.donutNodes[0].isSelected = false;
 

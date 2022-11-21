@@ -144,7 +144,7 @@ export abstract class AbstractDonut {
          this.donutParams.keysToColors, this.donutParams.colorsSaturationWeight))
       .style('opacity', 1)
       .attr('d', this.arc)
-      .on('click', (d) => this.onClick(d))
+      .on('click', (event, clickedNode) => this.onClick(event, clickedNode))
       .on('mouseover', (event, hoveredNode) => this.onMouseOver(event, hoveredNode))
       .on('mousemove', (event) => this.setTooltipPosition(event))
       .on('mouseout', (d) => this.onMouseOut());
@@ -371,5 +371,5 @@ export abstract class AbstractDonut {
 
   protected abstract hoverNode(hoveredNode: DonutNode);
   protected abstract unhoverNodesButNotSelected();
-  protected abstract onClick(clickedNode: DonutNode): void;
+  protected abstract onClick(event: PointerEvent, clickedNode: DonutNode): void;
 }
