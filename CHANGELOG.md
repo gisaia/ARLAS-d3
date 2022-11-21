@@ -1,5 +1,9 @@
 # Change Log
 
+## [v9.2.0-beta.4](https://github.com/gisaia/ARLAS-d3/tree/v9.2.0-beta.4) (2022-11-21)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v9.2.0-beta.3...v9.2.0-beta.4)
+
 ## [v9.2.0-beta.3](https://github.com/gisaia/ARLAS-d3/tree/v9.2.0-beta.3) (2022-11-18)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v9.2.0-beta.2...v9.2.0-beta.3)
