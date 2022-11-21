@@ -50,7 +50,7 @@ export class MultiSelectionDonut extends AbstractDonut {
     this.styleNodes();
   }
 
-  protected onClick(clickedNode: DonutNode) {
+  protected onClick(event: PointerEvent, clickedNode: DonutNode) {
     this.removeHigherNodes(clickedNode);
     this.donutParams.donutNodes[0].isSelected = false;
     if (clickedNode.depth > 0 && !clickedNode.data.isOther) {

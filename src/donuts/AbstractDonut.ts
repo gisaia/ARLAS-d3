@@ -21,7 +21,7 @@ import { DonutParams } from './DonutParams';
 import { DonutNode, DonutDimensions, DonutUtils, TreeNode, DonutTooltip, SimpleNode } from './utils/DonutUtils';
 import { scaleLinear, scaleSqrt, ScaleLinear, ScalePower } from 'd3-scale';
 import { arc, Arc, DefaultArcObject } from 'd3-shape';
-import { select, mouse, ContainerElement } from 'd3-selection';
+import { select, ContainerElement, pointer } from 'd3-selection';
 import { hierarchy, partition, HierarchyNode } from 'd3-hierarchy';
 import { interpolate } from 'd3-interpolate';
 
@@ -144,9 +144,9 @@ export abstract class AbstractDonut {
          this.donutParams.keysToColors, this.donutParams.colorsSaturationWeight))
       .style('opacity', 1)
       .attr('d', this.arc)
-      .on('click', (d) => this.onClick(d))
-      .on('mouseover', (d) => this.onMouseOver(d))
-      .on('mousemove', (d) => this.setTooltipPosition())
+      .on('click', (event, clickedNode) => this.onClick(event, clickedNode))
+      .on('mouseover', (event, hoveredNode) => this.onMouseOver(event, hoveredNode))
+      .on('mousemove', (event) => this.setTooltipPosition(event))
       .on('mouseout', (d) => this.onMouseOut());
   }
 
@@ -309,7 +309,7 @@ export abstract class AbstractDonut {
       .attrTween('d', (d) => (() => this.arc(d)));
   }
 
-  protected onMouseOver(hoveredNode: DonutNode): void {
+  protected onMouseOver(event: MouseEvent, hoveredNode: DonutNode): void {
     this.showTooltip(hoveredNode);
     const hoveredNodeAncestors = <Array<DonutNode>>hoveredNode.ancestors().reverse();
     hoveredNodeAncestors.shift();
@@ -351,8 +351,8 @@ export abstract class AbstractDonut {
       );
   }
 
-  protected setTooltipPosition() {
-    const xPosition = this.donutDimensions.containerWidth / 2 + mouse(<ContainerElement>this.donutContext.node())[0];
+  protected setTooltipPosition(event) {
+    const xPosition = this.donutDimensions.containerWidth / 2 + pointer(event)[0];
     if (xPosition > this.donutDimensions.containerWidth / 2) {
       this.donutParams.tooltip.isRightSide = true;
       this.donutParams.tooltip.xPosition = this.donutDimensions.containerWidth / 2 - xPosition + 60;
@@ -360,7 +360,7 @@ export abstract class AbstractDonut {
         this.donutParams.tooltip.isRightSide = false;
         this.donutParams.tooltip.xPosition = xPosition + 20;
     }
-    this.donutParams.tooltip.yPosition = mouse(<ContainerElement>this.donutContext.node())[1] - 5 + (this.donutDimensions.height / 2);
+    this.donutParams.tooltip.yPosition = pointer(event)[1] - 5 + (this.donutDimensions.height / 2);
     this.donutTooltip.xPosition = xPosition;
     this.donutTooltip.yPosition = this.donutParams.tooltip.yPosition;
     if (this.donutParams.tooltip.isShown) {
@@ -371,5 +371,5 @@ export abstract class AbstractDonut {
 
   protected abstract hoverNode(hoveredNode: DonutNode);
   protected abstract unhoverNodesButNotSelected();
-  protected abstract onClick(clickedNode: DonutNode): void;
+  protected abstract onClick(event: PointerEvent, clickedNode: DonutNode): void;
 }
