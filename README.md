@@ -43,7 +43,7 @@ Install all the project's dependencies
 $ npm install
 ```
 
-Build the project with `tsc` and `gulp` :
+Build the project with `tsc` :
 
 ```shell
 $ npm run build-release

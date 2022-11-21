@@ -5,8 +5,7 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "gulp": "gulp",
-    "build-release": "tsc -p tsconfig.json && gulp && cp -r patches dist/",
+    "build-release": "tsc -p tsconfig.json && cp -r src/styles dist/ && cp -r patches dist/",
     "lint": "tslint -c tslint.json 'src/**/*.ts?(x)'",
     "postinstall": "patch-package"
   },
@@ -42,8 +41,6 @@
   },
   "devDependencies": {
     "@types/node": "~16.3.0",
-    "gulp": "^4.0.0",
-    "gulp-flatten": "^0.4.0",
     "tslint": "~5.16.0",
     "typescript": "~4.4.3"
   },

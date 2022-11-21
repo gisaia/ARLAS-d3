@@ -8,8 +8,6 @@ ARLAS-d3 embeds the following components and their dependencies :
 + Chart Tools
     - D3.js                 (Copyright 2010-2021 Mike Bostock - https://d3js.org/)
 
-+ Build Tools
-    - gulp.js               (The MIT License - https://gulpjs.com/)
 
 -------------------------------------------------------------------------------
 

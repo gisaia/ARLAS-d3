@@ -34,8 +34,6 @@
   },
   "devDependencies": {
     "@types/node": "^12.11.1",
-    "gulp": "^4.0.0",
-    "gulp-flatten": "^0.4.0",
     "tslint": "~5.16.0",
     "typescript": "~4.4.3"
   },
