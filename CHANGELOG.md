@@ -1,8 +1,16 @@
 # Change Log
 
-## [v9.2.0](https://github.com/gisaia/ARLAS-d3/tree/v9.2.0) (2022-11-21)
+## [v9.2.1](https://github.com/gisaia/ARLAS-d3/tree/v9.2.1) (2022-11-25)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v9.2.0...v9.2.1)
+
+## [v9.2.0](https://github.com/gisaia/ARLAS-d3/tree/v9.2.0) (2022-11-25)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v9.2.0-beta.4...v9.2.0)
+
+**Breaking changes:**
+
+- Upgrade to v7.6.1 of D3 [\#45](https://github.com/gisaia/ARLAS-d3/issues/45)
 
 ## [v9.2.0-beta.4](https://github.com/gisaia/ARLAS-d3/tree/v9.2.0-beta.4) (2022-11-21)
 
