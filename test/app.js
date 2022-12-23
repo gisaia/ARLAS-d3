@@ -1,4 +1,6 @@
 import { ChartCurve, HistogramParams } from '../dist/index.js'
+import { Dimensions, Granularity, Margins, Timeline } from '../dist/index.js'
+
 const histogram = new ChartCurve();
 
 
@@ -104,3 +106,11 @@ histogram.histogramParams.histogramData = defaultHistogramData;
 console.log(defaultHistogramData);
 histogram.plot(defaultHistogramData);
 histogram.resize(document.getElementById('container'));
+
+
+const svg = document.getElementById('container2').querySelector('svg');
+const margins =( new Margins()).setBottom(5).setTop(5).setRight(5).setLeft(5);
+const dimensions = (new Dimensions(1000, 15)).setMargins(margins);
+const timeline = (new Timeline(svg));
+timeline.setDimensions(dimensions);
+timeline.setGranularity(Granularity.day);
