@@ -15,7 +15,6 @@ export class DrawableObject {
         this.name = name;
     }
 
-
     public plot() {
         this.remove();
         this.element = this.context
