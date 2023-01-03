@@ -1,4 +1,3 @@
-import { ChartCurve } from './histograms/charts/ChartCurve';
 /*
  * Licensed to Gisaïa under one or more contributor
  * license agreements. See the NOTICE.txt file distributed with
@@ -40,3 +39,10 @@ export { DonutParams } from './donuts/DonutParams';
 export { ColorGenerator } from './utils/color-generator';
 
 export { Gauge } from './gauge/Gauge';
+export { Axis } from './calendar-timeline/lib/classes/axes/axis';
+export { DayAxis } from './calendar-timeline/lib/classes/axes/day.axis';
+export { Dimensions } from './calendar-timeline/lib/classes/dimensions/dimensions';
+export { Margins } from './calendar-timeline/lib/classes/dimensions/margins';
+export { DrawableObject } from './calendar-timeline/lib/classes/drawable.object';
+export { Granularity } from './calendar-timeline/lib/enumertions/granularity.enum';
+export { Timeline, AxisCollection } from './calendar-timeline/timeline';

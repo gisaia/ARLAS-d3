@@ -1,5 +1,7 @@
-import { ChartCurve, HistogramParams } from '../dist/index.js'
-const histogram = new ChartCurve();
+import { ChartCurve, HistogramParams, ChartBars  } from '../dist/index.js'
+import { Dimensions, Granularity, Margins, Timeline } from '../dist/index.js'
+
+const histogram = new ChartBars();
 
 
 const input = {
@@ -41,8 +43,7 @@ for (const [key, value] of Object.entries(input)) {
 }
 histogram.histogramParams = histogramParams;
 histogram.histogramParams.multiselectable = true;
-histogram.histogramParams.colorGenerator =
-  histogram.histogramParams.intervalSelectedMap = new Map();
+histogram.histogramParams.intervalSelectedMap = new Map();
 histogram.histogramParams.histogramContainer = document.getElementById('container')
 histogram.histogramParams.svgNode = document.getElementById('container').querySelector('svg');
 const defaultHistogramData = [
@@ -101,6 +102,13 @@ histogram.selectionInterval = {
   endvalue: defaultHistogramData[defaultHistogramData.length - 1].key
 };
 histogram.histogramParams.histogramData = defaultHistogramData;
-console.log(defaultHistogramData);
 histogram.plot(defaultHistogramData);
 histogram.resize(document.getElementById('container'));
+
+
+const svg = document.getElementById('container2').querySelector('svg');
+const margins =( new Margins()).setBottom(5).setTop(5).setRight(5).setLeft(5);
+const dimensions = (new Dimensions(1000, 15)).setMargins(margins);
+const timeline = (new Timeline(svg));
+timeline.setDimensions(dimensions);
+timeline.setGranularity(Granularity.day);
