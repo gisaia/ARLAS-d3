@@ -111,4 +111,4 @@ const margins =( new Margins()).setBottom(5).setTop(5).setRight(5).setLeft(5);
 const dimensions = (new Dimensions(1000, 15)).setMargins(margins);
 const timeline = (new Timeline(svg));
 timeline.setDimensions(dimensions);
-timeline.setGranularity(Granularity.day);
+timeline.setGranularity(Granularity.month);

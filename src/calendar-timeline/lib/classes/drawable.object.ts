@@ -29,7 +29,7 @@ export class DrawableObject {
         }
     }
 
-    protected setDimensions(dimensions: Dimensions): DrawableObject {
+    public setDimensions(dimensions: Dimensions): DrawableObject {
         if (!dimensions.equals(this.dimensions)) {
             // todo : redraw
         }
