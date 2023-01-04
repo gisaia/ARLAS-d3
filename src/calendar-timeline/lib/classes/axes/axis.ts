@@ -58,6 +58,10 @@ export class Axis extends DrawableObject {
         return this.tickIntervalWidth;
     }
 
+    public getIntervalWidth(d: Date): number {
+        return NaN;
+    }
+
     public getPosition(d: Date): number {
         return this.domain(d);
     }
