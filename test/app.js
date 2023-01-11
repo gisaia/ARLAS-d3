@@ -111,4 +111,35 @@ const margins =( new Margins()).setBottom(5).setTop(5).setRight(5).setLeft(5);
 const dimensions = (new Dimensions(1000, 15)).setMargins(margins);
 const timeline = (new Timeline(svg));
 timeline.setDimensions(dimensions);
-timeline.setGranularity(Granularity.month);
+timeline.setGranularity(Granularity.day);
+
+timeline.setBoundDates([new Date(2022, 1), new Date(2022, 3)]);
+timeline.setData(getMockData(Granularity.day));
+timeline.plot();
+
+
+
+function getMockData(granularity) {
+  const mockData = [];
+  if (granularity === Granularity.day) {
+      for (let i = 0; i < 60; i++) {
+          const r = Math.ceil(Math.random() * 1000);
+          if (r % 2 === 0) {
+              mockData.push(new Date(2022, r % 4 === 0 ? 1 : 2, Math.min(Math.ceil(Math.random() * 10), 28)));
+          }
+      }
+  } else if (granularity === Granularity.month) {
+      for (let i = 0; i < 24; i++) {
+          let year = 2020;
+          if (i % 2 === 0) {
+              year = 2021;
+          }
+          if (i === 2 || i === 7) {
+              year = 2022;
+          }
+          const month = Math.min(11, Math.ceil(Math.random() * 10));
+          mockData.push(new Date(year, month, 1));
+      }
+  }
+  return mockData;
+}
