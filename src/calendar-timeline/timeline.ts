@@ -7,6 +7,7 @@ import { BandBuckets } from './lib/classes/buckets/band.buckets';
 import { Buckets } from './lib/classes/buckets/buckets';
 import { CircleBuckets } from './lib/classes/buckets/circle.buckets';
 import { Cursor } from './lib/classes/cursor/cursor';
+import { VerticalLine } from './lib/classes/cursor/vertical.line';
 import { Dimensions } from './lib/classes/dimensions/dimensions';
 import { DrawableObject } from './lib/classes/drawable.object';
 import { Granularity } from './lib/enumerations/granularity.enum';
@@ -18,13 +19,22 @@ export class Timeline extends DrawableObject {
     public axis: AxesCollection;
     public buckets: BucketsCollection;
     public cursor: Cursor;
+    public verticalLine: VerticalLine;
     public data = [];
 
     public constructor(svg) {
         super(select(svg), Timeline.name.toString());
+
         this.axis = new AxesCollection(this.context, this.dimensions);
         this.buckets = new BucketsCollection(this.context);
         this.cursor = new Cursor(this.context);
+        this.verticalLine = new VerticalLine(this.context);
+
+        this.context.on('click', (e) => this.onClick(e));
+        this.context.on('mouseenter', (e) => this.onMouseenter(e));
+        this.context.on('mouseleave', (e) => this.onMouseleave(e));
+        this.context.on('mousemove', (e) => this.onMousemove(e));
+
     }
 
     public setGranularity(granularity: Granularity): Timeline {
@@ -46,20 +56,37 @@ export class Timeline extends DrawableObject {
         this.axis
             .setDimensions(this.dimensions)
             .update(this.granularity, this.boundDates);
+        this.verticalLine
+            .setAxis(this.axis.get())
+            .setGranularity(this.granularity)
+            .setDimensions(this.dimensions)
+            .plot();
         this.buckets
             .update(this.granularity)
             .setData(this.data)
             .setAxis(this.axis.get())
             .plot();
         this.cursor
+            .setVerticalLine(this.verticalLine)
             .setAxis(this.axis.get())
             .setGranularity(this.granularity)
             .plot();
     }
 
-    public onClick(e: any): void {
+    public onClick(e: PointerEvent): void {
         super.onClick(e);
-        console.log(e);
+        this.cursor.moveTo(e.offsetX);
+    }
+
+    public onMouseenter(e: PointerEvent): void {
+        this.verticalLine.show();
+    }
+    public onMouseleave(e: PointerEvent): void {
+        this.verticalLine.hide();
+    }
+
+    public onMousemove(e: PointerEvent): void {
+        this.verticalLine.moveTo(e.offsetX);
     }
 }
 
@@ -136,20 +163,12 @@ export class BucketsCollection {
         switch (granularity) {
             case Granularity.day:
                 this.buckets = new CircleBuckets(this.context);
-                this.buckets.setColors({
-                    stroke: '#4285f4',
-                    fill: '#fff'
-                });
                 break;
             case Granularity.month:
                 this.buckets = new BandBuckets(this.context);
-                this.buckets.setColors({
-                    stroke: '#0097a7ff',
-                    fill: '#fff'
-                });
                 break;
         }
-        return this.get().setGranularity(granularity);
+        return this.get().setGranularity(granularity) as Buckets;
 
     }
 

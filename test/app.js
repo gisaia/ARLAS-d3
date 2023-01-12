@@ -107,8 +107,8 @@ histogram.resize(document.getElementById('container'));
 
 
 const svg = document.getElementById('container2').querySelector('svg');
-const margins =( new Margins()).setBottom(5).setTop(5).setRight(5).setLeft(5);
-const dimensions = (new Dimensions(1000, 15)).setMargins(margins);
+const margins = (new Margins()).setBottom(5).setTop(5).setRight(0).setLeft(0);
+const dimensions = (new Dimensions(1000, 50)).setMargins(margins);
 const timeline = (new Timeline(svg));
 timeline.setDimensions(dimensions);
 timeline.setGranularity(Granularity.day);
