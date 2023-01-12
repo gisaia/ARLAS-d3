@@ -1,4 +1,4 @@
-import { Granularity } from '../../enumertions/granularity.enum';
+import { Granularity } from '../../enumerations/granularity.enum';
 import { BaseType, Selection } from 'd3-selection';
 import { Axis } from '../axes/axis';
 import { DrawableObject } from '../drawable.object';

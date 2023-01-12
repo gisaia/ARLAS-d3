@@ -9,20 +9,22 @@ import { CircleBuckets } from './lib/classes/buckets/circle.buckets';
 import { Cursor } from './lib/classes/cursor/cursor';
 import { Dimensions } from './lib/classes/dimensions/dimensions';
 import { DrawableObject } from './lib/classes/drawable.object';
-import { Granularity } from './lib/enumertions/granularity.enum';
+import { Granularity } from './lib/enumerations/granularity.enum';
 
 export class Timeline extends DrawableObject {
 
     public granularity: Granularity;
     public boundDates: Date[];
-    public axis: AxisCollection;
+    public axis: AxesCollection;
     public buckets: BucketsCollection;
+    public cursor: Cursor;
     public data = [];
 
     public constructor(svg) {
         super(select(svg), Timeline.name.toString());
-        this.axis = new AxisCollection(this.context, this.dimensions);
-        this.buckets = new BucketsCollection(this.context, this.dimensions);
+        this.axis = new AxesCollection(this.context, this.dimensions);
+        this.buckets = new BucketsCollection(this.context);
+        this.cursor = new Cursor(this.context);
     }
 
     public setGranularity(granularity: Granularity): Timeline {
@@ -49,11 +51,19 @@ export class Timeline extends DrawableObject {
             .setData(this.data)
             .setAxis(this.axis.get())
             .plot();
+        this.cursor
+            .setAxis(this.axis.get())
+            .setGranularity(this.granularity)
+            .plot();
+    }
 
+    public onClick(e: any): void {
+        super.onClick(e);
+        console.log(e);
     }
 }
 
-export class AxisCollection {
+export class AxesCollection {
     private axis: Axis;
     private annexedAxes: Axis[] = [];
     private context;
@@ -64,7 +74,7 @@ export class AxisCollection {
         this.dimensions = dimensions;
     }
 
-    public setDimensions(dimensions: Dimensions): AxisCollection {
+    public setDimensions(dimensions: Dimensions): AxesCollection {
         this.dimensions = dimensions;
         return this;
     }
@@ -93,15 +103,6 @@ export class AxisCollection {
                     .setBoundDates(boundsDate)
                     .plot();
                 this.annexedAxes.push(weekAxis);
-                const cursor = new Cursor(this.context);
-                cursor.setColors({
-                    stroke: '#4285f4',
-                    fill: '#fff'
-                });
-                cursor
-                    .setAxis(this.axis)
-                    .setGranularity(granularity)
-                    .plot();
                 break;
             case Granularity.month:
                 this.axis = new MonthAxis(this.context);
@@ -122,11 +123,9 @@ export class AxisCollection {
 export class BucketsCollection {
     private buckets: Buckets;
     private context;
-    private dimensions: Dimensions;
 
-    public constructor(context, dimensions: Dimensions) {
+    public constructor(context) {
         this.context = context;
-        this.dimensions = dimensions;
     }
 
     public update(granularity: Granularity): Buckets {

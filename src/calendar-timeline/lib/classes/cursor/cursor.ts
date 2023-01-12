@@ -1,4 +1,4 @@
-import { Granularity } from '../../enumertions/granularity.enum';
+import { Granularity } from '../../enumerations/granularity.enum';
 import { drag } from 'd3-drag';
 import { BaseType, Selection } from 'd3-selection';
 import { symbol } from 'd3-shape';
@@ -24,12 +24,10 @@ export class Cursor extends DrawableObject {
 
     public setGranularity(granularity: Granularity): Cursor {
         this.granularity = granularity;
+        this.setColors(granularity);
         return this;
     }
-    public setColors(colors: DrawableObjectColors): Cursor {
-        this.colors = colors;
-        return this;
-    }
+
 
     public plot() {
         super.plot();
@@ -71,6 +69,23 @@ export class Cursor extends DrawableObject {
                 this.selectedDate.next(this.round(this.axis.getDate(e.x)));
             });
         this.element.call(dragHandler);
+    }
+
+    protected setColors(granularity: Granularity): Cursor {
+        switch (granularity) {
+            case Granularity.day:
+                this.colors = {
+                    stroke: '#4285f4',
+                    fill: '#fff'
+                };
+                break;
+            default:
+                this.colors = {
+                    stroke: '#4285f4',
+                    fill: '#fff'
+                };
+        }
+        return this;
     }
 
     private round(d: Date): Date {
