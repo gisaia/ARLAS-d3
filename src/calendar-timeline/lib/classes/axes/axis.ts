@@ -65,4 +65,8 @@ export class Axis extends DrawableObject {
     public getPosition(d: Date): number {
         return this.domain(d);
     }
+
+    public getDate(d: number): Date {
+        return this.domain.invert(d);
+    }
 }

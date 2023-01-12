@@ -13,6 +13,8 @@ export class DrawableObject {
     public constructor(context: Selection<SVGGElement, any, BaseType, any>, name: string) {
         this.context = context;
         this.name = name;
+        /** Listen to events */
+        this.context.on('click', (e) => this.onClick(e));
     }
 
     public plot() {
@@ -35,6 +37,10 @@ export class DrawableObject {
         }
         this.dimensions = dimensions;
         return this;
+    }
+
+    public onClick(e): void {
+
     }
 
 
