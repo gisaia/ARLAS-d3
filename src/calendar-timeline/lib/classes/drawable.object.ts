@@ -14,7 +14,6 @@ export class DrawableObject {
         this.context = context;
         this.name = name;
         /** Listen to events */
-        this.context.on('click', (e) => this.onClick(e));
     }
 
     public plot() {
@@ -40,7 +39,6 @@ export class DrawableObject {
     }
 
     public onClick(e): void {
-
     }
 
 

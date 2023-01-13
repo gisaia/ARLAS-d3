@@ -4,30 +4,16 @@ import { BaseType, Selection } from 'd3-selection';
 import { symbol } from 'd3-shape';
 import { Axis } from '../axes/axis';
 import { DrawableObjectColors } from '../buckets/buckets';
-import { DrawableObject } from '../drawable.object';
 import { Subject } from 'rxjs';
+import { TemporalObject } from '../temporal.object';
+import { VerticalLine } from './vertical.line';
 
-export class Cursor extends DrawableObject {
-    protected axis: Axis;
-    protected granularity: Granularity;
-    protected colors: DrawableObjectColors;
+export class Cursor extends TemporalObject {
     public selectedDate: Subject<Date> = new Subject();
-
+    public verticalLine: VerticalLine;
     public constructor(context: Selection<SVGGElement, any, BaseType, any>) {
         super(context, Cursor.name.toString());
     }
-
-    public setAxis(axis: Axis): Cursor {
-        this.axis = axis;
-        return this;
-    }
-
-    public setGranularity(granularity: Granularity): Cursor {
-        this.granularity = granularity;
-        this.setColors(granularity);
-        return this;
-    }
-
 
     public plot() {
         super.plot();
@@ -47,28 +33,59 @@ export class Cursor extends DrawableObject {
             .attr('d', customCursor)
             /** todo : set the right height */
             .attr('transform', 'translate(0,' + 15 + ')')
+            .style('cursor', 'pointer')
             .style('stroke', this.colors.stroke)
             .style('stroke-width', 2)
             .style('fill', this.colors.fill);
         const dragHandler = drag()
             .on('drag', (e) => {
-                /** the cursor will always be displayed on the middle of the interval
-                 * Positions in between are not allowed
-                 */
-                const position = this.axis.getPosition(this.round(this.axis.getDate(e.x))) +
-                    this.axis.getTickIntervalWidth() / 2;
-                this.element
-                    .select('path')
-                    /**6 is half 12 the width of the cursor
-                     * todo : set the right height
-                     */
-                    .attr('transform', 'translate(' + (position - 6) + ',' + 15 + ')');
+                this.moveTo(e.x);
+                this.verticalLine.hide();
             }
             ).on('end', (e) => {
                 /** emits the date at end of drag */
                 this.selectedDate.next(this.round(this.axis.getDate(e.x)));
+                this.verticalLine.moveTo(e.offsetX);
+                this.verticalLine.show();
+
             });
         this.element.call(dragHandler);
+        this.element.on('mouseenter', (e) => this.onMouseenter(e));
+        this.element.on('mouseleave', (e) => this.onMouseleave(e));
+        this.element.on('mousemove', (e) => this.onMousemove(e));
+    }
+
+    public moveTo(p: number) {
+        /** the cursor will always be displayed on the middle of the interval
+                 * Positions in between are not allowed
+                 */
+        const position = this.axis.getPosition(this.round(this.axis.getDate(p))) +
+            this.axis.getTickIntervalWidth() / 2;
+        this.element
+            .select('path')
+            /**6 is half 12 the width of the cursor
+             * todo : set the right height
+             */
+            .attr('transform', 'translate(' + (position - 5) + ',' + 15 + ')');
+    }
+
+    public onMouseenter(e: PointerEvent): void {
+        e.stopPropagation();
+        this.verticalLine.hide();
+    }
+    public onMouseleave(e: PointerEvent): void {
+        this.verticalLine.show();
+        e.stopPropagation();
+    }
+
+    public onMousemove(e: PointerEvent): void {
+
+    }
+
+
+    public setVerticalLine(verticalLine: VerticalLine): Cursor {
+        this.verticalLine = verticalLine;
+        return this;
     }
 
     protected setColors(granularity: Granularity): Cursor {
@@ -86,20 +103,6 @@ export class Cursor extends DrawableObject {
                 };
         }
         return this;
-    }
-
-    private round(d: Date): Date {
-        const roundedDate = new Date(d.getTime());
-        switch (this.granularity) {
-            case Granularity.day:
-                roundedDate.setHours(0, 0, 0, 0);
-                break;
-            case Granularity.month:
-                roundedDate.setDate(1);
-                roundedDate.setHours(0, 0, 0, 0);
-                break;
-        }
-        return roundedDate;
     }
 
 }
