@@ -12,7 +12,7 @@ export class CircleBuckets extends Buckets {
         this.element
             .attr('transform', 'translate(1, 3)')
             .selectAll('dot')
-            .data(this.data)
+            .data(this.dates)
             .enter()
             .append('circle')
             .attr('r', this.axis.getTickIntervalWidth() / 2 * 0.5)

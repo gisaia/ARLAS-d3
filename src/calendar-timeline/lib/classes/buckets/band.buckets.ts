@@ -12,7 +12,7 @@ export class BandBuckets extends Buckets {
         this.element
             .attr('transform', 'translate(1, 3)')
             .selectAll('dot')
-            .data(this.data)
+            .data(this.dates)
             .enter()
             .append('rect')
             .attr('width', d => this.axis.getIntervalWidth(d) * 0.7)
