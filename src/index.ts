@@ -49,4 +49,5 @@ export { Dimensions } from './calendar-timeline/lib/classes/dimensions/dimension
 export { Margins } from './calendar-timeline/lib/classes/dimensions/margins';
 export { DrawableObject } from './calendar-timeline/lib/classes/drawable.object';
 export { Granularity } from './calendar-timeline/lib/enumerations/granularity.enum';
+export { TimelineData } from './calendar-timeline/lib/interfaces/timeline.data';
 export { Timeline, AxesCollection, BucketsCollection } from './calendar-timeline/timeline';

@@ -1,4 +1,5 @@
 import { select } from 'd3-selection';
+import { Subject } from 'rxjs';
 import { Axis } from './lib/classes/axes/axis';
 import { DayAxis } from './lib/classes/axes/day.axis';
 import { MonthAxis } from './lib/classes/axes/month.axis';
@@ -11,6 +12,7 @@ import { VerticalLine } from './lib/classes/cursor/vertical.line';
 import { Dimensions } from './lib/classes/dimensions/dimensions';
 import { DrawableObject } from './lib/classes/drawable.object';
 import { Granularity } from './lib/enumerations/granularity.enum';
+import { TimelineData } from './lib/interfaces/timeline.data';
 
 export class Timeline extends DrawableObject {
 
@@ -20,7 +22,9 @@ export class Timeline extends DrawableObject {
     public buckets: BucketsCollection;
     public cursor: Cursor;
     public verticalLine: VerticalLine;
-    public data = [];
+    public data: TimelineData[] = [];
+    public hoveredData: Subject<TimelineData> = new Subject();
+    public selectedData: Subject<TimelineData> = new Subject();
 
     public constructor(svg) {
         super(select(svg), Timeline.name.toString());
@@ -34,6 +38,23 @@ export class Timeline extends DrawableObject {
         this.context.on('mouseenter', (e) => this.onMouseenter(e));
         this.context.on('mouseleave', (e) => this.onMouseleave(e));
         this.context.on('mousemove', (e) => this.onMousemove(e));
+
+        this.cursor.hoveredDate.subscribe({
+            next: (d: Date) => {
+                this.hoveredData.next(this.buckets.get().getTimelineData(d));
+            }
+        });
+
+        this.cursor.selectedDate.subscribe({
+            next: (d: Date) => {
+                this.selectedData.next(this.buckets.get().getTimelineData(d));
+            }
+        });
+        this.verticalLine.hoveredDate.subscribe({
+            next: (d: Date) => {
+                this.hoveredData.next(this.buckets.get().getTimelineData(d));
+            }
+        });
 
     }
 

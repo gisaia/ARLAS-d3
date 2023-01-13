@@ -11,6 +11,7 @@ import { VerticalLine } from './vertical.line';
 export class Cursor extends TemporalObject {
     public selectedDate: Subject<Date> = new Subject();
     public verticalLine: VerticalLine;
+    public hoveredDate: Subject<Date> = new Subject();
     public constructor(context: Selection<SVGGElement, any, BaseType, any>) {
         super(context, Cursor.name.toString());
     }
@@ -40,6 +41,7 @@ export class Cursor extends TemporalObject {
         const dragHandler = drag()
             .on('drag', (e) => {
                 this.moveTo(e.x);
+                this.hoveredDate.next(this.round(this.axis.getDate(e.x)));
                 this.verticalLine.hide();
             }
             ).on('end', (e) => {
