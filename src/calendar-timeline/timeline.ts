@@ -12,7 +12,8 @@ import { VerticalLine } from './lib/classes/cursor/vertical.line';
 import { Dimensions } from './lib/classes/dimensions/dimensions';
 import { DrawableObject } from './lib/classes/drawable.object';
 import { Granularity } from './lib/enumerations/granularity.enum';
-import { TimelineData } from './lib/interfaces/timeline.data';
+import { Bucket } from './lib/interfaces/bucket';
+import { TimelineData, TimelineTooltip } from './lib/interfaces/timeline.data';
 
 export class Timeline extends DrawableObject {
 
@@ -23,7 +24,7 @@ export class Timeline extends DrawableObject {
     public cursor: Cursor;
     public verticalLine: VerticalLine;
     public data: TimelineData[] = [];
-    public hoveredData: Subject<TimelineData> = new Subject();
+    public hoveredData: Subject<TimelineTooltip> = new Subject();
     public selectedData: Subject<TimelineData> = new Subject();
 
     public constructor(svg) {
@@ -39,9 +40,14 @@ export class Timeline extends DrawableObject {
         this.context.on('mouseleave', (e) => this.onMouseleave(e));
         this.context.on('mousemove', (e) => this.onMousemove(e));
 
-        this.cursor.hoveredDate.subscribe({
-            next: (d: Date) => {
-                this.hoveredData.next(this.buckets.get().getTimelineData(d));
+        this.cursor.hoveredBucket.subscribe({
+            next: (b: Bucket) => {
+                this.hoveredData.next({
+                    data: this.buckets.get().getTimelineData(b.date),
+                    position: b.position,
+                    shown: b.show,
+                    width: this.dimensions.width
+                });
             }
         });
 
@@ -50,9 +56,15 @@ export class Timeline extends DrawableObject {
                 this.selectedData.next(this.buckets.get().getTimelineData(d));
             }
         });
-        this.verticalLine.hoveredDate.subscribe({
-            next: (d: Date) => {
-                this.hoveredData.next(this.buckets.get().getTimelineData(d));
+        this.verticalLine.hoveredBucket.subscribe({
+            next: (b: Bucket) => {
+                console.log(b);
+                this.hoveredData.next({
+                    data: this.buckets.get().getTimelineData(b.date),
+                    position: b.position,
+                    shown: b.show,
+                    width: this.dimensions.width
+                });
             }
         });
 
@@ -104,6 +116,12 @@ export class Timeline extends DrawableObject {
     }
     public onMouseleave(e: PointerEvent): void {
         this.verticalLine.hide();
+        this.hoveredData.next({
+            data: null,
+            position: 0,
+            shown: false,
+            width: this.dimensions.width
+        });
     }
 
     public onMousemove(e: PointerEvent): void {

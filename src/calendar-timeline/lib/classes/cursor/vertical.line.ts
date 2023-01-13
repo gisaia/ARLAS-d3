@@ -1,10 +1,11 @@
+import { Bucket } from '../../interfaces/bucket';
 import { BaseType, Selection } from 'd3-selection';
 import { debounce, debounceTime, Subject } from 'rxjs';
 import { TemporalObject } from '../temporal.object';
 
 export class VerticalLine extends TemporalObject {
 
-    public hoveredDate: Subject<Date> = new Subject();
+    public hoveredBucket: Subject<Bucket> = new Subject();
 
     public constructor(context: Selection<SVGGElement, any, BaseType, any>) {
         super(context, VerticalLine.name.toString());
@@ -43,6 +44,10 @@ export class VerticalLine extends TemporalObject {
              * todo : set the right height
              */
             .attr('transform', 'translate(' + (position + 1) + ',' + 0 + ')');
-        this.hoveredDate.next(date);
+        this.hoveredBucket.next({
+            date,
+            position,
+            show: true
+        });
     }
 }

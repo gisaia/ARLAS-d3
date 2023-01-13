@@ -125,7 +125,12 @@ function getMockData(granularity) {
       for (let i = 0; i < 60; i++) {
           const r = Math.ceil(Math.random() * 1000);
           if (r % 2 === 0) {
-              mockData.push(new Date(2022, r % 4 === 0 ? 1 : 2, Math.min(Math.ceil(Math.random() * 10), 28)));
+              mockData.push({
+                date: new Date(2022, r % 4 === 0 ? 1 : 2, Math.min(Math.ceil(Math.random() * 10), 28)),
+                metadata: {
+                  thumbnail: ''
+                }
+              });
           }
       }
   } else if (granularity === Granularity.month) {

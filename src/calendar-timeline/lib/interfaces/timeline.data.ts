@@ -4,3 +4,9 @@ export interface TimelineData {
         thumbnail: string;
     };
 }
+export interface TimelineTooltip {
+    data: TimelineData;
+    shown: boolean;
+    position: number;
+    width: number;
+}
