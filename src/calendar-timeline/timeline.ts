@@ -4,6 +4,7 @@ import { Axis } from './lib/classes/axes/axis';
 import { DayAxis } from './lib/classes/axes/day.axis';
 import { MonthAxis } from './lib/classes/axes/month.axis';
 import { WeekAxis } from './lib/classes/axes/week.axis';
+import { YearAxis } from './lib/classes/axes/year.axis';
 import { BandBuckets } from './lib/classes/buckets/band.buckets';
 import { Buckets } from './lib/classes/buckets/buckets';
 import { CircleBuckets } from './lib/classes/buckets/circle.buckets';
@@ -176,6 +177,13 @@ export class AxesCollection {
                     /**todo get bound dates */
                     .setBoundDates([new Date(2020, 3), new Date(2022, 3)])
                     .plot();
+                break;
+            case Granularity.year:
+                this.axis = new YearAxis(this.context);
+                this.axis.setRange(this.dimensions)
+                    .setBoundDates(boundsDate)
+                    .plot();
+                break;                
         }
         return this.get();
 
@@ -204,6 +212,9 @@ export class BucketsCollection {
                 this.buckets = new CircleBuckets(this.context);
                 break;
             case Granularity.month:
+                this.buckets = new BandBuckets(this.context);
+                break;
+            case Granularity.year:
                 this.buckets = new BandBuckets(this.context);
                 break;
         }

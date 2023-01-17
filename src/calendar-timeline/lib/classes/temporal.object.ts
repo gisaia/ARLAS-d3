@@ -46,6 +46,11 @@ export class TemporalObject extends DrawableObject {
                 roundedDate.setDate(1);
                 roundedDate.setHours(0, 0, 0, 0);
                 break;
+            case Granularity.year:
+                roundedDate.setMonth(0);
+                roundedDate.setDate(1);
+                roundedDate.setHours(0, 0, 0, 0);
+                break;
         }
         return roundedDate;
     }

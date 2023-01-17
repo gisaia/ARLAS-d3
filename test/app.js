@@ -110,13 +110,25 @@ const svg = document.getElementById('container2').querySelector('svg');
 const margins = (new Margins()).setBottom(5).setTop(5).setRight(0).setLeft(0);
 const dimensions = (new Dimensions(1000, 50)).setMargins(margins);
 const timeline = (new Timeline(svg));
+const granularity = Granularity.year;
 timeline.setDimensions(dimensions);
-timeline.setGranularity(Granularity.day);
+timeline.setGranularity(granularity);
 
-timeline.setBoundDates([new Date(2022, 1), new Date(2022, 3)]);
-timeline.setData(getMockData(Granularity.day));
+timeline.setBoundDates(getBoundDates(granularity));
+timeline.setData(getMockData(granularity));
 timeline.plot();
 
+
+function getBoundDates(granularity) {
+  switch (granularity) {
+    case Granularity.day:
+      return [new Date(2022, 0), new Date(2022, 3)];
+    case Granularity.month:
+      return [new Date(2020, 0), new Date(2022, 0)];
+    case Granularity.year:
+      return [new Date(1999, 0), new Date(2023, 5)];
+  }
+}
 
 
 function getMockData(granularity) {
@@ -144,6 +156,17 @@ function getMockData(granularity) {
           }
           const month = Math.min(11, Math.ceil(Math.random() * 10));
           mockData.push(new Date(year, month, 1));
+      }
+  } else if (granularity === Granularity.year) {
+      for (let i = 1999; i < 2024; i++) {
+        if (Math.random() < 0.5) {
+          mockData.push({
+            date: new Date(i, Math.ceil(Math.random() * 12)),
+            metadata: {
+              thumbnail: ''
+            }
+          });
+        }
       }
   }
   return mockData;
