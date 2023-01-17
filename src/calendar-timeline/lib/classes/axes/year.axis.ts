@@ -39,7 +39,7 @@ export class YearAxis extends Axis {
                 newDate.setHours(0, 0, 0, 0);
             }
             return newDate;
-        })
+        });
         super.setBoundDates(bounds);
         const itw = this.domain(this.YEAR_IN_MILLISECONDS) - this.domain(0);
         this.setTickInterval(timeYear).setTickIntervalWidth(itw);

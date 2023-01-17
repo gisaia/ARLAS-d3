@@ -110,7 +110,7 @@ const svg = document.getElementById('container2').querySelector('svg');
 const margins = (new Margins()).setBottom(5).setTop(5).setRight(0).setLeft(0);
 const dimensions = (new Dimensions(1000, 50)).setMargins(margins);
 const timeline = (new Timeline(svg));
-const granularity = Granularity.month;
+const granularity = Granularity.day;
 timeline.setDimensions(dimensions);
 timeline.setGranularity(granularity);
 
@@ -122,7 +122,7 @@ timeline.plot();
 function getBoundDates(granularity) {
   switch (granularity) {
     case Granularity.day:
-      return [new Date(2022, 0), new Date(2022, 3)];
+      return [new Date(2022, 1, 0), new Date(2022, 2, 15)];
     case Granularity.month:
       return [new Date(2020, 0), new Date(2022, 0)];
     case Granularity.year:

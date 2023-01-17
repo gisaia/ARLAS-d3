@@ -33,7 +33,7 @@ export class Timeline extends DrawableObject {
 
         this.axis = new AxesCollection(this.context, this.dimensions);
         this.buckets = new BucketsCollection(this.context);
-        this.cursor = new Cursor(this.context);
+        this.cursor = new Cursor(this.context, this.granularity);
         this.verticalLine = new VerticalLine(this.context);
 
         this.context.on('click', (e) => this.onClick(e));
@@ -73,6 +73,7 @@ export class Timeline extends DrawableObject {
 
     public setGranularity(granularity: Granularity): Timeline {
         this.granularity = granularity;
+        this.cursor.setCursorOffset(granularity);
         return this;
     }
 
@@ -182,7 +183,7 @@ export class AxesCollection {
                 this.axis.setRange(this.dimensions)
                     .setBoundDates(boundsDate)
                     .plot();
-                break;                
+                break;
         }
         return this.get();
 

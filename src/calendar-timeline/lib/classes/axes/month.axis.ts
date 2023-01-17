@@ -16,7 +16,7 @@ export class MonthAxis extends Axis {
                 date.setMonth(d.valueOf());
                 return date.toLocaleString('default', {month: 'short'});
             }
-        }; 
+        };
     }
 
     public plot() {

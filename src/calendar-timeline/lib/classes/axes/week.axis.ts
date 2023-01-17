@@ -6,7 +6,7 @@ export class WeekAxis extends Axis {
 
     public constructor(context) {
         super(context, WeekAxis.name.toString());
-        this.setTickSize(40);
+        this.setTickSize(45);
     }
 
     public plot() {

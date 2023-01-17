@@ -13,8 +13,25 @@ export class Cursor extends TemporalObject {
     public selectedDate: Subject<Date> = new Subject();
     public verticalLine: VerticalLine;
     public hoveredBucket: Subject<Bucket> = new Subject();
-    public constructor(context: Selection<SVGGElement, any, BaseType, any>) {
+    private cursorOffset: number;
+
+    public constructor(context: Selection<SVGGElement, any, BaseType, any>, granularity: Granularity) {
         super(context, Cursor.name.toString());
+        this.setCursorOffset(granularity);
+    }
+
+    public setCursorOffset(granularity: Granularity) {
+        this.cursorOffset = 15;
+        switch (granularity) {
+            case Granularity.month:
+                // Add the tick offset + font size + margin
+                this.cursorOffset += 20 + 12 + 3;
+                break;
+            case Granularity.year:
+                // Add the tick offset
+                this.cursorOffset += 20;
+                break;
+        }
     }
 
     public plot() {
@@ -30,11 +47,11 @@ export class Cursor extends TemporalObject {
             }
         };
         const customCursor = symbol().type(customSymbolCursor).size(12);
+
         this.element
             .append('path')
             .attr('d', customCursor)
-            /** todo : set the right height */
-            .attr('transform', 'translate(0,' + 15 + ')')
+            .attr('transform', 'translate(0,' + this.cursorOffset + ')')
             .style('cursor', 'pointer')
             .style('stroke', this.colors.stroke)
             .style('stroke-width', 2)
@@ -75,7 +92,7 @@ export class Cursor extends TemporalObject {
             /**6 is half 12 the width of the cursor
              * todo : set the right height
              */
-            .attr('transform', 'translate(' + (position - 5) + ',' + 15 + ')');
+            .attr('transform', 'translate(' + (position - 5) + ',' + this.cursorOffset + ')');
     }
 
     public onMouseenter(e: PointerEvent): void {
