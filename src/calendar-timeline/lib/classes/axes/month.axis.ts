@@ -1,5 +1,6 @@
 import { Axis } from './axis';
 import { timeMonth } from 'd3-time';
+import { NumberValue } from 'd3-scale';
 
 export class MonthAxis extends Axis {
     private MONTH_IN_MILLISECONDS = 30 * 24 * 60 * 60 * 1000;
@@ -7,6 +8,15 @@ export class MonthAxis extends Axis {
     public constructor(context) {
         super(context, MonthAxis.name.toString());
         this.setTickSize(20);
+        this.tickFormat = (d: Date | NumberValue, idx: number) => {
+            if (d instanceof Date) {
+                return d.toLocaleString('default', {month: 'short'});
+            } else {
+                const date = new Date();
+                date.setMonth(d.valueOf());
+                return date.toLocaleString('default', {month: 'short'});
+            }
+        }; 
     }
 
     public plot() {

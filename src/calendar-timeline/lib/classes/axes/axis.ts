@@ -11,10 +11,12 @@ export class Axis extends DrawableObject {
     protected tickInterval: AxisTimeInterval;
     protected tickIntervalWidth: number;
     protected tickSize = 6 /** default value of d3 */;
+    protected tickFormat: (domainValue: Date | NumberValue, index: number) => string;
     private d3Axis!: D3Axis<Date | NumberValue>;
 
     public constructor(context: Selection<SVGGElement, any, BaseType, any>, name: string) {
         super(context, name);
+        this.tickFormat = null;
     }
 
     public setRange(d: Dimensions): Axis {
@@ -48,7 +50,9 @@ export class Axis extends DrawableObject {
 
     /** plots the axis, if the axis has already been plotted, it's replaced. */
     public plot() {
-        const axis = axisBottom(this.domain).ticks(this.tickInterval).tickSize(this.tickSize);
+        const axis = axisBottom(this.domain).ticks(this.tickInterval)
+                                            .tickSize(this.tickSize)
+                                            .tickFormat(this.tickFormat);
         this.d3Axis = axis;
         super.plot();
         this.element.call(axis);
