@@ -1,9 +1,8 @@
 import { Granularity } from '../../enumerations/granularity.enum';
 import { BaseType, Selection } from 'd3-selection';
 import { Axis } from '../axes/axis';
-import { DrawableObject } from '../drawable.object';
 import { TemporalObject } from '../temporal.object';
-import { TimelineData } from 'calendar-timeline/lib/interfaces/timeline.data';
+import { TimelineData } from '../../interfaces/timeline.data';
 
 export interface DrawableObjectColors {
     stroke: string;

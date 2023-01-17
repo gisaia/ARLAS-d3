@@ -7,11 +7,12 @@ import { DrawableObjectColors } from '../buckets/buckets';
 import { Subject } from 'rxjs';
 import { TemporalObject } from '../temporal.object';
 import { VerticalLine } from './vertical.line';
+import { Bucket } from '../../interfaces/bucket';
 
 export class Cursor extends TemporalObject {
     public selectedDate: Subject<Date> = new Subject();
     public verticalLine: VerticalLine;
-    public hoveredDate: Subject<Date> = new Subject();
+    public hoveredBucket: Subject<Bucket> = new Subject();
     public constructor(context: Selection<SVGGElement, any, BaseType, any>) {
         super(context, Cursor.name.toString());
     }
@@ -41,7 +42,13 @@ export class Cursor extends TemporalObject {
         const dragHandler = drag()
             .on('drag', (e) => {
                 this.moveTo(e.x);
-                this.hoveredDate.next(this.round(this.axis.getDate(e.x)));
+                const position = this.axis.getPosition(this.round(this.axis.getDate(e.x))) +
+                    this.axis.getTickIntervalWidth() / 2;
+                this.hoveredBucket.next({
+                    date: this.round(this.axis.getDate(e.x)),
+                    position,
+                    show: true
+                });
                 this.verticalLine.hide();
             }
             ).on('end', (e) => {
