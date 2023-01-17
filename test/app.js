@@ -110,7 +110,7 @@ const svg = document.getElementById('container2').querySelector('svg');
 const margins = (new Margins()).setBottom(5).setTop(5).setRight(0).setLeft(0);
 const dimensions = (new Dimensions(1000, 50)).setMargins(margins);
 const timeline = (new Timeline(svg));
-const granularity = Granularity.year;
+const granularity = Granularity.month;
 timeline.setDimensions(dimensions);
 timeline.setGranularity(granularity);
 
@@ -155,7 +155,12 @@ function getMockData(granularity) {
               year = 2022;
           }
           const month = Math.min(11, Math.ceil(Math.random() * 10));
-          mockData.push(new Date(year, month, 1));
+          mockData.push({
+            date: new Date(year, month, 1),
+            metadata: {
+              thumbnail: ''
+            }
+          });
       }
   } else if (granularity === Granularity.year) {
       for (let i = 1999; i < 2024; i++) {

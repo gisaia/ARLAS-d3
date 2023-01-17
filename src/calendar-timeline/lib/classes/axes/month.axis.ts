@@ -18,7 +18,7 @@ export class MonthAxis extends Axis {
             .attr('text-anchor', 'start')
             .style('font-size', '12px')
             .attr('transform', d => `translate(${this.getTickIntervalWidth() / 2 +
-                6 /** size font / 2 */ }, 20) rotate(90)`)
+                6 /** font size / 2 */ }, 20) rotate(90)`)
             .attr('y', d => 0);
     }
 
