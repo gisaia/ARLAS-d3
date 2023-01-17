@@ -59,7 +59,7 @@ export class Timeline extends DrawableObject {
         });
         this.verticalLine.hoveredBucket.subscribe({
             next: (b: Bucket) => {
-                console.log(b);
+                // console.log(b);
                 this.hoveredData.next({
                     data: this.buckets.get().getTimelineData(b.date),
                     position: b.position,
@@ -174,8 +174,7 @@ export class AxesCollection {
             case Granularity.month:
                 this.axis = new MonthAxis(this.context);
                 this.axis.setRange(this.dimensions)
-                    /**todo get bound dates */
-                    .setBoundDates([new Date(2020, 3), new Date(2022, 3)])
+                    .setBoundDates(boundsDate)
                     .plot();
                 break;
             case Granularity.year:
