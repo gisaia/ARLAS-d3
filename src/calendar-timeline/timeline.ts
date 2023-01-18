@@ -3,7 +3,9 @@ import { Subject } from 'rxjs';
 import { Axis } from './lib/classes/axes/axis';
 import { DayAxis } from './lib/classes/axes/day.axis';
 import { MonthAxis } from './lib/classes/axes/month.axis';
+import { SeasonAxis } from './lib/classes/axes/season.axis';
 import { WeekAxis } from './lib/classes/axes/week.axis';
+import { YearAxis } from './lib/classes/axes/year.axis';
 import { BandBuckets } from './lib/classes/buckets/band.buckets';
 import { Buckets } from './lib/classes/buckets/buckets';
 import { CircleBuckets } from './lib/classes/buckets/circle.buckets';
@@ -32,7 +34,7 @@ export class Timeline extends DrawableObject {
 
         this.axis = new AxesCollection(this.context, this.dimensions);
         this.buckets = new BucketsCollection(this.context);
-        this.cursor = new Cursor(this.context);
+        this.cursor = new Cursor(this.context, this.granularity);
         this.verticalLine = new VerticalLine(this.context);
 
         this.context.on('click', (e) => this.onClick(e));
@@ -58,7 +60,6 @@ export class Timeline extends DrawableObject {
         });
         this.verticalLine.hoveredBucket.subscribe({
             next: (b: Bucket) => {
-                console.log(b);
                 this.hoveredData.next({
                     data: this.buckets.get().getTimelineData(b.date),
                     position: b.position,
@@ -72,6 +73,7 @@ export class Timeline extends DrawableObject {
 
     public setGranularity(granularity: Granularity): Timeline {
         this.granularity = granularity;
+        this.cursor.setCursorOffset(granularity);
         return this;
     }
 
@@ -173,9 +175,21 @@ export class AxesCollection {
             case Granularity.month:
                 this.axis = new MonthAxis(this.context);
                 this.axis.setRange(this.dimensions)
-                    /**todo get bound dates */
-                    .setBoundDates([new Date(2020, 3), new Date(2022, 3)])
+                    .setBoundDates(boundsDate)
                     .plot();
+                break;
+            case Granularity.season:
+                this.axis = new SeasonAxis(this.context);
+                this.axis.setRange(this.dimensions)
+                    .setBoundDates(boundsDate)
+                    .plot();
+                break;
+            case Granularity.year:
+                this.axis = new YearAxis(this.context);
+                this.axis.setRange(this.dimensions)
+                    .setBoundDates(boundsDate)
+                    .plot();
+                break;
         }
         return this.get();
 
@@ -204,6 +218,12 @@ export class BucketsCollection {
                 this.buckets = new CircleBuckets(this.context);
                 break;
             case Granularity.month:
+                this.buckets = new BandBuckets(this.context);
+                break;
+            case Granularity.season:
+                this.buckets = new BandBuckets(this.context);
+                break;
+            case Granularity.year:
                 this.buckets = new BandBuckets(this.context);
                 break;
         }
