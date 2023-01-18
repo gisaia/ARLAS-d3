@@ -1,7 +1,6 @@
 import { Axis } from './axis';
 import { timeDay } from 'd3-time';
 import { Season } from '../season';
-import { NumberValue } from 'd3-scale';
 
 
 export class SeasonAxis extends Axis {
@@ -9,7 +8,7 @@ export class SeasonAxis extends Axis {
 
     public constructor(context) {
         super(context, SeasonAxis.name.toString());
-        this.setTickSize(20);
+        this.setTickSize(30);
         this.tickFormat = (d: Date, idx: number) => {
             return Season.getSeasonNameFromDate(d);
         };

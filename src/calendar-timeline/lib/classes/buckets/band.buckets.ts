@@ -19,7 +19,15 @@ export class BandBuckets extends Buckets {
             .attr('x', d => this.axis.getPosition(d) + this.axis.getIntervalWidth(d) * 0.15)
             .attr('height', 8)
             .attr('rx', 4)
+            .attr('stroke-width', d => this.dynamicStrokeWidth(d))
             .style('stroke', this.colors.stroke)
             .style('fill', this.colors.fill);
+    }
+
+    public dynamicStrokeWidth(d: Date): number {
+        if (this.axis.getIntervalWidth(d) < 10) {
+            return 1;
+        }
+        return Math.round(Math.log10(this.axis.getIntervalWidth(d)));
     }
 }
