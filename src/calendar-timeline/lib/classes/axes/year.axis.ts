@@ -15,10 +15,9 @@ export class YearAxis extends Axis {
         this.element.selectAll('line').style('stroke', '#888');
         this.element
             .selectAll('text')
-            .attr('text-anchor', 'start')
+            .attr('text-anchor', 'middle')
             .style('font-size', '12px')
-            .attr('transform', d => `translate(${this.getTickIntervalWidth() / 2 -
-                12 /** font size */}, 20)`)
+            .attr('transform', d => `translate(${this.getTickIntervalWidth() / 2}, 20)`)
             .attr('y', d => 0);
     }
 
