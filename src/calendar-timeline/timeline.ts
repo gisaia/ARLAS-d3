@@ -3,6 +3,7 @@ import { Subject } from 'rxjs';
 import { Axis } from './lib/classes/axes/axis';
 import { DayAxis } from './lib/classes/axes/day.axis';
 import { MonthAxis } from './lib/classes/axes/month.axis';
+import { SeasonAxis } from './lib/classes/axes/season.axis';
 import { WeekAxis } from './lib/classes/axes/week.axis';
 import { YearAxis } from './lib/classes/axes/year.axis';
 import { BandBuckets } from './lib/classes/buckets/band.buckets';
@@ -59,7 +60,6 @@ export class Timeline extends DrawableObject {
         });
         this.verticalLine.hoveredBucket.subscribe({
             next: (b: Bucket) => {
-                // console.log(b);
                 this.hoveredData.next({
                     data: this.buckets.get().getTimelineData(b.date),
                     position: b.position,
@@ -178,6 +178,12 @@ export class AxesCollection {
                     .setBoundDates(boundsDate)
                     .plot();
                 break;
+            case Granularity.season:
+                this.axis = new SeasonAxis(this.context);
+                this.axis.setRange(this.dimensions)
+                    .setBoundDates(boundsDate)
+                    .plot();
+                break;
             case Granularity.year:
                 this.axis = new YearAxis(this.context);
                 this.axis.setRange(this.dimensions)
@@ -212,6 +218,9 @@ export class BucketsCollection {
                 this.buckets = new CircleBuckets(this.context);
                 break;
             case Granularity.month:
+                this.buckets = new BandBuckets(this.context);
+                break;
+            case Granularity.season:
                 this.buckets = new BandBuckets(this.context);
                 break;
             case Granularity.year:

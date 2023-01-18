@@ -1,4 +1,5 @@
 import { Granularity } from '../enumerations/granularity.enum';
+import { Season } from './season';
 import { Axis } from './axes/axis';
 import { DrawableObjectColors } from './buckets/buckets';
 import { DrawableObject } from './drawable.object';
@@ -46,6 +47,8 @@ export class TemporalObject extends DrawableObject {
                 roundedDate.setDate(1);
                 roundedDate.setHours(0, 0, 0, 0);
                 break;
+            case Granularity.season:
+                return Season.getSeasonStartFromDate(d);
             case Granularity.year:
                 roundedDate.setMonth(0);
                 roundedDate.setDate(1);

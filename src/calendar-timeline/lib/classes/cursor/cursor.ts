@@ -27,6 +27,10 @@ export class Cursor extends TemporalObject {
                 // Add the tick offset + font size + margin
                 this.cursorOffset += 20 + 12 + 3;
                 break;
+            case Granularity.season:
+                // Add the tick offset
+                this.cursorOffset += 20;
+                break;
             case Granularity.year:
                 // Add the tick offset
                 this.cursorOffset += 20;

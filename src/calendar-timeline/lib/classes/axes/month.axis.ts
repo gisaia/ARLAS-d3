@@ -13,6 +13,7 @@ export class MonthAxis extends Axis {
                 return d.toLocaleString('default', {month: 'short'});
             } else {
                 const date = new Date();
+                // This should be checked as the value of NumberValueis unknown to me
                 date.setMonth(d.valueOf());
                 return date.toLocaleString('default', {month: 'short'});
             }
