@@ -18,7 +18,20 @@ export class Buckets extends TemporalObject {
 
     public setData(data: TimelineData[]): Buckets {
         this.data = data;
-        this.dates = data.map(d => this.round(d.date));
+        const dates = data.map(d => this.round(d.date));
+        this.dates = [];
+        for (const d of dates) {
+            let isInList = false;
+            for (const date of this.dates) {
+                if (d.getTime() === date.getTime()) {
+                    isInList = true;
+                    continue;
+                }
+            }
+            if (!isInList) {
+                this.dates.push(d);
+            }
+        }
         return this;
     }
 
