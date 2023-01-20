@@ -6,6 +6,7 @@ import { MonthAxis } from './lib/classes/axes/month.axis';
 import { SeasonAxis } from './lib/classes/axes/season.axis';
 import { WeekAxis } from './lib/classes/axes/week.axis';
 import { YearAxis } from './lib/classes/axes/year.axis';
+import { YearIndicatorAxis } from './lib/classes/axes/yearIndicator.axis';
 import { BandBuckets } from './lib/classes/buckets/band.buckets';
 import { Buckets } from './lib/classes/buckets/buckets';
 import { CircleBuckets } from './lib/classes/buckets/circle.buckets';
@@ -13,6 +14,7 @@ import { Cursor } from './lib/classes/cursor/cursor';
 import { VerticalLine } from './lib/classes/cursor/vertical.line';
 import { Dimensions } from './lib/classes/dimensions/dimensions';
 import { DrawableObject } from './lib/classes/drawable.object';
+import { Season } from './lib/classes/season';
 import { Granularity } from './lib/enumerations/granularity.enum';
 import { Bucket } from './lib/interfaces/bucket';
 import { TimelineData, TimelineTooltip } from './lib/interfaces/timeline.data';
@@ -159,8 +161,23 @@ export class AxesCollection {
             });
             this.annexedAxes = [];
         }
+        const yearIndicatorAxis = new YearIndicatorAxis(this.context);
         switch (granularity) {
             case Granularity.day:
+                boundsDate = boundsDate.map((date, idx, arr) => {
+                    const newDate = new Date(date.getTime());
+                    if (idx === 0) {
+                        newDate.setHours(0, 0, 0, 0);
+                    } else if (idx === arr.length - 1) {
+                        if (newDate.getTime() !==
+                                (new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate(), 0, 0, 0, 0)).getTime()) {
+                            newDate.setDate(newDate.getDate() + 1);
+                            newDate.setHours(0, 0, 0, 0);
+                        }
+                    }
+                    return newDate;
+                });
+
                 this.axis = new DayAxis(this.context);
                 this.axis.setRange(this.dimensions)
                     .setBoundDates(boundsDate)
@@ -171,24 +188,77 @@ export class AxesCollection {
                     .setBoundDates(boundsDate)
                     .plot();
                 this.annexedAxes.push(weekAxis);
+                yearIndicatorAxis.setRange(this.dimensions)
+                                 .setBoundDates(boundsDate)
+                                 .setAxisYOffset(55)
+                                 .plot();
+                this.annexedAxes.push(yearIndicatorAxis);
                 break;
             case Granularity.month:
+                boundsDate = boundsDate.map((date, idx, arr) => {
+                    const newDate = new Date(date.getTime());
+                    if (idx === 0) {
+                        newDate.setDate(1);
+                        newDate.setHours(0, 0, 0, 0);
+                    } else if (idx === arr.length - 1) {
+                        if (newDate.getTime() !== (new Date(newDate.getFullYear(), newDate.getMonth(), 1, 0, 0, 0, 0)).getTime()) {
+                            newDate.setMonth(newDate.getMonth() + 1);
+                            newDate.setDate(1);
+                            newDate.setHours(0, 0, 0, 0);
+                        }
+                    }
+                    return newDate;
+                });
+
                 this.axis = new MonthAxis(this.context);
                 this.axis.setRange(this.dimensions)
                     .setBoundDates(boundsDate)
                     .plot();
+                yearIndicatorAxis.setRange(this.dimensions)
+                                 .setBoundDates(boundsDate)
+                                 .setAxisYOffset(80)
+                                 .plot();
+                this.annexedAxes.push(yearIndicatorAxis);
                 break;
             case Granularity.season:
+                boundsDate = boundsDate.map((date, idx, arr) => {
+                    if (idx === 0) {
+                        return Season.getSeasonStartFromDate(date);
+                    } else if (idx === arr.length - 1) {
+                        return Season.getNextSeasonStartFromDate(date);
+                    }
+                    return new Date(date.getTime());
+                });
+
                 this.axis = new SeasonAxis(this.context);
                 this.axis.setRange(this.dimensions)
                     .setBoundDates(boundsDate)
                     .plot();
+                yearIndicatorAxis.setRange(this.dimensions)
+                                 .setBoundDates(boundsDate)
+                                 .setAxisYOffset(70)
+                                 .plot();
+                this.annexedAxes.push(yearIndicatorAxis);
                 break;
             case Granularity.year:
+                boundsDate = boundsDate.map((date, idx, arr) => {
+                    const newDate = new Date(date.getTime());
+                    if (idx === 0) {
+                        newDate.setMonth(0);
+                        newDate.setDate(1);
+                        newDate.setHours(0, 0, 0, 0);
+                    } else if (idx === arr.length - 1) {
+                        newDate.setFullYear(newDate.getFullYear() + 1, 0, 1);
+                        newDate.setHours(0, 0, 0, 0);
+                    }
+                    return newDate;
+                });
+
                 this.axis = new YearAxis(this.context);
                 this.axis.setRange(this.dimensions)
                     .setBoundDates(boundsDate)
                     .plot();
+                yearIndicatorAxis.remove();
                 break;
         }
         return this.get();

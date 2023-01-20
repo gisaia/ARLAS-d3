@@ -12,11 +12,17 @@ export class Axis extends DrawableObject {
     protected tickIntervalWidth: number;
     protected tickSize = 6 /** default value of d3 */;
     protected tickFormat: (domainValue: Date | NumberValue, index: number) => string;
+    protected axisXOffset: number;
+    protected axisYOffset: number;
+    protected textFontSize: number;
     private d3Axis!: D3Axis<Date | NumberValue>;
 
     public constructor(context: Selection<SVGGElement, any, BaseType, any>, name: string) {
         super(context, name);
         this.tickFormat = null;
+        this.axisYOffset = 0;
+        this.axisXOffset = 0;
+        this.textFontSize = 12;
     }
 
     public setRange(d: Dimensions): Axis {
@@ -48,6 +54,16 @@ export class Axis extends DrawableObject {
         return this;
     }
 
+    public setAxisYOffset(axisYOffset: number): Axis {
+        this.axisYOffset = axisYOffset;
+        return this;
+    }
+
+    public setTextFontSize(textFontSize: number): Axis {
+        this.textFontSize = textFontSize;
+        return this;
+    }
+
     /** plots the axis, if the axis has already been plotted, it's replaced. */
     public plot() {
         const axis = axisBottom(this.domain).ticks(this.tickInterval)
@@ -55,7 +71,8 @@ export class Axis extends DrawableObject {
                                             .tickFormat(this.tickFormat);
         this.d3Axis = axis;
         super.plot();
-        this.element.call(axis);
+        this.element.attr('transform', `translate(${this.axisXOffset}, ${this.axisYOffset})`)
+            .call(axis);
     }
 
     public getTickIntervalWidth(): number {

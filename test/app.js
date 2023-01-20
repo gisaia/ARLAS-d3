@@ -122,11 +122,11 @@ timeline.plot();
 function getBoundDates(granularity) {
   switch (granularity) {
     case Granularity.day:
-      return [new Date(2022, 1, 0), new Date(2022, 2, 15)];
+      return [new Date(2022, 8, 0), new Date(2023, 1, 30, 5)];
     case Granularity.month:
-      return [new Date(2020, 0), new Date(2022, 0)];
+      return [new Date(2019, 10, 15), new Date(2022, 11, 15)];
     case Granularity.season:
-      return [new Date(2020, 0), new Date(2022, 0)];
+      return [new Date(2019, 10), new Date(2022, 3)];
     case Granularity.year:
       return [new Date(1999, 0), new Date(2023, 5)];
   }

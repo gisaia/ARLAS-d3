@@ -32,15 +32,7 @@ export class SeasonAxis extends Axis {
     }
 
     public setBoundDates(dates: Date[]): Axis {
-        const bounds = dates.map((date, idx, arr) => {
-            if (idx === 0) {
-                return Season.getSeasonStartFromDate(date);
-            } else if (idx === arr.length - 1) {
-                return Season.getNextSeasonStartFromDate(date);
-            }
-            return new Date(date.getTime());
-        });
-        super.setBoundDates(bounds);
+        super.setBoundDates(dates);
         const itw = this.domain(this.SEASON_IN_MILLISECONDS) - this.domain(0);
 
         const timeSeason = timeDay.filter(date => {

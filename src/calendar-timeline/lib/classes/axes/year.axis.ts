@@ -27,19 +27,7 @@ export class YearAxis extends Axis {
     }
 
     public setBoundDates(dates: Date[]): Axis {
-        const bounds = dates.map((date, idx, arr) => {
-            const newDate = new Date(date.getTime());
-            if (idx === 0) {
-                newDate.setMonth(0);
-                newDate.setDate(1);
-                newDate.setHours(0, 0, 0, 0);
-            } else if (idx === arr.length - 1) {
-                newDate.setFullYear(newDate.getFullYear() + 1, 0, 1);
-                newDate.setHours(0, 0, 0, 0);
-            }
-            return newDate;
-        });
-        super.setBoundDates(bounds);
+        super.setBoundDates(dates);
         const itw = this.domain(this.YEAR_IN_MILLISECONDS) - this.domain(0);
         this.setTickInterval(timeYear).setTickIntervalWidth(itw);
         return this;
