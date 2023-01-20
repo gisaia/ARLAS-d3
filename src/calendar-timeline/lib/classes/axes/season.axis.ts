@@ -21,7 +21,7 @@ export class SeasonAxis extends Axis {
         this.element
             .selectAll('text')
             .attr('text-anchor', 'middle')
-            .style('font-size', '12px')
+            .style('font-size', `${this.textFontSize}px`)
             .attr('transform', d => `translate(${this.getTickIntervalWidth() / 2}, 20)`)
             .attr('y', d => 0);
     }
