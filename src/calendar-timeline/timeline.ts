@@ -190,7 +190,7 @@ export class AxesCollection {
                 this.annexedAxes.push(weekAxis);
                 yearIndicatorAxis.setRange(this.dimensions)
                                  .setBoundDates(boundsDate)
-                                 .setAxisYOffset(55)
+                                 .setAxisYOffset(60)
                                  .plot();
                 this.annexedAxes.push(yearIndicatorAxis);
                 break;
