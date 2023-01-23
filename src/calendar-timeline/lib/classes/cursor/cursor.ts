@@ -23,6 +23,10 @@ export class Cursor extends TemporalObject {
     public setCursorOffset(granularity: Granularity) {
         this.cursorOffset = 15;
         switch (granularity) {
+            case Granularity.day:
+                // Add the margin
+                this.cursorOffset += 3;
+                break;
             case Granularity.month:
                 // Add the tick offset + font size + margin
                 this.cursorOffset += 20 + 12 + 3;
