@@ -21,6 +21,7 @@ export class VerticalLine extends TemporalObject {
             .style('stroke', this.colors.stroke)
             .style('stroke-width', 2)
             .style('fill', this.colors.fill);
+        this.hide();
     }
 
     public show() {

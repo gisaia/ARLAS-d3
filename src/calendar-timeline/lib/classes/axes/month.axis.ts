@@ -10,12 +10,12 @@ export class MonthAxis extends Axis {
         this.setTickSize(20);
         this.tickFormat = (d: Date | NumberValue, idx: number) => {
             if (d instanceof Date) {
-                return d.toLocaleString('default', {month: 'short'});
+                return d.toLocaleString('en', {month: 'short'});
             } else {
                 const date = new Date();
                 // This should be checked as the value of NumberValueis unknown to me
                 date.setMonth(d.valueOf());
-                return date.toLocaleString('default', {month: 'short'});
+                return date.toLocaleString('en', {month: 'short'});
             }
         };
     }

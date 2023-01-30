@@ -9,6 +9,7 @@ export class BandBuckets extends Buckets {
 
     public plot() {
         super.plot();
+        const fillColor = this.climatological ? this.colors.stroke : this.colors.fill;
         this.element
             .attr('transform', 'translate(1, 3)')
             .selectAll('dot')
@@ -21,7 +22,7 @@ export class BandBuckets extends Buckets {
             .attr('rx', 4)
             .attr('stroke-width', d => this.dynamicStrokeWidth(d))
             .style('stroke', this.colors.stroke)
-            .style('fill', this.colors.fill);
+            .style('fill', fillColor);
     }
 
     public dynamicStrokeWidth(d: Date): number {

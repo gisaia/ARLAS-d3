@@ -21,13 +21,16 @@ import { TimelineData, TimelineTooltip } from './lib/interfaces/timeline.data';
 
 export class Timeline extends DrawableObject {
 
-    public granularity: Granularity;
-    public boundDates: Date[];
-    public axis: AxesCollection;
-    public buckets: BucketsCollection;
-    public cursor: Cursor;
-    public verticalLine: VerticalLine;
-    public data: TimelineData[] = [];
+    private granularity: Granularity;
+    private climatological: boolean;
+    private boundDates: Date[];
+    private axis: AxesCollection;
+    private buckets: BucketsCollection;
+    private cursor: Cursor;
+    private verticalLine: VerticalLine;
+    private data: TimelineData[] = [];
+    private cursorDate: Date;
+
     public hoveredData: Subject<TimelineTooltip> = new Subject();
     public selectedData: Subject<TimelineData> = new Subject();
 
@@ -48,6 +51,7 @@ export class Timeline extends DrawableObject {
             next: (b: Bucket) => {
                 this.hoveredData.next({
                     data: this.buckets.get().getTimelineData(b.date),
+                    stringDate: Timeline.dateToString(b.date, this.granularity, this.climatological),
                     position: b.position,
                     shown: b.show,
                     width: this.dimensions.width
@@ -64,6 +68,7 @@ export class Timeline extends DrawableObject {
             next: (b: Bucket) => {
                 this.hoveredData.next({
                     data: this.buckets.get().getTimelineData(b.date),
+                    stringDate: Timeline.dateToString(b.date, this.granularity, this.climatological),
                     position: b.position,
                     shown: b.show,
                     width: this.dimensions.width
@@ -84,22 +89,32 @@ export class Timeline extends DrawableObject {
         return this;
     }
 
+    public setClimatological(climatological: boolean): Timeline {
+        this.climatological = climatological;
+        return this;
+    }
+
     public setData(data): Timeline {
         this.data = data;
         return this;
     }
 
-    public plot(): void {
+    public moveCursor(d: Date): void {
+        this.cursorDate = d;
+        this.cursor.moveToDate(d);
+    }
+
+    public plot(emitSelectedData = false): void {
         this.axis
             .setDimensions(this.dimensions)
-            .update(this.granularity, this.boundDates);
+            .update(this.granularity, this.boundDates, this.climatological);
         this.verticalLine
             .setAxis(this.axis.get())
             .setGranularity(this.granularity)
             .setDimensions(this.dimensions)
             .plot();
         this.buckets
-            .update(this.granularity)
+            .update(this.granularity, this.climatological)
             .setData(this.data)
             .setAxis(this.axis.get())
             .plot();
@@ -108,11 +123,19 @@ export class Timeline extends DrawableObject {
             .setAxis(this.axis.get())
             .setGranularity(this.granularity)
             .plot();
+        if (this.cursorDate) {
+            this.moveCursor(this.cursorDate);
+            if (emitSelectedData) {
+                this.selectedData.next(this.buckets.get().getTimelineData(this.cursorDate));
+            }
+        }
     }
 
     public onClick(e: PointerEvent): void {
         super.onClick(e);
         this.cursor.moveTo(e.offsetX);
+        const date = this.axis.get().getDate(e.offsetX);
+        this.selectedData.next(this.buckets.get().getTimelineData(date));
     }
 
     public onMouseenter(e: PointerEvent): void {
@@ -122,6 +145,7 @@ export class Timeline extends DrawableObject {
         this.verticalLine.hide();
         this.hoveredData.next({
             data: null,
+            stringDate: '',
             position: 0,
             shown: false,
             width: this.dimensions.width
@@ -130,6 +154,32 @@ export class Timeline extends DrawableObject {
 
     public onMousemove(e: PointerEvent): void {
         this.verticalLine.moveTo(e.offsetX);
+    }
+
+    public static dateToString(d: Date, granularity: Granularity, climatological?: boolean): string {
+        const year = d.getFullYear();
+        switch (granularity) {
+            case Granularity.day:
+                const day = d.getDate();
+                const ordinal = (day === 1) ? 'st' : ((day === 2) ? 'nd' : (day === 3) ? 'rd' : 'th');
+                return `${d.toLocaleString('en', { month: 'short' })}, ${day}${ordinal} ${year}`;
+            case Granularity.month:
+                if (climatological) {
+                    return `${d.toLocaleString('en', { month: 'long' })}`;
+                } else {
+                    return `${d.toLocaleString('en', { month: 'short' })} ${year}`;
+                }
+            case Granularity.season:
+                if (climatological) {
+                    return Season.getSeasonNameFromDate(d);
+                } else {
+                    const season = Season.getSeasonNameFromDate(d);
+                    const yearComplement = season === Season.WINTER.toString() ? `/${year + 1}` : '';
+                    return `${Season.getSeasonNameFromDate(d)} ${year}${yearComplement}`;
+                }
+            case Granularity.year:
+                return `${year}`;
+        }
     }
 }
 
@@ -149,7 +199,7 @@ export class AxesCollection {
         return this;
     }
 
-    public update(granularity: Granularity, boundsDate: Date[]): Axis {
+    public update(granularity: Granularity, boundsDate: Date[], climatological: boolean): Axis {
         if (this.axis) {
             this.axis.remove();
             this.axis = null;
@@ -170,7 +220,7 @@ export class AxesCollection {
                         newDate.setHours(0, 0, 0, 0);
                     } else if (idx === arr.length - 1) {
                         if (newDate.getTime() !==
-                                (new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate(), 0, 0, 0, 0)).getTime()) {
+                            (new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate(), 0, 0, 0, 0)).getTime()) {
                             newDate.setDate(newDate.getDate() + 1);
                             newDate.setHours(0, 0, 0, 0);
                         }
@@ -188,11 +238,13 @@ export class AxesCollection {
                     .setBoundDates(boundsDate)
                     .plot();
                 this.annexedAxes.push(weekAxis);
-                yearIndicatorAxis.setRange(this.dimensions)
-                                 .setBoundDates(boundsDate)
-                                 .setAxisYOffset(80)
-                                 .plot();
-                this.annexedAxes.push(yearIndicatorAxis);
+                if (!climatological) {
+                    yearIndicatorAxis.setRange(this.dimensions)
+                        .setBoundDates(boundsDate)
+                        .setAxisYOffset(80)
+                        .plot();
+                    this.annexedAxes.push(yearIndicatorAxis);
+                }
                 break;
             case Granularity.month:
                 boundsDate = boundsDate.map((date, idx, arr) => {
@@ -214,11 +266,13 @@ export class AxesCollection {
                 this.axis.setRange(this.dimensions)
                     .setBoundDates(boundsDate)
                     .plot();
-                yearIndicatorAxis.setRange(this.dimensions)
-                                 .setBoundDates(boundsDate)
-                                 .setAxisYOffset(80)
-                                 .plot();
-                this.annexedAxes.push(yearIndicatorAxis);
+                if (!climatological) {
+                    yearIndicatorAxis.setRange(this.dimensions)
+                        .setBoundDates(boundsDate)
+                        .setAxisYOffset(80)
+                        .plot();
+                    this.annexedAxes.push(yearIndicatorAxis);
+                }
                 break;
             case Granularity.season:
                 boundsDate = boundsDate.map((date, idx, arr) => {
@@ -234,11 +288,13 @@ export class AxesCollection {
                 this.axis.setRange(this.dimensions)
                     .setBoundDates(boundsDate)
                     .plot();
-                yearIndicatorAxis.setRange(this.dimensions)
-                                 .setBoundDates(boundsDate)
-                                 .setAxisYOffset(80)
-                                 .plot();
-                this.annexedAxes.push(yearIndicatorAxis);
+                if (!climatological) {
+                    yearIndicatorAxis.setRange(this.dimensions)
+                        .setBoundDates(boundsDate)
+                        .setAxisYOffset(80)
+                        .plot();
+                    this.annexedAxes.push(yearIndicatorAxis);
+                }
                 break;
             case Granularity.year:
                 boundsDate = boundsDate.map((date, idx, arr) => {
@@ -278,7 +334,7 @@ export class BucketsCollection {
         this.context = context;
     }
 
-    public update(granularity: Granularity): Buckets {
+    public update(granularity: Granularity, climatological: boolean): Buckets {
         if (this.buckets) {
             this.buckets.remove();
             this.buckets = null;
@@ -297,7 +353,7 @@ export class BucketsCollection {
                 this.buckets = new BandBuckets(this.context);
                 break;
         }
-        return this.get().setGranularity(granularity) as Buckets;
+        return this.get().setClimatological(climatological).setGranularity(granularity) as Buckets;
 
     }
 

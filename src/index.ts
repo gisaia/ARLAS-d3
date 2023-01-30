@@ -48,6 +48,7 @@ export { CircleBuckets } from './calendar-timeline/lib/classes/buckets/circle.bu
 export { Dimensions } from './calendar-timeline/lib/classes/dimensions/dimensions';
 export { Margins } from './calendar-timeline/lib/classes/dimensions/margins';
 export { DrawableObject } from './calendar-timeline/lib/classes/drawable.object';
+export { Season } from './calendar-timeline/lib/classes/season';
 export { Granularity } from './calendar-timeline/lib/enumerations/granularity.enum';
 export { TimelineData, TimelineTooltip } from './calendar-timeline/lib/interfaces/timeline.data';
 export { Bucket } from './calendar-timeline/lib/interfaces/bucket';
