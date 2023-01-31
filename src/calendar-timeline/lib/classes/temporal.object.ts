@@ -7,6 +7,7 @@ import { DrawableObject } from './drawable.object';
 export class TemporalObject extends DrawableObject {
     protected axis: Axis;
     protected granularity: Granularity;
+    protected climatological: boolean;
     protected colors: DrawableObjectColors;
 
     public setAxis(axis: Axis): TemporalObject {
@@ -17,6 +18,11 @@ export class TemporalObject extends DrawableObject {
     public setGranularity(granularity: Granularity): TemporalObject {
         this.granularity = granularity;
         this.setColors(granularity);
+        return this;
+    }
+
+    public setClimatological(climatological: boolean): TemporalObject {
+        this.climatological = climatological;
         return this;
     }
 

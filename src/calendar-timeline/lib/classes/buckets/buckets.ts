@@ -36,10 +36,11 @@ export class Buckets extends TemporalObject {
     }
 
     public getTimelineData(date: Date): TimelineData {
-        const data = this.data.find(d => this.round(d.date).getTime() ===  date.getTime());
+        const data = this.data.find(d => this.round(d.date).getTime() ===  this.round(date).getTime());
         return !!data ? data : {
-            date: date,
-            metadata: null
+            date: this.round(date),
+            id: undefined,
+            metadata: undefined
         };
     }
 

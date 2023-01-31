@@ -2,14 +2,14 @@
  * Enum storing the first day of each season
  */
 export class Season {
-    private static readonly SPRING = new Season('Spring', 2, 21);
-    private static readonly SUMMER = new Season('Summer', 5, 22);
-    private static readonly AUTUMN = new Season('Autumn', 8, 23);
-    private static readonly WINTER = new Season('Winter', 11, 21);
+    public static readonly SPRING = new Season('Spring', 2, 21);
+    public static readonly SUMMER = new Season('Summer', 5, 22);
+    public static readonly AUTUMN = new Season('Autumn', 8, 23);
+    public static readonly WINTER = new Season('Winter', 11, 21);
 
     private constructor(private readonly name: string,
-                        private readonly month: number,
-                        private readonly day: number) {
+        private readonly month: number,
+        private readonly day: number) {
     }
 
     public toString() {
@@ -69,5 +69,36 @@ export class Season {
             return new Date(year, this.WINTER.month, this.WINTER.day);
         }
         return new Date(year + 1, this.SPRING.month, this.SPRING.day);
+    }
+
+    public static getPreviousSeasonStartFromDate(d: Date): Date {
+        const year = d.getFullYear();
+        if (d < this.SPRING.getDate(year)) {
+            return new Date(year - 1, this.AUTUMN.month, this.AUTUMN.day);
+        }
+        if ((this.SPRING.getDate(year) <= d) && (d < this.SUMMER.getDate(year))) {
+            return new Date(year - 1, this.WINTER.month, this.WINTER.day);
+        }
+        if ((this.SUMMER.getDate(year) <= d) && (d < this.AUTUMN.getDate(year))) {
+            return new Date(year, this.SPRING.month, this.SPRING.day);
+        }
+        if ((this.AUTUMN.getDate(year) <= d) && (d < this.WINTER.getDate(year))) {
+            return new Date(year, this.SUMMER.month, this.SUMMER.day);
+        }
+        return new Date(year - 1, this.AUTUMN.month, this.AUTUMN.day);
+    }
+
+
+    public static getSeason(name: string): Season {
+        switch (name) {
+            case this.SPRING.name:
+                return this.SPRING;
+            case this.SUMMER.name:
+                return this.SUMMER;
+            case this.AUTUMN.name:
+                return this.AUTUMN;
+            case this.WINTER.name:
+                return this.WINTER;
+        }
     }
 }

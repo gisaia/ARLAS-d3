@@ -2,8 +2,6 @@ import { Granularity } from '../../enumerations/granularity.enum';
 import { drag } from 'd3-drag';
 import { BaseType, Selection } from 'd3-selection';
 import { symbol } from 'd3-shape';
-import { Axis } from '../axes/axis';
-import { DrawableObjectColors } from '../buckets/buckets';
 import { Subject } from 'rxjs';
 import { TemporalObject } from '../temporal.object';
 import { VerticalLine } from './vertical.line';
@@ -78,8 +76,9 @@ export class Cursor extends TemporalObject {
             }
             ).on('end', (e) => {
                 /** emits the date at end of drag */
+                const d = this.round(this.axis.getDate(e.x));
                 this.selectedDate.next(this.round(this.axis.getDate(e.x)));
-                this.verticalLine.moveTo(e.offsetX);
+                this.verticalLine.moveTo(e.x);
                 this.verticalLine.show();
 
             });
@@ -101,6 +100,10 @@ export class Cursor extends TemporalObject {
              * todo : set the right height
              */
             .attr('transform', 'translate(' + (position - 5) + ',' + this.cursorOffset + ')');
+    }
+
+    public moveToDate(d: Date) {
+        this.moveTo(this.axis.getPosition(d));
     }
 
     public onMouseenter(e: PointerEvent): void {
