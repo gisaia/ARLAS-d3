@@ -39,7 +39,7 @@
     "moment": "^2.22.2",
     "patch-package": "^6.4.7",
     "rxjs": "~7.4.0",
-    "tinycolor2": "^1.4.1"
+    "tinycolor2": "~1.4.1"
   },
   "devDependencies": {
     "@types/node": "~16.3.0",
