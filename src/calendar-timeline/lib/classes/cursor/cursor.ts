@@ -103,7 +103,9 @@ export class Cursor extends TemporalObject {
     }
 
     public moveToDate(d: Date) {
-        this.moveTo(this.axis.getPosition(d));
+        if (this.axis) {
+            this.moveTo(this.axis.getPosition(d));
+        }
     }
 
     public onMouseenter(e: PointerEvent): void {
