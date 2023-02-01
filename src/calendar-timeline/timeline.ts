@@ -23,7 +23,7 @@ export class Timeline extends DrawableObject {
 
     private granularity: Granularity;
     private climatological: boolean;
-    private boundDates: Date[];
+    public boundDates: Date[];
     private axis: AxesCollection;
     private buckets: BucketsCollection;
     private cursor: Cursor;
@@ -212,110 +212,110 @@ export class AxesCollection {
             this.annexedAxes = [];
         }
         const yearIndicatorAxis = new YearIndicatorAxis(this.context);
-        switch (granularity) {
-            case Granularity.day:
-                boundsDate = boundsDate.map((date, idx, arr) => {
-                    const newDate = new Date(date.getTime());
-                    if (idx === 0) {
-                        newDate.setHours(0, 0, 0, 0);
-                    } else if (idx === arr.length - 1) {
-                        if (newDate.getTime() !==
-                            (new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate(), 0, 0, 0, 0)).getTime()) {
-                            newDate.setDate(newDate.getDate() + 1);
+        if (boundsDate && boundsDate.length === 2) {
+            switch (granularity) {
+                case Granularity.day:
+                    boundsDate = boundsDate.map((date, idx, arr) => {
+                        const newDate = new Date(date.getTime());
+                        if (idx === 0) {
                             newDate.setHours(0, 0, 0, 0);
+                        } else if (idx === arr.length - 1) {
+                            if (newDate.getTime() !==
+                                (new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate(), 0, 0, 0, 0)).getTime()) {
+                                newDate.setDate(newDate.getDate() + 1);
+                                newDate.setHours(0, 0, 0, 0);
+                            }
                         }
-                    }
-                    return newDate;
-                });
-
-                this.axis = new DayAxis(this.context);
-                this.axis.setRange(this.dimensions)
-                    .setBoundDates(boundsDate)
-                    .plot();
-                const weekAxis = new WeekAxis(this.context);
-                weekAxis
-                    .setRange(this.dimensions)
-                    .setBoundDates(boundsDate)
-                    .plot();
-                this.annexedAxes.push(weekAxis);
-                if (!climatological) {
-                    yearIndicatorAxis.setRange(this.dimensions)
+                        return newDate;
+                    });
+                    this.axis = new DayAxis(this.context);
+                    this.axis.setRange(this.dimensions)
                         .setBoundDates(boundsDate)
-                        .setAxisYOffset(80)
                         .plot();
-                    this.annexedAxes.push(yearIndicatorAxis);
-                }
-                break;
-            case Granularity.month:
-                boundsDate = boundsDate.map((date, idx, arr) => {
-                    const newDate = new Date(date.getTime());
-                    if (idx === 0) {
-                        newDate.setDate(1);
-                        newDate.setHours(0, 0, 0, 0);
-                    } else if (idx === arr.length - 1) {
-                        if (newDate.getTime() !== (new Date(newDate.getFullYear(), newDate.getMonth(), 1, 0, 0, 0, 0)).getTime()) {
-                            newDate.setMonth(newDate.getMonth() + 1);
+                    const weekAxis = new WeekAxis(this.context);
+                    weekAxis
+                        .setRange(this.dimensions)
+                        .setBoundDates(boundsDate)
+                        .plot();
+                    this.annexedAxes.push(weekAxis);
+                    if (!climatological) {
+                        yearIndicatorAxis.setRange(this.dimensions)
+                            .setBoundDates(boundsDate)
+                            .setAxisYOffset(80)
+                            .plot();
+                        this.annexedAxes.push(yearIndicatorAxis);
+                    }
+                    break;
+                case Granularity.month:
+                    boundsDate = boundsDate.map((date, idx, arr) => {
+                        const newDate = new Date(date.getTime());
+                        if (idx === 0) {
                             newDate.setDate(1);
                             newDate.setHours(0, 0, 0, 0);
+                        } else if (idx === arr.length - 1) {
+                            if (newDate.getTime() !== (new Date(newDate.getFullYear(), newDate.getMonth(), 1, 0, 0, 0, 0)).getTime()) {
+                                newDate.setMonth(newDate.getMonth() + 1);
+                                newDate.setDate(1);
+                                newDate.setHours(0, 0, 0, 0);
+                            }
                         }
-                    }
-                    return newDate;
-                });
-
-                this.axis = new MonthAxis(this.context);
-                this.axis.setRange(this.dimensions)
-                    .setBoundDates(boundsDate)
-                    .plot();
-                if (!climatological) {
-                    yearIndicatorAxis.setRange(this.dimensions)
+                        return newDate;
+                    });
+                    this.axis = new MonthAxis(this.context);
+                    this.axis.setRange(this.dimensions)
                         .setBoundDates(boundsDate)
-                        .setAxisYOffset(80)
                         .plot();
-                    this.annexedAxes.push(yearIndicatorAxis);
-                }
-                break;
-            case Granularity.season:
-                boundsDate = boundsDate.map((date, idx, arr) => {
-                    if (idx === 0) {
-                        return Season.getSeasonStartFromDate(date);
-                    } else if (idx === arr.length - 1) {
-                        return Season.getNextSeasonStartFromDate(date);
+                    if (!climatological) {
+                        yearIndicatorAxis.setRange(this.dimensions)
+                            .setBoundDates(boundsDate)
+                            .setAxisYOffset(80)
+                            .plot();
+                        this.annexedAxes.push(yearIndicatorAxis);
                     }
-                    return new Date(date.getTime());
-                });
+                    break;
+                case Granularity.season:
+                    boundsDate = boundsDate.map((date, idx, arr) => {
+                        if (idx === 0) {
+                            return Season.getSeasonStartFromDate(date);
+                        } else if (idx === arr.length - 1) {
+                            return Season.getNextSeasonStartFromDate(date);
+                        }
+                        return new Date(date.getTime());
+                    });
 
-                this.axis = new SeasonAxis(this.context);
-                this.axis.setRange(this.dimensions)
-                    .setBoundDates(boundsDate)
-                    .plot();
-                if (!climatological) {
-                    yearIndicatorAxis.setRange(this.dimensions)
+                    this.axis = new SeasonAxis(this.context);
+                    this.axis.setRange(this.dimensions)
                         .setBoundDates(boundsDate)
-                        .setAxisYOffset(80)
                         .plot();
-                    this.annexedAxes.push(yearIndicatorAxis);
-                }
-                break;
-            case Granularity.year:
-                boundsDate = boundsDate.map((date, idx, arr) => {
-                    const newDate = new Date(date.getTime());
-                    if (idx === 0) {
-                        newDate.setMonth(0);
-                        newDate.setDate(1);
-                        newDate.setHours(0, 0, 0, 0);
-                    } else if (idx === arr.length - 1) {
-                        newDate.setFullYear(newDate.getFullYear() + 1, 0, 1);
-                        newDate.setHours(0, 0, 0, 0);
+                    if (!climatological) {
+                        yearIndicatorAxis.setRange(this.dimensions)
+                            .setBoundDates(boundsDate)
+                            .setAxisYOffset(80)
+                            .plot();
+                        this.annexedAxes.push(yearIndicatorAxis);
                     }
-                    return newDate;
-                });
+                    break;
+                case Granularity.year:
+                    boundsDate = boundsDate.map((date, idx, arr) => {
+                        const newDate = new Date(date.getTime());
+                        if (idx === 0) {
+                            newDate.setMonth(0);
+                            newDate.setDate(1);
+                            newDate.setHours(0, 0, 0, 0);
+                        } else if (idx === arr.length - 1) {
+                            newDate.setFullYear(newDate.getFullYear() + 1, 0, 1);
+                            newDate.setHours(0, 0, 0, 0);
+                        }
+                        return newDate;
+                    });
 
-                this.axis = new YearAxis(this.context);
-                this.axis.setRange(this.dimensions)
-                    .setBoundDates(boundsDate)
-                    .plot();
-                yearIndicatorAxis.remove();
-                break;
+                    this.axis = new YearAxis(this.context);
+                    this.axis.setRange(this.dimensions)
+                        .setBoundDates(boundsDate)
+                        .plot();
+                    yearIndicatorAxis.remove();
+                    break;
+            }
         }
         return this.get();
 

@@ -33,7 +33,7 @@
     "d3-interpolate": "^3.0.1",
     "moment": "^2.22.2",
     "rxjs": "~7.4.0",
-    "tinycolor2": "^1.4.1"
+    "tinycolor2": "~1.4.1"
   },
   "devDependencies": {
     "@types/node": "^12.11.1",
