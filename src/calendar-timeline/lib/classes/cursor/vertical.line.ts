@@ -7,6 +7,8 @@ export class VerticalLine extends TemporalObject {
 
     public hoveredBucket: Subject<Bucket> = new Subject();
 
+    private currentDate: Date;
+
     public constructor(context: Selection<SVGGElement, any, BaseType, any>) {
         super(context, VerticalLine.name.toString());
     }
@@ -41,14 +43,14 @@ export class VerticalLine extends TemporalObject {
             this.axis.getTickIntervalWidth() / 2;
         this.element
             .select('line')
-            /**6 is half 12 the width of the cursor
-             * todo : set the right height
-             */
             .attr('transform', 'translate(' + (position + 1) + ',' + 0 + ')');
-        this.hoveredBucket.next({
-            date,
-            position,
-            show: true
-        });
+        if (!this.currentDate || this.currentDate.getTime() !== date.getTime()) {
+            this.hoveredBucket.next({
+                date,
+                position,
+                show: true
+            });
+        }
+        this.currentDate = date;
     }
 }
