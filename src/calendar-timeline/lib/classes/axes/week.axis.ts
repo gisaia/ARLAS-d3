@@ -13,7 +13,7 @@ export class WeekAxis extends Axis {
         super.plot();
         this.element.selectAll('path').style('stroke', '#fff');
         this.element.selectAll('line').style('stroke', '#888');
-        this.element.selectAll('text').attr('transform', 'translate(20, -10)');
+        this.element.selectAll('text').attr('transform', 'translate(25, -15)');
 
     }
 

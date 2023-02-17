@@ -73,6 +73,10 @@ export class Axis extends DrawableObject {
         super.plot();
         this.element.attr('transform', `translate(${this.axisXOffset}, ${this.axisYOffset})`)
             .call(axis);
+        this.element
+        .selectAll('text')
+        .style('font-size', `${this.textFontSize}px`)
+        .style('text-transform', 'uppercase');
     }
 
     public getTickIntervalWidth(): number {
