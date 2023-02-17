@@ -1,5 +1,9 @@
 # Change Log
 
+## [v10.0.1](https://github.com/gisaia/ARLAS-d3/tree/v10.0.1) (2023-02-17)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v10.0.0...v10.0.1)
+
 ## [v10.0.0](https://github.com/gisaia/ARLAS-d3/tree/v10.0.0) (2023-02-01)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v9.2.2...v10.0.0)
