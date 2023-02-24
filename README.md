@@ -17,7 +17,7 @@ $ npm install --save arlas-d3
 
 ## Documentation
 
-Please find the documentation of all the d3 components [here](http://docs.arlas.io/arlas-tech/current/classes/_donuts_abstractdonut_.abstractdonut/)
+Please find the documentation of all the d3 components [here](https://docs.arlas.io/classes/AbstractDonut/).
 
 ## Build
 
@@ -65,7 +65,7 @@ We use [SemVer](http://semver.org/) for versioning : `x.y.z`.
 
 ## Authors
 
-* **Gisaïa** - *Initial work* - [Gisaïa](http://gisaia.fr/)
+* **Gisaïa** - *Initial work* - [Gisaïa](http://gisaia.com/)
 
 See also the list of [contributors](https://github.com/gisaia/ARLAS-d3/graphs/contributors) who participated in this project.
 
