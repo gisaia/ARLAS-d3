@@ -794,9 +794,12 @@ export abstract class AbstractChart extends AbstractHistogram {
       const selection = event.selection;
       if (selection !== null) {
         if (!this.fromSetInterval && this.isBrushing) {
-          this.selectionInterval.startvalue = selection.map(chartAxes.xDomain.invert, chartAxes.xDomain)[0];
-          this.selectionInterval.endvalue = selection.map(chartAxes.xDomain.invert, chartAxes.xDomain)[1];
           const dataInterval = this.histogramParams.bucketRange;
+          this.selectionInterval.startvalue = HistogramUtils.roundValue(selection.map(chartAxes.xDomain.invert, chartAxes.xDomain)[0],
+                                                                        this.histogramParams, dataInterval);
+          this.selectionInterval.endvalue = HistogramUtils.roundValue(selection.map(chartAxes.xDomain.invert, chartAxes.xDomain)[1],
+                                                                      this.histogramParams, dataInterval);
+
           this.histogramParams.startValue = HistogramUtils.toString(this.selectionInterval.startvalue, this.histogramParams, dataInterval);
           this.histogramParams.endValue = HistogramUtils.toString(this.selectionInterval.endvalue, this.histogramParams, dataInterval);
           const selectionListInterval = [];
