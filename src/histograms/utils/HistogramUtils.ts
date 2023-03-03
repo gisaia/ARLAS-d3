@@ -560,7 +560,7 @@ export function formatNumber(x, formatChar = ' ', roundPrecision?: number): stri
 export const NUMBER_FORMAT_CHAR = 'NUMBER_FORMAT_CHAR';
 
 export const tickNumberFormat = (d, formatChar) => {
-  const y = +format('')(d);
+  const y = format('')(d);
   return formatNumber(y, formatChar);
 };
 
