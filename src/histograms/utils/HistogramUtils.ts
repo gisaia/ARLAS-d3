@@ -293,6 +293,23 @@ export class HistogramUtils {
     }
   }
 
+  public static roundValue(value: number, histogramParams: HistogramParams, dateInterval?: number): Date | number {
+    if (histogramParams.chartType === ChartType.oneDimension) {
+      return Math.trunc(value);
+    } else {
+      let roundPrecision = (histogramParams.chartType === ChartType.area && histogramParams.moveDataByHalfInterval) ? 1 : 0;
+      if (histogramParams.dataType === DataType.time) {
+        return new Date(this.round(value, roundPrecision));
+      } else {
+        if (dateInterval !== undefined && dateInterval !== null && dateInterval > 0 && dateInterval < 1) {
+          roundPrecision = this.getRoundPrecision(dateInterval);
+          return Number(formatNumber(value, histogramParams.numberFormatChar, roundPrecision));
+        }
+        return Number(formatNumber(value, histogramParams.numberFormatChar));
+      }
+    }
+  }
+
   public static toString(value: Date | number, histogramParams: HistogramParams, dateInterval?: number): string {
     if (value instanceof Date) {
       if (histogramParams.valuesDateFormat) {
@@ -318,33 +335,24 @@ export class HistogramUtils {
         }
       }
     } else {
-      if (histogramParams.chartType === ChartType.oneDimension) {
-        return Math.trunc(value).toString();
-      } else {
-        let roundPrecision = (histogramParams.chartType === ChartType.area && histogramParams.moveDataByHalfInterval) ? 1 : 0;
-        if (histogramParams.dataType === DataType.time) {
-          const date = new Date(this.round(value, roundPrecision));
-          if (dateInterval !== undefined && dateInterval !== null && dateInterval > 0) {
-            if (histogramParams.useUtc) {
-              return utcFormat(this.getFormatFromDateInterval(dateInterval))(date);
-            } else {
-              return timeFormat(this.getFormatFromDateInterval(dateInterval))(date);
-            }
+      const roundedValue = this.roundValue(value, histogramParams, dateInterval);
+      if (roundedValue instanceof Date) {
+        if (dateInterval !== undefined && dateInterval !== null && dateInterval > 0) {
+          if (histogramParams.useUtc) {
+            return utcFormat(this.getFormatFromDateInterval(dateInterval))(roundedValue);
           } else {
-            const formatDate = '%d/%m/%Y %H:%M';
-            if (histogramParams.useUtc) {
-              return utcFormat(formatDate)(date);
-            } else {
-              return timeFormat(formatDate)(date);
-            }
+            return timeFormat(this.getFormatFromDateInterval(dateInterval))(roundedValue);
           }
         } else {
-          if (dateInterval !== undefined && dateInterval !== null && dateInterval > 0 && dateInterval < 1) {
-            roundPrecision = this.getRoundPrecision(dateInterval);
-            return formatNumber(value, histogramParams.numberFormatChar, roundPrecision);
+          const formatDate = '%d/%m/%Y %H:%M';
+          if (histogramParams.useUtc) {
+            return utcFormat(formatDate)(roundedValue);
+          } else {
+            return timeFormat(formatDate)(roundedValue);
           }
-          return formatNumber(value, histogramParams.numberFormatChar);
         }
+      } else {
+        return roundedValue.toString();
       }
     }
   }
