@@ -61,7 +61,7 @@ export abstract class AbstractHistogram {
   protected selectedBars = new Set<number>();
   protected fromSetInterval = false;
 
-  /**Axes && ticks */
+  /** Axes && ticks */
   protected xTicksAxis;
   protected xLabelsAxis;
   protected xAxis;
@@ -181,9 +181,9 @@ export abstract class AbstractHistogram {
   }
 
   protected getXDomainExtent(data: Array<HistogramData>, selectedStartValue: Date | number,
-    selectedEndValue: Date | number): Array<Date | number | { valueOf(): number }> {
+    selectedEndValue: Date | number): Array<Date | number | { valueOf(): number; }> {
     this.setDataInterval(data);
-    const xDomainExtent = new Array<Date | number | { valueOf(): number }>();
+    const xDomainExtent = new Array<Date | number | { valueOf(): number; }>();
     const dataKeyUnionSelectedValues = new Array<Date | number>();
     data.forEach(d => {
       dataKeyUnionSelectedValues.push(d.key);
@@ -272,13 +272,17 @@ export abstract class AbstractHistogram {
     this.barsContext = this.context.append('g').attr('class', 'histogram__bars').selectAll('.bar')
       .data(data.filter(d => this.isValueValid(d)))
       .enter().append('rect')
-      .attr('x', function (d) { return xDataDomain(d.key); })
+      .attr('x', function (d) {
+        return xDataDomain(d.key);
+      })
       .attr('width', barWidth);
 
     this.noDatabarsContext = this.context.append('g').attr('class', 'histogram__bars').selectAll('.bar')
       .data(data.filter(d => !this.isValueValid(d)))
       .enter().append('rect')
-      .attr('x', function (d) { return xDataDomain(d.key); })
+      .attr('x', function (d) {
+        return xDataDomain(d.key);
+      })
       .attr('width', axes.stepWidth);
   }
 

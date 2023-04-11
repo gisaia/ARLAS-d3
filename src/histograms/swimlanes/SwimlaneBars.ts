@@ -17,9 +17,16 @@
  * under the License.
  */
 
+import {
+  HistogramData, HistogramUtils, SwimlaneMode,
+  SwimlaneOptions,
+  SwimlaneRepresentation,
+  SwimlaneStats,
+  TICK_COLOR,
+  TICK_OPACITY,
+  TICK_WIDTH
+} from '../utils/HistogramUtils';
 import { AbstractSwimlane } from './AbstractSwimlane';
-import { HistogramData, HistogramUtils, SwimlaneMode, LaneStats,
-   SwimlaneStats, SwimlaneRepresentation, SwimlaneOptions, NAN_COLOR, TICK_WIDTH, TICK_OPACITY, TICK_COLOR } from '../utils/HistogramUtils';
 
 export class SwimlaneBars extends AbstractSwimlane {
 
@@ -37,9 +44,9 @@ export class SwimlaneBars extends AbstractSwimlane {
       .attr('y', this.histogramParams.swimlaneHeight * (indexOfLane))
       .attr('height', (d) => this.getBucketHeight(d, swimStats, swimRepresentation, swimMode, swimHeight))
       .attr('transform', (d) => 'translate(' + this.histogramParams.swimLaneLabelsWidth + ','
-      + this.getSwimlaneVerticalTranslation(d, swimStats, swimRepresentation, swimMode, swimHeight) + ')')
+        + this.getSwimlaneVerticalTranslation(d, swimStats, swimRepresentation, swimMode, swimHeight) + ')')
       .style('fill', (d) => this.getBucketColor(d, swimOptions, swimStats, swimRepresentation, swimColors))
-      .style('stroke', (d) =>  this.getBucketColor(d, swimOptions, swimStats, swimRepresentation, swimColors))
+      .style('stroke', (d) => this.getBucketColor(d, swimOptions, swimStats, swimRepresentation, swimColors))
       .style('opacity', '1');
 
     if (this.histogramParams.swimlaneMode === SwimlaneMode.fixedHeight) {
@@ -91,7 +98,8 @@ export class SwimlaneBars extends AbstractSwimlane {
     if (this.histogramParams.swimlaneMode === SwimlaneMode.fixedHeight) {
       return laneHeight * 1 / 9;
     } else {
-      return laneHeight * 1 / 9 + (laneHeight - this.getBucketHeight(bucket, swimStats, representation, swimMode, laneHeight));    }
+      return laneHeight * 1 / 9 + (laneHeight - this.getBucketHeight(bucket, swimStats, representation, swimMode, laneHeight));
+    }
   }
 
   /**

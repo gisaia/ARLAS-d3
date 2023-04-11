@@ -28,12 +28,14 @@ export class Gauge {
     public cursorHeight = 10;
     public cursorRadius = 2;
 
-    constructor(private width: number, private height: number) {
+    public constructor(private width: number, private height: number) {
 
     }
 
     public plot(maxValue: number, threshold: number, currentValue: number, svg: any) {
-        if (threshold === undefined || currentValue === undefined) { return; }
+        if (threshold === undefined || currentValue === undefined) {
+            return;
+        }
         // 0 does not exist on a scale log
         if (currentValue === 0) {
             currentValue = 1;
