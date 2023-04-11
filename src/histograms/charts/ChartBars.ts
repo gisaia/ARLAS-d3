@@ -17,8 +17,10 @@
 * under the License.
 */
 
-import { HistogramData, ChartAxes, DataType, Position, tickNumberFormat,
-  getBarOptions, UNSELECTED_BARS, UNSELECTED_BARS_ZONE, SELECTED_BARS_ZONE, } from '../utils/HistogramUtils';
+import {
+  HistogramData, ChartAxes, DataType, Position, tickNumberFormat,
+  getBarOptions, UNSELECTED_BARS, UNSELECTED_BARS_ZONE, SELECTED_BARS_ZONE,
+} from '../utils/HistogramUtils';
 import { AbstractChart } from './AbstractChart';
 import { scaleBand } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
@@ -54,18 +56,20 @@ export class ChartBars extends AbstractChart {
       .data(data.filter(d => this.isValueValid(d)))
       .enter().append('rect')
       .attr('class', 'head_band')
-      .attr('x', function (d) { return xDataDomain(d.key); })
+      .attr('x', function (d) {
+        return xDataDomain(d.key);
+      })
       .attr('width', barWidth)
-      .attr('y', (d) =>  {
+      .attr('y', (d) => {
         if (d.value > 0) {
           return axes.yDomain(d.value) - 1.5;
         } else if (d.value < 0) {
           return axes.yDomain(d.value) + 1.5;
         } else {
-           return axes.yDomain.domain()[1] > 0 ? axes.yDomain(d.value) - 1.5 : axes.yDomain(d.value) + 1.5;
+          return axes.yDomain.domain()[1] > 0 ? axes.yDomain(d.value) - 1.5 : axes.yDomain(d.value) + 1.5;
         }
       });
-      // 1.5px is to avoid the headband to be under or above the x axis
+    // 1.5px is to avoid the headband to be under or above the x axis
   }
 
   /** Plots 3 rectangles behind data bars and selection brush. This rectangles are clippable in order to make a specific style for
@@ -81,7 +85,7 @@ export class ChartBars extends AbstractChart {
       .attr('x', this.chartAxes.xDomain(this.selectionInterval.startvalue))
       .attr('y', '0')
       .attr('width', this.chartAxes.xDomain(this.selectionInterval.endvalue) - this.chartAxes.xDomain(this.selectionInterval.startvalue))
-      .attr('height', this.chartDimensions.height );
+      .attr('height', this.chartDimensions.height);
     const urlFixedSelection = 'url(#' + this.histogramParams.uid + ')';
     const urlCurrentSelection = 'url(#' + this.histogramParams.uid + '-cs)';
     const barOptions = getBarOptions(this.histogramParams.barOptions);
@@ -130,7 +134,7 @@ export class ChartBars extends AbstractChart {
       barsHeight = 0.9 * this.chartDimensions.height;
     } else {
       if (this.yStartsFromMin) {
-        if (minimum >= 0 ) {
+        if (minimum >= 0) {
           barsHeight = this.chartAxes.yDomain(minimum - minOffset);
         } else {
           /** the maximum is also negative, otherwise yStartsFromMin is neceserrali false */
@@ -141,7 +145,7 @@ export class ChartBars extends AbstractChart {
       }
     }
     this.barsContext
-      .attr('y', (d) =>  {
+      .attr('y', (d) => {
         if (d.value >= 0) {
           return this.chartAxes.yDomain(d.value);
         } else {
@@ -278,7 +282,7 @@ export class ChartBars extends AbstractChart {
     if (headBandContext) {
       if (this.histogramParams.barOptions) {
         const barsHeight = (this.yStartsFromMin && this.histogramParams.showStripes) ?
-        (0.9 * this.chartDimensions.height) : this.chartDimensions.height;
+          (0.9 * this.chartDimensions.height) : this.chartDimensions.height;
         const barOptions = getBarOptions(this.histogramParams.barOptions);
         const selectedFill = barOptions.head_band.selected_style.fill;
         const selectedStroke = barOptions.head_band.selected_style.stroke;
@@ -296,28 +300,28 @@ export class ChartBars extends AbstractChart {
           .attr('height', (d) => Math.min(selectedHeadBandHeight, barsHeight - this.chartAxes.yDomain(d.value)));
 
         headBandContext.filter((d) => +d.key >= this.selectionInterval.startvalue
-        && +d.key + this.histogramParams.barWeight * this.dataInterval <= this.selectionInterval.endvalue)
+          && +d.key + this.histogramParams.barWeight * this.dataInterval <= this.selectionInterval.endvalue)
           .attr('fill', selectedFill)
           .attr('stroke', selectedStroke)
           .attr('stroke-width', selectedStrokeWidth)
           .attr('height', (d) => Math.min(selectedHeadBandHeight, barsHeight - this.chartAxes.yDomain(d.value)));
 
         headBandContext.filter((d) => (+d.key < this.selectionInterval.startvalue || +d.key > this.selectionInterval.endvalue)
-        && (!this.selectedBars.has(+d.key)))
+          && (!this.selectedBars.has(+d.key)))
           .attr('fill', unselectedFill)
           .attr('stroke', unselectedStroke)
           .attr('stroke-width', unselectedStrokeWidth)
           .attr('height', (d) => Math.min(unselectedHeadBandHeight, barsHeight - this.chartAxes.yDomain(d.value)));
 
         headBandContext.filter((d) => +d.key < this.selectionInterval.startvalue && (!this.selectedBars.has(+d.key))
-        && +d.key + this.histogramParams.barWeight * this.dataInterval > this.selectionInterval.startvalue)
+          && +d.key + this.histogramParams.barWeight * this.dataInterval > this.selectionInterval.startvalue)
           .attr('fill', selectedFill)
           .attr('stroke', selectedStroke)
           .attr('stroke-width', selectedStrokeWidth)
           .attr('height', (d) => Math.min(selectedHeadBandHeight, barsHeight - this.chartAxes.yDomain(d.value)));
 
         headBandContext.filter((d) => +d.key <= this.selectionInterval.endvalue && (!this.selectedBars.has(+d.key))
-        && +d.key + this.histogramParams.barWeight * this.dataInterval > this.selectionInterval.endvalue)
+          && +d.key + this.histogramParams.barWeight * this.dataInterval > this.selectionInterval.endvalue)
           .attr('fill', selectedFill)
           .attr('stroke', selectedStroke)
           .attr('stroke-width', selectedStrokeWidth)
@@ -326,22 +330,22 @@ export class ChartBars extends AbstractChart {
         const maximum = max(this.histogramParams.histogramData, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MIN_VALUE);
         const minimum = min(this.histogramParams.histogramData, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MAX_VALUE);
         headBandContext.filter((d) => this.selectedBars.has(+d.key))
-        .attr('class', (d => this.getHeadBandCssName('fullyselected', d, minimum, maximum)));
+          .attr('class', (d => this.getHeadBandCssName('fullyselected', d, minimum, maximum)));
 
         headBandContext.filter((d) => +d.key >= this.selectionInterval.startvalue
-        && +d.key + this.histogramParams.barWeight * this.dataInterval <= this.selectionInterval.endvalue)
+          && +d.key + this.histogramParams.barWeight * this.dataInterval <= this.selectionInterval.endvalue)
           .attr('class', (d => this.getHeadBandCssName('currentselection', d, minimum, maximum)));
 
         headBandContext.filter((d) => (+d.key < this.selectionInterval.startvalue || +d.key > this.selectionInterval.endvalue)
-        && (!this.selectedBars.has(+d.key)))
+          && (!this.selectedBars.has(+d.key)))
           .attr('class', (d => this.getHeadBandCssName('notselected', d, minimum, maximum)));
 
         headBandContext.filter((d) => +d.key < this.selectionInterval.startvalue && (!this.selectedBars.has(+d.key))
-        && +d.key + this.histogramParams.barWeight * this.dataInterval > this.selectionInterval.startvalue)
+          && +d.key + this.histogramParams.barWeight * this.dataInterval > this.selectionInterval.startvalue)
           .attr('class', (d => this.getHeadBandCssName('partlyselected', d, minimum, maximum)));
 
         headBandContext.filter((d) => +d.key <= this.selectionInterval.endvalue && (!this.selectedBars.has(+d.key))
-        && +d.key + this.histogramParams.barWeight * this.dataInterval > this.selectionInterval.endvalue)
+          && +d.key + this.histogramParams.barWeight * this.dataInterval > this.selectionInterval.endvalue)
           .attr('class', (d => this.getHeadBandCssName('partlyselected', d, minimum, maximum)));
       }
     }
@@ -349,19 +353,19 @@ export class ChartBars extends AbstractChart {
   protected applyStyleOnStrippedSelectedBars(barsContext: any): void {
     barsContext.filter((d) => this.selectedBars.has(+d.key)).attr('fill', 'url(#fully-selected-bars-' + this.histogramParams.uid + ')');
     barsContext.filter((d) => +d.key >= this.selectionInterval.startvalue
-    && +d.key + this.histogramParams.barWeight * this.dataInterval <= this.selectionInterval.endvalue)
+      && +d.key + this.histogramParams.barWeight * this.dataInterval <= this.selectionInterval.endvalue)
       .attr('fill', 'url(#current-selected-bars-' + this.histogramParams.uid + ')');
     barsContext.filter((d) => (+d.key < this.selectionInterval.startvalue || +d.key > this.selectionInterval.endvalue)
-    && (!this.selectedBars.has(+d.key)))
+      && (!this.selectedBars.has(+d.key)))
       .attr('fill', 'url(#unselected-bars-' + this.histogramParams.uid + ')');
 
     barsContext.filter((d) => +d.key < this.selectionInterval.startvalue && (!this.selectedBars.has(+d.key))
-    && +d.key + this.histogramParams.barWeight * this.dataInterval > this.selectionInterval.startvalue)
-    .attr('fill', 'url(#partly-selected-bars-' + this.histogramParams.uid + ')');
+      && +d.key + this.histogramParams.barWeight * this.dataInterval > this.selectionInterval.startvalue)
+      .attr('fill', 'url(#partly-selected-bars-' + this.histogramParams.uid + ')');
 
     barsContext.filter((d) => +d.key <= this.selectionInterval.endvalue && (!this.selectedBars.has(+d.key))
-    && +d.key + this.histogramParams.barWeight * this.dataInterval > this.selectionInterval.endvalue)
-    .attr('fill', 'url(#partly-selected-bars-' + this.histogramParams.uid + ')');
+      && +d.key + this.histogramParams.barWeight * this.dataInterval > this.selectionInterval.endvalue)
+      .attr('fill', 'url(#partly-selected-bars-' + this.histogramParams.uid + ')');
   }
 
   protected getStartPosition(data: Array<HistogramData>, index: number): number {

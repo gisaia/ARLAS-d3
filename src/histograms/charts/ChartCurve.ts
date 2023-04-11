@@ -76,7 +76,7 @@ export class ChartCurve extends AbstractChart {
             const maxOfMax = max(minMaxBorders.map(d => d[1]));
             this.histogramParams.dataLength = (new Set(data.map(d => d.key))).size;
             this.initializeDescriptionValues(minOfMin, maxOfMax, this.histogramParams.bucketRange);
-            /*** add margin to right to show 2nd y axis */
+            /** add margin to right to show 2nd y axis */
             if (chartIdToData.size === 1) {
                 this.histogramParams.margin.right = 10;
                 this.histogramParams.margin.left = 60;

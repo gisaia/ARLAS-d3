@@ -17,19 +17,18 @@
  * under the License.
  */
 
-import { AbstractChart } from './AbstractChart';
+import { extent, max, min } from 'd3-array';
+import { axisBottom } from 'd3-axis';
+import { CurveFactory, area, curveLinear, curveMonotoneX } from 'd3-shape';
+import { timeFormat, utcFormat } from 'd3-time-format';
 import {
-  HistogramData, ChartAxes, DataType, Position,
+  ChartAxes, DataType,
+  HistogramData,
+  HistogramUtils,
+  Position,
   tickNumberFormat
 } from '../utils/HistogramUtils';
-import { curveLinear, CurveFactory, curveMonotoneX, area } from 'd3-shape';
-import { axisBottom } from 'd3-axis';
-import { extent, min, max } from 'd3-array';
-import { timeFormat, utcFormat } from 'd3-time-format';
-import { HistogramUtils } from '../utils/HistogramUtils';
-import * as tinycolor from 'tinycolor2';
-import { ColorGenerator } from 'utils/color-generator';
-import { mix } from 'tinycolor2';
+import { AbstractChart } from './AbstractChart';
 
 export class ChartArea extends AbstractChart {
 
@@ -39,7 +38,7 @@ export class ChartArea extends AbstractChart {
 
   public resize(histogramContainer: HTMLElement): void {
     super.resize(histogramContainer);
-    this.plot(<Array<{ key: number, value: number }>>this.histogramParams.histogramData);
+    this.plot(<Array<{ key: number; value: number; }>>this.histogramParams.histogramData);
     if (this.histogramParams.multiselectable) {
       this.resizeSelectedIntervals(this.chartAxes);
     }

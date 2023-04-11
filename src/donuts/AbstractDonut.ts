@@ -141,7 +141,7 @@ export abstract class AbstractDonut {
       .enter().append('path')
       .attr('class', 'donut__arc')
       .style('fill', (d) => DonutUtils.getNodeColor(d, this.donutParams.donutNodeColorizer,
-         this.donutParams.keysToColors, this.donutParams.colorsSaturationWeight))
+        this.donutParams.keysToColors, this.donutParams.colorsSaturationWeight))
       .style('opacity', 1)
       .attr('d', this.arc)
       .on('click', (event, clickedNode) => this.onClick(event, clickedNode))
@@ -303,7 +303,9 @@ export abstract class AbstractDonut {
         const xd = interpolate(this.x.domain(), [node.x0, node.x1]);
         const yd = interpolate(this.y.domain(), [node.y0, 1]);
         const yr = interpolate(this.y.range(), [node.y0 ? 20 : 0, this.donutDimensions.radius]);
-        return (t) => { this.x.domain(xd(t)); this.y.domain(yd(t)).range(yr(t)); };
+        return (t) => {
+          this.x.domain(xd(t)); this.y.domain(yd(t)).range(yr(t));
+        };
       })
       .selectAll('path')
       .attrTween('d', (d) => (() => this.arc(d)));
@@ -348,7 +350,7 @@ export abstract class AbstractDonut {
     this.donutParams.tooltip.content = DonutUtils.getNodeToolipAsArray(node,
       this.donutParams.donutNodeColorizer,
       this.donutParams.keysToColors, this.donutParams.colorsSaturationWeight
-      );
+    );
   }
 
   protected setTooltipPosition(event) {
@@ -357,8 +359,8 @@ export abstract class AbstractDonut {
       this.donutParams.tooltip.isRightSide = true;
       this.donutParams.tooltip.xPosition = this.donutDimensions.containerWidth / 2 - xPosition + 60;
     } else {
-        this.donutParams.tooltip.isRightSide = false;
-        this.donutParams.tooltip.xPosition = xPosition + 20;
+      this.donutParams.tooltip.isRightSide = false;
+      this.donutParams.tooltip.xPosition = xPosition + 20;
     }
     this.donutParams.tooltip.yPosition = pointer(event)[1] - 5 + (this.donutDimensions.height / 2);
     this.donutTooltip.xPosition = xPosition;

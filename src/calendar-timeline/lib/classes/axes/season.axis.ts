@@ -9,9 +9,7 @@ export class SeasonAxis extends Axis {
     public constructor(context) {
         super(context, SeasonAxis.name.toString());
         this.setTickSize(30);
-        this.tickFormat = (d: Date, idx: number) => {
-            return Season.getSeasonNameFromDate(d);
-        };
+        this.tickFormat = (d: Date, idx: number) => Season.getSeasonNameFromDate(d);
     }
 
     public plot() {
@@ -35,8 +33,9 @@ export class SeasonAxis extends Axis {
         super.setBoundDates(dates);
         const itw = this.domain(this.SEASON_IN_MILLISECONDS) - this.domain(0);
 
-        const timeSeason = timeDay.filter(date => {
-            return date.getTime() === Season.getSeasonStartFromDate(date).getTime(); });
+        const timeSeason = timeDay.filter(date =>
+            date.getTime() === Season.getSeasonStartFromDate(date).getTime()
+        );
         this.setTickInterval(timeSeason).setTickIntervalWidth(itw);
         return this;
     }

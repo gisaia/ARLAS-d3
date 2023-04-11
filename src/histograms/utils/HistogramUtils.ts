@@ -60,7 +60,7 @@ export interface HistogramTooltip {
   y?: {
     value: number | string;
     chartId?: string;
-    color?: string
+    color?: string;
   }[];
   max?: number;
   min?: number;
@@ -92,12 +92,12 @@ export interface BrushTooltip {
 
 export interface SwimlaneData {
   key: string;
-  value: Array<{ key: number, value: number }>;
+  value: Array<{ key: number; value: number; }>;
 }
 
 export interface SwimlaneParsedData {
   key: string;
-  value: Array<{ key: number | Date, value: number }>;
+  value: Array<{ key: number | Date; value: number; }>;
 }
 
 export interface SelectedOutputValues {
@@ -161,26 +161,26 @@ export interface SwimlaneStats {
 }
 
 export interface SwimlaneOptions {
-  /**Hex color attributted to buckets whose values are NaN */
+  /** Hex color attributted to buckets whose values are NaN */
   nan_color?: string;
-  /**Hex color attributted to buckets whose values are 0 */
+  /** Hex color attributted to buckets whose values are 0 */
   zeros_color?: string;
-  /**The tick plotted on each swimlane bucket that indicates how high/low the bucket value is. */
+  /** The tick plotted on each swimlane bucket that indicates how high/low the bucket value is. */
   level_tick?: TickOptions;
 }
 
 export interface TickOptions {
-  /**Hex color of the tick */
+  /** Hex color of the tick */
   color?: string;
-  /**Width of the tick in pixels */
+  /** Width of the tick in pixels */
   width?: number;
-  /**Opacity of the tick */
+  /** Opacity of the tick */
   opacity?: number;
 }
 
 export interface SwimlaneData {
   stats: SwimlaneStats;
-  lanes: Map<string, Array<{ key: number, value: number }>>;
+  lanes: Map<string, Array<{ key: number; value: number; }>>;
 }
 
 export interface Tooltip {
@@ -199,7 +199,7 @@ export class HistogramUtils {
 
   public static isSelectionBeyondDataDomain(selectedInputValues: SelectedInputValues,
     inputData: Array<HistogramData>,
-    intervalSelectedMap: Map<string, { values: SelectedOutputValues, x_position: number }>): boolean {
+    intervalSelectedMap: Map<string, { values: SelectedOutputValues; x_position: number; }>): boolean {
 
     let min = selectedInputValues.startvalue;
     let max = selectedInputValues.endvalue;
@@ -249,7 +249,7 @@ export class HistogramUtils {
     }
   }
 
-  public static parseSwimlaneDataKey(swimlanesInputData: Map<string, Array<{ key: number, value: number }>>,
+  public static parseSwimlaneDataKey(swimlanesInputData: Map<string, Array<{ key: number; value: number; }>>,
     dataType: DataType): Map<string, Array<HistogramData>> {
     const swimlaneParsedDataMap = new Map<string, Array<HistogramData>>();
     swimlanesInputData.forEach((swimlane, key) => {
@@ -442,7 +442,9 @@ export class HistogramUtils {
         shortValue = shortValue = Math.round(parseFloat((suffixNum !== 0 ? (value / Math.pow(1000, suffixNum)) : value)
           .toPrecision(precision)));
         const dotLessShortValue = (shortValue + '').replace(/[^a-zA-Z]+/g, '');
-        if (dotLessShortValue.length <= 2) { break; }
+        if (dotLessShortValue.length <= 2) {
+          break;
+        }
       }
       let shortNum = shortValue.toString();
       if (shortValue % 1 !== 0) {
@@ -470,7 +472,11 @@ export class HistogramUtils {
           if (isValid) {
             localWhole.push(d);
           }
-          isValid ? wholes.push(localWhole) : splittedData.push(localData);
+          if (isValid) {
+            wholes.push(localWhole);
+          } else {
+            splittedData.push(localData);
+          }
           localData = [];
           localWhole = [];
           if (!isValid) {
@@ -480,7 +486,11 @@ export class HistogramUtils {
             }
           }
         }
-        isValid ? localData.push(d) : localWhole.push(d);
+        if (isValid) {
+          localData.push(d);
+        } else {
+          localWhole.push(d);
+        }
       });
       if (localData.length > 0) {
         splittedData.push(localData);
@@ -604,10 +614,18 @@ export function getBarOptions(barOptions: BarOptions): BarOptions {
       unselected_height: HEAD_BAR.HEIGHT
     };
   } else {
-    if (!returnedBarOptions.head_band.selected_style) { returnedBarOptions.head_band.selected_style = HEAD_BAR.SELECTED_STYLE; }
-    if (!returnedBarOptions.head_band.unselected_style) { returnedBarOptions.head_band.unselected_style = HEAD_BAR.UNSELECTED_STYLE; }
-    if (returnedBarOptions.head_band.selected_height === undefined) { returnedBarOptions.head_band.selected_height = HEAD_BAR.HEIGHT; }
-    if (returnedBarOptions.head_band.unselected_height === undefined) { returnedBarOptions.head_band.unselected_height = HEAD_BAR.HEIGHT; }
+    if (!returnedBarOptions.head_band.selected_style) {
+      returnedBarOptions.head_band.selected_style = HEAD_BAR.SELECTED_STYLE;
+    }
+    if (!returnedBarOptions.head_band.unselected_style) {
+      returnedBarOptions.head_band.unselected_style = HEAD_BAR.UNSELECTED_STYLE;
+    }
+    if (returnedBarOptions.head_band.selected_height === undefined) {
+      returnedBarOptions.head_band.selected_height = HEAD_BAR.HEIGHT;
+    }
+    if (returnedBarOptions.head_band.unselected_height === undefined) {
+      returnedBarOptions.head_band.unselected_height = HEAD_BAR.HEIGHT;
+    }
   }
   if (!returnedBarOptions.selected_style) {
     returnedBarOptions.selected_style = SELECTED_STYLE;

@@ -96,8 +96,8 @@ export class Cursor extends TemporalObject {
             this.axis.getTickIntervalWidth() / 2;
         this.element
             .select('path')
-            /**6 is half 12 the width of the cursor
-             * todo : set the right height
+            /** 6 is half 12 the width of the cursor
+             * TODO : set the right height
              */
             .attr('transform', 'translate(' + (position - 5) + ',' + this.cursorOffset + ')');
     }
