@@ -17,18 +17,14 @@
  * under the License.
  */
 
-import { extent, max, min } from 'd3-array';
-import { axisBottom } from 'd3-axis';
-import { CurveFactory, area, curveLinear, curveMonotoneX } from 'd3-shape';
-import { timeFormat, utcFormat } from 'd3-time-format';
-import {
-  ChartAxes, DataType,
-  HistogramData,
-  HistogramUtils,
-  Position,
-  tickNumberFormat
-} from '../utils/HistogramUtils';
 import { AbstractChart } from './AbstractChart';
+import {
+  ChartAxes,
+  HistogramData,
+  HistogramUtils
+} from '../utils/HistogramUtils';
+import { curveLinear, CurveFactory, curveMonotoneX, area } from 'd3-shape';
+import { min, max } from 'd3-array';
 
 export class ChartArea extends AbstractChart {
 
@@ -38,14 +34,10 @@ export class ChartArea extends AbstractChart {
 
   public resize(histogramContainer: HTMLElement): void {
     super.resize(histogramContainer);
-    this.plot(<Array<{ key: number; value: number; }>>this.histogramParams.histogramData);
+    this.plot(this.histogramParams.histogramData);
     if (this.histogramParams.multiselectable) {
       this.resizeSelectedIntervals(this.chartAxes);
     }
-  }
-
-  protected setDataInterval(data: Array<HistogramData>): void {
-    this.dataInterval = 0;
   }
 
   protected moveDataByHalfInterval(data: Array<HistogramData>): Array<HistogramData> {
@@ -61,25 +53,8 @@ export class ChartArea extends AbstractChart {
     }
   }
 
-  protected customizeData(data: Array<HistogramData>): void {
-    const followingLastBucket = this.getFollowingLastBucket(data);
-    data.push(followingLastBucket);
-  }
-
   protected plotChart(data: Array<HistogramData>): void {
-    this.clipPathContext = this.context.append('defs').append('clipPath')
-      .attr('id', this.histogramParams.uid);
-    this.currentClipPathContext = this.context.append('defs').append('clipPath')
-      .attr('id', this.histogramParams.uid + '-currentselection');
-    this.rectangleCurrentClipper = this.currentClipPathContext.append('rect')
-      .attr('id', 'clip-rect')
-      .attr('x', this.chartAxes.xDomain(this.selectionInterval.startvalue))
-      .attr('y', '0')
-      .attr('width', this.chartAxes.xDomain(this.selectionInterval.endvalue) - this.chartAxes.xDomain(this.selectionInterval.startvalue))
-      .attr('height', this.chartDimensions.height);
-
-    const curveType: CurveFactory = (this.histogramParams.isSmoothedCurve) ? curveMonotoneX : curveLinear;
-
+    this.createClipperContext();
 
     const minimum = min(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MAX_VALUE);
     const maximum = max(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MIN_VALUE);
@@ -100,103 +75,97 @@ export class ChartArea extends AbstractChart {
         areaYPositon = this.chartAxes.yDomain(0);
       }
     }
-    const a = area()
+
+    const curveType: CurveFactory = (this.histogramParams.isSmoothedCurve) ? curveMonotoneX : curveLinear;
+    const a = area<HistogramData>()
       .curve(curveType)
-      .x((d: any) => this.chartAxes.xDataDomain(d.key))
+      .x(d => this.chartAxes.xDataDomain((+d.key).toString()))
       .y0(areaYPositon)
-      .y1((d: any) => this.chartAxes.yDomain(d.value));
+      .y1(d => this.chartAxes.yDomain(d.value));
 
     const urlFixedSelection = 'url(#' + this.histogramParams.uid + ')';
-    const urlCurrentSelection = 'url(#' + this.histogramParams.uid + '-currentselection)';
-    const discontinuedData = HistogramUtils.splitData(data);
-    discontinuedData[0].forEach(part => {
-      this.context.append('g').attr('class', 'histogram__area-data')
-        .append('path')
-        .datum(part)
-        .attr('class', 'histogram__chart--unselected--area')
-        .attr('d', a);
-      this.context.append('g').attr('class', 'histogram__area-data').attr('clip-path', urlFixedSelection)
-        .append('path')
-        .datum(part)
-        .attr('class', 'histogram__chart--fixed-selected--area')
-        .attr('d', a);
-      this.context.append('g').attr('class', 'histogram__area-data').attr('clip-path', urlCurrentSelection)
-        .append('path')
-        .datum(part)
-        .attr('class', 'histogram__chart--current-selected--area')
-        .attr('d', a);
+    const urlCurrentSelection = 'url(#' + this.histogramParams.uid + '-cs-area)';
 
-      // ADD STRIPPED AREAS
-      if (this.yStartsFromMin && this.histogramParams.showStripes) {
-        const id = this.histogramParams.uid;
-        this.addStrippedPattern('unselected-area-' + id, this.START_Y_FROM_MIN_STRIPES_PATTERN, this.START_Y_FROM_MIN_STRIPES_SIZE,
-          'histogram__stripped-unselected-area');
-        this.addStrippedPattern('fixed-area-' + id, this.START_Y_FROM_MIN_STRIPES_PATTERN, this.START_Y_FROM_MIN_STRIPES_SIZE,
-          'histogram__stripped-fixed-selected-area');
-        this.addStrippedPattern('current-area-' + id, this.START_Y_FROM_MIN_STRIPES_PATTERN, this.START_Y_FROM_MIN_STRIPES_SIZE,
-          'histogram__stripped-current-selected-area');
-        this.context.append('g')
-          .append('rect')
-          .attr('x', this.chartAxes.xDomain(part[0].key))
-          .attr('y', this.chartDimensions.height * 0.9)
-          .attr('width', this.chartAxes.xDomain(part[part.length - 1].key) - this.chartAxes.xDomain(part[0].key))
-          .attr('height', this.chartDimensions.height * 0.1)
-          .attr('fill', 'url(#unselected-area-' + id + ')');
-        this.context.append('g')
-          .append('rect').attr('clip-path', urlFixedSelection)
-          .attr('x', this.chartAxes.xDomain(part[0].key))
-          .attr('y', this.chartDimensions.height * 0.9)
-          .attr('width', this.chartAxes.xDomain(part[part.length - 1].key) - this.chartAxes.xDomain(part[0].key))
-          .attr('height', this.chartDimensions.height * 0.1)
-          .attr('fill', 'url(#fixed-area-' + id + ')');
-        this.context.append('g')
-          .append('rect').attr('clip-path', urlCurrentSelection)
-          .attr('x', this.chartAxes.xDomain(part[0].key))
-          .attr('y', this.chartDimensions.height * 0.9)
-          .attr('width', this.chartAxes.xDomain(part[part.length - 1].key) - this.chartAxes.xDomain(part[0].key))
-          .attr('height', this.chartDimensions.height * 0.1)
-          .attr('fill', 'url(#current-area-' + id + ')');
-      }
-    });
-    this.addStrippedPattern('no-data-stripes', this.NO_DATA_STRIPES_PATTERN, this.NO_DATA_STRIPES_SIZE, 'histogram__no-data-stripes');
-    discontinuedData[1].forEach(part => {
-      this.context.append('g')
-        .append('rect')
-        .attr('x', this.chartAxes.xDomain(part[0].key))
-        .attr('y', 0)
-        .attr('width', this.chartAxes.xDomain(part[part.length - 1].key) - this.chartAxes.xDomain(part[0].key))
-        .attr('height', this.chartDimensions.height)
-        .attr('fill', 'url(#no-data-stripes)')
-        .attr('fill-opacity', 0.5);
-    });
-  }
-
-  protected createChartAxes(data: Array<HistogramData>): void {
-    super.createChartAxes(data);
-    this.chartAxes.stepWidth = 0;
-    const startRange = this.chartAxes.xDomain(data[0].key);
-    const endRange = this.chartAxes.xDomain(+data[data.length - 1].key);
-    const xDataDomain = (this.getXDomainScale()).range([startRange, endRange]);
-    xDataDomain.domain(extent(data, (d: any) => d.key));
-    this.chartAxes.xDataDomain = xDataDomain;
-    this.chartAxes.xAxis = axisBottom(this.chartAxes.xDomain).tickSize(0);
-    this.chartAxes.xTicksAxis = axisBottom(this.chartAxes.xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 4);
-    const labelPadding = (this.histogramParams.xAxisPosition === Position.bottom) ? 9 : -15;
-    this.chartAxes.xLabelsAxis = axisBottom(this.chartAxes.xDomain).tickSize(0)
-      .tickPadding(labelPadding).ticks(this.histogramParams.xLabels);
-    this.applyFormatOnXticks(data);
-    if (this.histogramParams.dataType === DataType.time) {
-      if (this.histogramParams.ticksDateFormat) {
-        if (this.histogramParams.useUtc) {
-          this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(utcFormat(this.histogramParams.ticksDateFormat));
-        } else {
-          this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(timeFormat(this.histogramParams.ticksDateFormat));
-        }
-      }
-    } else {
-      /** apply space between thousands, millions */
-      this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(d => tickNumberFormat(d, this.histogramParams.numberFormatChar));
+    // CODE FROM ChartCurve
+    const chartIdToData = new Map<string, HistogramData[]>();
+    // Reduce data by charId
+    const chartIds = new Set(data.map(item => item.chartId));
+    // Put each data by chartId in a map
+    chartIds.forEach(id => chartIdToData.set(id, data.filter(d => d.chartId === id)));
+    // If the map is empty, add a default key with the unique chart data
+    if (chartIdToData.size === 0) {
+      chartIdToData.set('default', data);
     }
+
+    chartIdToData.forEach(part => {
+      const discontinuedData = HistogramUtils.splitData(part);
+
+      discontinuedData[0].forEach(chartData => {
+        this.context.append('g').attr('class', 'histogram__area-data')
+          .append('path')
+          .datum(chartData)
+          .attr('class', 'histogram__chart--unselected--area')
+          .style('opacity', 0.3)
+          .attr('d', a);
+        this.context.append('g').attr('class', 'histogram__area-data')
+          .attr('clip-path', urlFixedSelection)
+          .append('path')
+          .datum(chartData)
+          .attr('class', 'histogram__chart--fixed-selected--area')
+          .style('opacity', 0.3)
+          .attr('d', a);
+        this.context.append('g').attr('class', 'histogram__area-data')
+          .attr('clip-path', urlCurrentSelection)
+          .append('path')
+          .datum(chartData)
+          .attr('class', 'histogram__chart--current-selected--area')
+          .style('opacity', 0.3)
+          .attr('d', a);
+
+        // ADD STRIPPED AREAS
+        if (this.yStartsFromMin && this.histogramParams.showStripes) {
+          const id = this.histogramParams.uid;
+          this.addStrippedPattern('unselected-area-' + id, this.START_Y_FROM_MIN_STRIPES_PATTERN, this.START_Y_FROM_MIN_STRIPES_SIZE,
+            'histogram__stripped-unselected-area');
+          this.addStrippedPattern('fixed-area-' + id, this.START_Y_FROM_MIN_STRIPES_PATTERN, this.START_Y_FROM_MIN_STRIPES_SIZE,
+            'histogram__stripped-fixed-selected-area');
+          this.addStrippedPattern('current-area-' + id, this.START_Y_FROM_MIN_STRIPES_PATTERN, this.START_Y_FROM_MIN_STRIPES_SIZE,
+            'histogram__stripped-current-selected-area');
+          this.context.append('g')
+            .append('rect')
+            .attr('x', this.chartAxes.xDomain(+chartData[0].key))
+            .attr('y', this.chartDimensions.height * 0.9)
+            .attr('width', this.chartAxes.xDomain(+chartData[chartData.length - 1].key) - this.chartAxes.xDomain(+chartData[0].key))
+            .attr('height', this.chartDimensions.height * 0.1)
+            .attr('fill', 'url(#unselected-area-' + id + ')');
+          this.context.append('g')
+            .append('rect').attr('clip-path', urlFixedSelection)
+            .attr('x', this.chartAxes.xDomain(+chartData[0].key))
+            .attr('y', this.chartDimensions.height * 0.9)
+            .attr('width', this.chartAxes.xDomain(+chartData[chartData.length - 1].key) - this.chartAxes.xDomain(+chartData[0].key))
+            .attr('height', this.chartDimensions.height * 0.1)
+            .attr('fill', 'url(#fixed-area-' + id + ')');
+          this.context.append('g')
+            .append('rect').attr('clip-path', urlCurrentSelection)
+            .attr('x', this.chartAxes.xDomain(+chartData[0].key))
+            .attr('y', this.chartDimensions.height * 0.9)
+            .attr('width', this.chartAxes.xDomain(+chartData[chartData.length - 1].key) - this.chartAxes.xDomain(+chartData[0].key))
+            .attr('height', this.chartDimensions.height * 0.1)
+            .attr('fill', 'url(#current-area-' + id + ')');
+        }
+        this.addStrippedPattern('no-data-stripes', this.NO_DATA_STRIPES_PATTERN, this.NO_DATA_STRIPES_SIZE, 'histogram__no-data-stripes');
+        discontinuedData[1].forEach(part => {
+          this.context.append('g')
+            .append('rect')
+            .attr('x', this.chartAxes.xDomain(+part[0].key))
+            .attr('y', 0)
+            .attr('width', this.chartAxes.xDomain(+part[part.length - 1].key) - this.chartAxes.xDomain(+part[0].key))
+            .attr('height', this.chartDimensions.height)
+            .attr('fill', 'url(#no-data-stripes)')
+            .attr('fill-opacity', 0.5);
+        });
+      });
+    });
   }
 
   protected drawChartAxes(chartAxes: ChartAxes, leftOffset: number): void {
@@ -251,15 +220,16 @@ export class ChartArea extends AbstractChart {
     this.tooltipCursorContext.selectAll('.bar')
       .data(data.filter(d => this.isValueValid(d)))
       .enter().append('line')
-      .attr('x1', (d) => axes.xDataDomain(d.key))
-      .attr('x2', (d) => axes.xDataDomain(d.key))
+      .attr('x1', (d) => axes.xDataDomain((+d.key).toString()))
+      .attr('x2', (d) => axes.xDataDomain((+d.key).toString()))
       .attr('y1', 1)
-      .attr('y2', (d) => this.chartDimensions.height)
+      .attr('y2', () => this.chartDimensions.height)
       .attr('class', 'histogram__tooltip_cursor_line');
-    this.context.append('g').attr('class', 'histogram__area_circle_container').selectAll('dot').data(data.filter(d => this.isValueValid(d)))
+    this.context.append('g').attr('class', 'histogram__area_circle_container').selectAll('dot')
+      .data(data.filter(d => this.isValueValid(d)))
       .enter().append('circle')
-      .attr('r', (d) => 2)
-      .attr('cx', (d) => axes.xDataDomain(d.key))
+      .attr('r', () => 3)
+      .attr('cx', (d) => axes.xDataDomain((+d.key).toString()))
       .attr('cy', (d) => axes.yDomain(d.value))
       .attr('class', 'histogram__area_circle')
       .style('opacity', '0.8');
@@ -294,6 +264,19 @@ export class ChartArea extends AbstractChart {
 
   protected setTooltipYposition(yPosition: number): number {
     return -10;
+  }
+
+  private createClipperContext() {
+    this.clipPathContext = this.context.append('defs').append('clipPath')
+      .attr('id', this.histogramParams.uid);
+    this.currentClipPathContext = this.context.append('defs').append('clipPath')
+      .attr('id', this.histogramParams.uid + '-cs-area');
+    this.rectangleCurrentClipper = this.currentClipPathContext.append('rect')
+      .attr('id', 'clip-rect')
+      .attr('x', this.chartAxes.xDomain(this.selectionInterval.startvalue))
+      .attr('y', '0')
+      .attr('width', this.chartAxes.xDomain(this.selectionInterval.endvalue) - this.chartAxes.xDomain(this.selectionInterval.startvalue))
+      .attr('height', this.chartDimensions.height);
   }
 }
 

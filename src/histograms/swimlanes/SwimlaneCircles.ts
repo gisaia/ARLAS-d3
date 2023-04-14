@@ -22,7 +22,7 @@ import { HistogramData, SwimlaneStats, SwimlaneRepresentation } from '../utils/H
 
 export class SwimlaneCircles extends AbstractSwimlane {
 
-  protected plotOneLane(data: Array<HistogramData>, indexOfLane): void {
+  protected plotOneLane(data: Array<HistogramData>, indexOfLane: number): void {
     const swimStats: SwimlaneStats = this.histogramParams.swimlaneData.stats;
     const swimRepresentation: SwimlaneRepresentation = this.histogramParams.swimlaneRepresentation;
     const swimColors = this.histogramParams.paletteColors;
@@ -30,7 +30,7 @@ export class SwimlaneCircles extends AbstractSwimlane {
     this.barsContext = this.context.append('g')
       .attr('class', 'histogram__swimlane').selectAll('dot').data(data).enter().append('circle')
       .attr('r', (d) => this.getBucketRadius(d, swimStats, swimRepresentation))
-      .attr('cx', (d) => this.histogramParams.swimLaneLabelsWidth + this.swimlaneAxes.xDataDomainArray[indexOfLane](d.key) +
+      .attr('cx', (d) => this.histogramParams.swimLaneLabelsWidth + this.swimlaneAxes.xDataDomainArray[indexOfLane]((+d.key).toString()) +
         this.swimlaneAxes.stepWidth * this.histogramParams.barWeight / 2)
       .attr('cy', (d) => this.histogramParams.swimlaneHeight * (indexOfLane + 1) - this.histogramParams.swimlaneHeight / 2)
       .attr('class', 'histogram__swimlane--circle')

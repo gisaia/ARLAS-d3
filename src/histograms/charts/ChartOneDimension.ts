@@ -20,7 +20,6 @@
 
 import { HistogramData, HistogramUtils, ChartAxes, DataType, ChartDimensions, Position } from '../utils/HistogramUtils';
 import { AbstractChart } from './AbstractChart';
-import { scaleBand } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
 
 export class ChartOneDimension extends AbstractChart {
@@ -52,25 +51,23 @@ export class ChartOneDimension extends AbstractChart {
 
   protected createChartAxes(data: Array<HistogramData>): void {
     super.createChartAxes(data);
+
     this.chartAxes.stepWidth = 0;
-    const startRange = this.chartAxes.xDomain(data[0].key);
-    const endRange = this.chartAxes.xDomain(+data[data.length - 1].key + this.dataInterval);
     if (data.length > 1) {
       this.chartAxes.stepWidth = this.chartAxes.xDomain(data[1].key) - this.chartAxes.xDomain(data[0].key);
     } else {
       this.chartAxes.stepWidth = this.chartDimensions.width;
     }
-    this.chartAxes.xDataDomain = scaleBand().range([startRange, endRange]).paddingInner(0);
-    this.chartAxes.xDataDomain.domain(data.map((d) => d.key));
+
     const ticksPeriod = Math.max(1, Math.round(data.length / this.histogramParams.xTicks));
     const labelsPeriod = Math.max(1, Math.round(data.length / this.histogramParams.xLabels));
     const labelPadding = (this.histogramParams.xAxisPosition === Position.bottom) ? 9 : -15;
     if (this.histogramParams.dataType === DataType.numeric) {
       this.chartAxes.xTicksAxis = axisBottom(this.chartAxes.xDomain).tickValues(this.chartAxes.xDataDomain.domain()
-        .filter((d, i) => !(i % ticksPeriod))).tickSize(this.minusSign * 4);
+        .filter((d, i) => !(i % ticksPeriod)).map(d => Number(d))).tickSize(this.minusSign * 4);
       this.chartAxes.xLabelsAxis = axisBottom(this.chartAxes.xDomain).tickSize(0).tickPadding(labelPadding)
       .tickValues(this.chartAxes.xDataDomain.domain()
-        .filter((d, i) => !(i % labelsPeriod)));
+        .filter((d, i) => !(i % labelsPeriod)).map(d => Number(d)));
     } else {
       this.chartAxes.xTicksAxis = axisBottom(this.chartAxes.xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 4);
       this.chartAxes.xLabelsAxis = axisBottom(this.chartAxes.xDomain).tickSize(0)

@@ -22,8 +22,8 @@ import * as tinycolor from 'tinycolor2';
 import * as moment from 'moment';
 import { Selection, BaseType } from 'd3-selection';
 import { timeFormat, utcFormat } from 'd3-time-format';
-import { Axis } from 'd3-axis';
-import { ScaleLinear } from 'd3-scale';
+import { Axis, AxisDomain } from 'd3-axis';
+import { ScaleBand, ScaleLinear, ScaleTime } from 'd3-scale';
 import { format } from 'd3-format';
 import { HistogramParams, Style, BarOptions } from '../HistogramParams';
 
@@ -110,38 +110,48 @@ export interface SelectedInputValues {
   endvalue: Date | number;
 }
 
+export type HistogramSVG = Selection<SVGElement, HistogramData, BaseType, HistogramData>;
+export type HistogramSVGG = Selection<SVGGElement, HistogramData, BaseType, HistogramData>;
+export type HistogramSVGRect = Selection<SVGRectElement, HistogramData, BaseType, HistogramData>;
+export type HistogramSVGClipPath = Selection<SVGClipPathElement, HistogramData, BaseType, HistogramData>;
+export type HistogramSVGLine = Selection<SVGLineElement, HistogramData, BaseType, HistogramData>;
+
 export interface ChartDimensions {
-  svg: Selection<BaseType, any, BaseType, any>;
+  svg: HistogramSVG;
   margin: MarginModel;
   width: number;
   height: number;
 }
 
 export interface ChartAxes {
-  xDomain: any;
-  xDataDomain: any;
+  xDomain: ScaleTime<number, number> | ScaleLinear<number, number>;
+  xDataDomain: ScaleBand<string>;
   yDomain: ScaleLinear<number, number>;
   yDomainRight?: ScaleLinear<number, number>;
-  xTicksAxis: Axis<any>;
-  xLabelsAxis: Axis<any>;
-  yTicksAxis: Axis<any>;
-  yLabelsAxis: Axis<any>;
-  yTicksAxisRight?: Axis<any>;
-  yLabelsAxisRight?: Axis<any>;
+  xTicksAxis: Axis<AxisDomain>;
+  xLabelsAxis: Axis<AxisDomain>;
+  yTicksAxis: Axis<AxisDomain>;
+  yLabelsAxis: Axis<AxisDomain>;
+  yTicksAxisRight?: Axis<AxisDomain>;
+  yLabelsAxisRight?: Axis<AxisDomain>;
   stepWidth: number;
-  xAxis: Axis<any>;
-  yAxis: Axis<any>;
-  yAxisRight?: Axis<any>;
+  xAxis: Axis<AxisDomain>;
+  yAxis: Axis<AxisDomain>;
+  yAxisRight?: Axis<AxisDomain>;
 
 }
 
 export interface SwimlaneAxes {
-  xDomain: any;
-  xDataDomainArray: Array<any>;
-  xTicksAxis: Axis<any>;
-  xLabelsAxis: Axis<any>;
+  xDomain: ScaleTime<number, number> | ScaleLinear<number, number>;
+  xDataDomainArray: Array<ScaleBand<string>>;
+  xTicksAxis: Axis<AxisDomain>;
+  xLabelsAxis: Axis<AxisDomain>;
   stepWidth: number;
-  xAxis: Axis<any>;
+  xAxis: Axis<AxisDomain>;
+}
+
+export function isChartAxes(axes: ChartAxes | SwimlaneAxes): axes is ChartAxes {
+  return !!(axes as ChartAxes).yDomain;
 }
 
 export interface LaneStats {
@@ -214,7 +224,7 @@ export class HistogramUtils {
       }
     });
     if (inputData.length !== 0) {
-      return +min < inputData[0].key || +max > inputData[inputData.length - 1].key;
+      return min < inputData[0].key || max > inputData[inputData.length - 1].key;
     } else {
       return true;
     }

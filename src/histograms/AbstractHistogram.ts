@@ -19,11 +19,11 @@
 
 import {
   ChartDimensions, ChartAxes, SwimlaneAxes, SelectedOutputValues, HistogramUtils,
-  DataType, HistogramData, Position, BrushCornerTooltips, SwimlaneData
+  DataType, HistogramData, Position, BrushCornerTooltips, SwimlaneData, isChartAxes, HistogramSVGG
 } from './utils/HistogramUtils';
 import { HistogramParams } from './HistogramParams';
 import { BrushBehavior } from 'd3-brush';
-import { scaleUtc, scaleLinear, scaleTime } from 'd3-scale';
+import { scaleUtc, scaleLinear, scaleTime, ScaleTime, ScaleLinear, ScaleBand } from 'd3-scale';
 import { min, max } from 'd3-array';
 
 export abstract class AbstractHistogram {
@@ -34,12 +34,12 @@ export abstract class AbstractHistogram {
   public isBrushing = false;
 
   /** Contexts */
-  protected context: any;
-  protected barsContext: any;
-  protected noDatabarsContext: any;
-  protected brushContext: any;
-  protected tooltipCursorContext: any;
-  protected allAxesContext: any;
+  protected context: HistogramSVGG;
+  protected barsContext: HistogramSVGG;
+  protected noDatabarsContext: HistogramSVGG;
+  protected brushContext: HistogramSVGG;
+  protected tooltipCursorContext: HistogramSVGG;
+  protected allAxesContext: HistogramSVGG;
 
   /** Chart dimensions */
   protected chartDimensions: ChartDimensions;
@@ -51,7 +51,7 @@ export abstract class AbstractHistogram {
   protected dataInterval: number;
 
   /** Brush selection */
-  protected selectionBrush: BrushBehavior<any>;
+  protected selectionBrush: BrushBehavior<HistogramData>;
   protected selectionInterval: SelectedOutputValues = { startvalue: null, endvalue: null };
   protected brushHandlesHeight: number = null;
   protected brushHandles;
@@ -148,10 +148,11 @@ export abstract class AbstractHistogram {
     }
   }
 
-  protected getXDomainScale(): any {
-    return (this.histogramParams.dataType === DataType.time) ?
-      (this.histogramParams.useUtc) ?
-        scaleUtc() : scaleTime() : scaleLinear();
+  protected getXDomainScale(rangeStart: number, rangeEnd: number): ScaleTime<number, number> | ScaleLinear<number, number> {
+    const scale = ((this.histogramParams.dataType === DataType.time) ?
+    (this.histogramParams.useUtc) ?
+      scaleUtc() : scaleTime() : scaleLinear()).range([rangeStart, rangeEnd]);
+    return (scale instanceof Array ? scaleLinear(scale) : scale);
   }
 
   protected getHistogramMinMaxBorders(data: Array<HistogramData>): [number | Date, number | Date] {
@@ -230,16 +231,16 @@ export abstract class AbstractHistogram {
     // Y axis is translated to the left of 1px so that the chart doesn't hide it
     // Therefore, we substruct 1px (leftOffset - 1) so that the first tick of xAxis will coincide with y axis
     let horizontalOffset = this.chartDimensions.height;
-    if (!!(chartAxes as any).yDomain) {
+    if (isChartAxes(chartAxes)) {
       if (!this.histogramParams.yAxisFromZero) {
-        const minMax = (chartAxes as ChartAxes).yDomain.domain();
+        const minMax = chartAxes.yDomain.domain();
         if (minMax[0] >= 0) {
-          horizontalOffset = (chartAxes as ChartAxes).yDomain(minMax[0]);
+          horizontalOffset = chartAxes.yDomain(minMax[0]);
         } else {
-          horizontalOffset = (chartAxes as ChartAxes).yDomain(minMax[1]);
+          horizontalOffset = chartAxes.yDomain(minMax[1]);
         }
       } else {
-        horizontalOffset = (chartAxes as ChartAxes).yDomain(0);
+        horizontalOffset = chartAxes.yDomain(0);
 
       }
     }
@@ -267,22 +268,18 @@ export abstract class AbstractHistogram {
     }
   }
 
-  protected plotBars(data: Array<HistogramData>, axes: ChartAxes | SwimlaneAxes, xDataDomain: any, barWeight?: number): void {
+  protected plotBars(data: Array<HistogramData>, axes: ChartAxes | SwimlaneAxes, xDataDomain: ScaleBand<string>, barWeight?: number): void {
     const barWidth = barWeight ? axes.stepWidth * barWeight : axes.stepWidth * this.histogramParams.barWeight;
     this.barsContext = this.context.append('g').attr('class', 'histogram__bars').selectAll('.bar')
       .data(data.filter(d => this.isValueValid(d)))
       .enter().append('rect')
-      .attr('x', function (d) {
-        return xDataDomain(d.key);
-      })
+      .attr('x', (d: HistogramData) => xDataDomain((+d.key).toString()))
       .attr('width', barWidth);
 
     this.noDatabarsContext = this.context.append('g').attr('class', 'histogram__bars').selectAll('.bar')
       .data(data.filter(d => !this.isValueValid(d)))
       .enter().append('rect')
-      .attr('x', function (d) {
-        return xDataDomain(d.key);
-      })
+      .attr('x', (d: HistogramData) => xDataDomain((+d.key).toString()))
       .attr('width', axes.stepWidth);
   }
 
