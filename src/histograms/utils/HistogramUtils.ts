@@ -90,11 +90,6 @@ export interface BrushTooltip {
   cssVisibility?: string;
 }
 
-export interface SwimlaneData {
-  key: string;
-  value: Array<{ key: number; value: number; }>;
-}
-
 export interface SwimlaneParsedData {
   key: string;
   value: Array<{ key: number | Date; value: number; }>;
