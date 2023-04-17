@@ -2,7 +2,7 @@ import { Bucket } from '../../interfaces/bucket';
 import { BaseType, Selection } from 'd3-selection';
 import { Subject } from 'rxjs';
 import { TemporalObject } from '../temporal.object';
-import { TimelineData } from 'calendar-timeline/lib/interfaces/timeline.data';
+import { TimelineData } from '../../interfaces/timeline.data';
 
 export class VerticalLine extends TemporalObject {
 

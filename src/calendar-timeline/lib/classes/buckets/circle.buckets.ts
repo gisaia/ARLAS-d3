@@ -1,6 +1,6 @@
 import { BaseType, Selection } from 'd3-selection';
 import { Buckets } from './buckets';
-import { TimelineData } from 'calendar-timeline/lib/interfaces/timeline.data';
+import { TimelineData } from '../../interfaces/timeline.data';
 
 export class CircleBuckets extends Buckets {
 

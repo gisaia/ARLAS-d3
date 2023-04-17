@@ -4,7 +4,7 @@ import { Axis as D3Axis } from 'd3-axis';
 import { BaseType, Selection } from 'd3-selection';
 import { Dimensions } from '../dimensions/dimensions';
 import { DrawableObject } from '../drawable.object';
-import { TimelineData } from 'calendar-timeline/lib/interfaces/timeline.data';
+import { TimelineData } from '../../interfaces/timeline.data';
 
 export class Axis extends DrawableObject {
     // todo : check the best scaletime range and output types
