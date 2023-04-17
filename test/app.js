@@ -1,4 +1,4 @@
-import { ChartCurve, HistogramParams, ChartBars, SwimlaneBars, ChartArea } from '../dist/index.js'
+import { ChartCurve, HistogramParams, ChartBars, SwimlaneBars, ChartArea, OneSelectionDonut, DonutParams } from '../dist/index.js'
 import { Dimensions, Granularity, Margins, Timeline } from '../dist/index.js'
 
 
@@ -113,7 +113,7 @@ function displayHistogram(histogram, containerName) {
 
 /** Timeline */
 
-const svg = document.getElementById('container2').querySelector('svg');
+const svg = document.getElementById('containerTimeline').querySelector('svg');
 const margins = (new Margins()).setBottom(5).setTop(5).setRight(0).setLeft(0);
 const dimensions = (new Dimensions(1000, 50)).setMargins(margins);
 const timeline = (new Timeline(svg));
@@ -238,8 +238,8 @@ for (const [key, value] of Object.entries(swimlaneInput)) {
 
 swimlane.histogramParams = swimlaneParams;
 swimlane.histogramParams.intervalSelectedMap = new Map();
-swimlane.histogramParams.histogramContainer = document.getElementById('container3')
-swimlane.histogramParams.svgNode = document.getElementById('container3').querySelector('svg');
+swimlane.histogramParams.histogramContainer = document.getElementById('containerSwimlane')
+swimlane.histogramParams.svgNode = document.getElementById('containerSwimlane').querySelector('svg');
 
 const lanes = new Map();
 lanes.set('Sweden', [
@@ -331,4 +331,91 @@ swimlane.selectionInterval = {
 
 swimlane.histogramParams.swimlaneData = defaultSwimlaneData;
 swimlane.plot(defaultSwimlaneData);
-swimlane.resize(document.getElementById('container3'));
+swimlane.resize(document.getElementById('containerSwimlane'));
+
+/** Donut */
+
+const donutData = {
+  fieldValue: 'root',
+  fieldName: 'root',
+  size: 400,
+  children : [
+    {
+      fieldValue: 'sentinelle',
+      fieldName: 'satellites',
+      size: 230,
+      children : [
+        {
+          fieldValue: 'sentinelle1',
+          fieldName: 'mission',
+          size: 100
+        },
+        {
+          fieldValue: 'sentinelle2',
+          fieldName: 'mission',
+          size: 130
+        }
+      ]
+    },
+    {
+      fieldValue: 'SPOT',
+      fieldName: 'satellites',
+      size: 170,
+      children : [
+        {
+          fieldValue: 'SPOT5',
+          fieldName: 'mission',
+          size: 30
+        },
+        {
+          fieldValue: 'SPOT6',
+          size: 140,
+          fieldName: 'mission',
+          children : [
+            {
+              fieldValue: 'FR1',
+              fieldName: 'emetteur',
+              size: 10
+            },
+            {
+              fieldValue: 'FR2',
+              fieldName: 'emetteur',
+              size: 130
+            }
+          ]
+        },
+        {
+          fieldValue: 'SPOT7',
+          fieldName: 'mission',
+          size: 240,
+          children : [
+            {
+              fieldValue: 'FR1',
+              fieldName: 'emetteur',
+              size: 20
+            },
+            {
+              fieldValue: 'FR2',
+              fieldName: 'emetteur',
+              size: 110
+            },
+            {
+              fieldValue: 'FR3',
+              fieldName: 'emetteur',
+              size: 110
+            }
+          ]
+        }
+      ]
+    }
+  ]
+};
+
+const donut = new OneSelectionDonut();
+donut.donutParams = new DonutParams();
+donut.donutParams.diameter = 150;
+donut.donutParams.donutData = donutData;
+donut.donutParams.donutContainer = document.getElementById('containerDonut');
+donut.donutParams.svgElement = document.getElementById('containerDonut').querySelector('svg');
+donut.plot();
+donut.resize(document.getElementById('containerDonut'));

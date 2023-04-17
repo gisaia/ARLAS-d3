@@ -18,7 +18,7 @@
  */
 
 
-import { HistogramData, HistogramUtils, ChartAxes, DataType, ChartDimensions, Position } from '../utils/HistogramUtils';
+import { HistogramData, HistogramUtils, ChartAxes, DataType, Position } from '../utils/HistogramUtils';
 import { AbstractChart } from './AbstractChart';
 import { axisBottom } from 'd3-axis';
 

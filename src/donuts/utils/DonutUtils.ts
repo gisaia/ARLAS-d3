@@ -22,7 +22,7 @@ import { Selection, BaseType } from 'd3-selection';
 import { HierarchyRectangularNode } from 'd3-hierarchy';
 
 export interface DonutDimensions {
-  svg: Selection<BaseType, any, BaseType, any>;
+  svg: Selection<SVGElement, TreeNode, BaseType, TreeNode>;
   width: number;
   height: number;
   containerWidth: number;
@@ -54,7 +54,7 @@ export interface SimpleNode {
   fieldValue: string;
 }
 
-export interface DonutNode extends HierarchyRectangularNode<any> {
+export interface DonutNode extends HierarchyRectangularNode<TreeNode> {
   isSelected: boolean;
   innerRadius: number;
   outerRadius: number;
@@ -71,7 +71,7 @@ export interface ARLASDonutTooltip {
 }
 export interface DonutTooltipContent {
   percentage?: string;
-  value?: number;
+  value?: string;
   field?: string;
   function?: string;
   metric?: number;
@@ -80,7 +80,7 @@ export interface DonutTooltipContent {
 
 export class DonutUtils {
 
-  public static getNode(nodePath: Array<SimpleNode>, donutNodes: Array<any>): DonutNode {
+  public static getNode(nodePath: Array<SimpleNode>, donutNodes: Array<DonutNode>): DonutNode {
     let count = nodePath.length - 1;
     let nodeToSelect = null;
     for (let i = 0; i < donutNodes.length; i++) {
