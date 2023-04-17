@@ -6,7 +6,7 @@ import { Subject } from 'rxjs';
 import { TemporalObject } from '../temporal.object';
 import { VerticalLine } from './vertical.line';
 import { Bucket } from '../../interfaces/bucket';
-import { TimelineData } from 'calendar-timeline/lib/interfaces/timeline.data';
+import { TimelineData } from '../../interfaces/timeline.data';
 
 export class Cursor extends TemporalObject {
     public selectedDate: Subject<Date> = new Subject();
