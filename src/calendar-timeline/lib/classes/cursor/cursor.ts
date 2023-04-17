@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 import { TemporalObject } from '../temporal.object';
 import { VerticalLine } from './vertical.line';
 import { Bucket } from '../../interfaces/bucket';
+import { TimelineData } from 'calendar-timeline/lib/interfaces/timeline.data';
 
 export class Cursor extends TemporalObject {
     public selectedDate: Subject<Date> = new Subject();
@@ -13,7 +14,7 @@ export class Cursor extends TemporalObject {
     public hoveredBucket: Subject<Bucket> = new Subject();
     private cursorOffset: number;
 
-    public constructor(context: Selection<SVGGElement, any, BaseType, any>, granularity: Granularity) {
+    public constructor(context: Selection<SVGGElement, TimelineData, BaseType, TimelineData>, granularity: Granularity) {
         super(context, Cursor.name.toString());
         this.setCursorOffset(granularity);
     }

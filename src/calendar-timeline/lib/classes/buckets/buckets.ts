@@ -1,6 +1,4 @@
-import { Granularity } from '../../enumerations/granularity.enum';
 import { BaseType, Selection } from 'd3-selection';
-import { Axis } from '../axes/axis';
 import { TemporalObject } from '../temporal.object';
 import { TimelineData } from '../../interfaces/timeline.data';
 
@@ -12,7 +10,7 @@ export class Buckets extends TemporalObject {
     protected data: Array<TimelineData> = [];
     protected dates: Array<Date> = [];
 
-    public constructor(context: Selection<SVGGElement, any, BaseType, any>) {
+    public constructor(context: Selection<SVGGElement, TimelineData, BaseType, TimelineData>) {
         super(context, Buckets.name.toString());
     }
 

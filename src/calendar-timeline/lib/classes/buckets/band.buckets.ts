@@ -1,9 +1,10 @@
 import { BaseType, Selection } from 'd3-selection';
 import { Buckets } from './buckets';
+import { TimelineData } from 'calendar-timeline/lib/interfaces/timeline.data';
 
 export class BandBuckets extends Buckets {
 
-    public constructor(context: Selection<SVGGElement, any, BaseType, any>) {
+    public constructor(context: Selection<SVGGElement, TimelineData, BaseType, TimelineData>) {
         super(context);
     }
 
