@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "build-release": "tsc -p tsconfig.json && cp -r src/styles dist/ && cp -r patches dist/",
+    "build-release": "tsc -p tsconfig.json && cp -r src/styles dist/ && cp -r patches dist/ && cp package.json dist/",
     "lint": "eslint . --ext .ts",
     "postinstall": "patch-package"
   },
