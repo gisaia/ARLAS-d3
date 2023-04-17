@@ -17,9 +17,7 @@
  * under the License.
  */
 import { scaleLog } from 'd3-scale';
-import { axisLeft } from 'd3-axis';
-import { format } from 'd3-format';
-import { Selection, selectAll } from 'd3-selection';
+import { BaseType, Selection } from 'd3-selection';
 
 export class Gauge {
 
@@ -32,7 +30,7 @@ export class Gauge {
 
     }
 
-    public plot(maxValue: number, threshold: number, currentValue: number, svg: any) {
+    public plot(maxValue: number, threshold: number, currentValue: number, svg: Selection<SVGElement, BaseType, SVGElement, BaseType>) {
         if (threshold === undefined || currentValue === undefined) {
             return;
         }
