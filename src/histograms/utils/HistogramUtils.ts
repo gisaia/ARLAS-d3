@@ -308,9 +308,9 @@ export class HistogramUtils {
       } else {
         if (dateInterval !== undefined && dateInterval !== null && dateInterval > 0 && dateInterval < 1) {
           roundPrecision = this.getRoundPrecision(dateInterval);
-          return Number(formatNumber(value, histogramParams.numberFormatChar, roundPrecision));
+          return this.round(value, roundPrecision);
         }
-        return Number(formatNumber(value, histogramParams.numberFormatChar));
+        return value;
       }
     }
   }
@@ -357,7 +357,7 @@ export class HistogramUtils {
           }
         }
       } else {
-        return roundedValue.toString();
+        return formatNumber(roundedValue, histogramParams.numberFormatChar);
       }
     }
   }
