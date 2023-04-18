@@ -108,11 +108,11 @@ export abstract class AbstractDonut {
    */
   protected structureDataToNodes(): void {
     const root: HierarchyNode<TreeNode> = hierarchy(this.donutParams.donutData)
-      .each(d => {
-        if (d.data.size !== undefined && d.data.size !== null) {
-          d.sum(node => node.size);
+      .sum(d => {
+        if (d.size !== undefined && d.size !== null) {
+          return d.children ? d.size - d.children?.map(node => node.size ? node.size : 0).reduce((val, acc) => acc + val) : d.size;
         } else {
-          throw new Error('The node size of ' + d.data.fieldValue + ' is not specified');
+          throw new Error('The node size of ' + d.fieldValue + ' is not specified');
         }
       })
       .sort((a, b) => b.value - a.value);

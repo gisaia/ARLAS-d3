@@ -338,7 +338,7 @@ swimlane.resize(document.getElementById('containerSwimlane'));
 const donutData = {
   fieldValue: 'root',
   fieldName: 'root',
-  size: 400,
+  size: 1640,
   children : [
     {
       fieldValue: 'sentinelle',
@@ -360,7 +360,7 @@ const donutData = {
     {
       fieldValue: 'SPOT',
       fieldName: 'satellites',
-      size: 170,
+      size: 1410,
       children : [
         {
           fieldValue: 'SPOT5',
@@ -380,7 +380,7 @@ const donutData = {
             {
               fieldValue: 'FR2',
               fieldName: 'emetteur',
-              size: 130
+              size: 100
             }
           ]
         },
