@@ -1,5 +1,18 @@
 # Change Log
 
+## [v11.0.0](https://github.com/gisaia/ARLAS-d3/tree/v11.0.0) (2023-04-19)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v10.1.0-beta.1...v11.0.0)
+
+**Fixed bugs:**
+
+- \[Histogram\] Tooltip values above 1000 are NaN [\#213](https://github.com/gisaia/ARLAS-d3/issues/213)
+- \[Histogram\] Negative values of the histogram are NaN [\#212](https://github.com/gisaia/ARLAS-d3/issues/212)
+
+## [v10.1.0-beta.1](https://github.com/gisaia/ARLAS-d3/tree/v10.1.0-beta.1) (2023-04-11)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v10.0.1...v10.1.0-beta.1)
+
 ## [v10.0.1](https://github.com/gisaia/ARLAS-d3/tree/v10.0.1) (2023-02-17)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v10.0.0...v10.0.1)
