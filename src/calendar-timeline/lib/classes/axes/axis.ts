@@ -4,6 +4,7 @@ import { Axis as D3Axis } from 'd3-axis';
 import { BaseType, Selection } from 'd3-selection';
 import { Dimensions } from '../dimensions/dimensions';
 import { DrawableObject } from '../drawable.object';
+import { TimelineData } from '../../interfaces/timeline.data';
 
 export class Axis extends DrawableObject {
     // todo : check the best scaletime range and output types
@@ -17,7 +18,7 @@ export class Axis extends DrawableObject {
     protected textFontSize: number;
     private d3Axis!: D3Axis<Date | NumberValue>;
 
-    public constructor(context: Selection<SVGGElement, any, BaseType, any>, name: string) {
+    public constructor(context: Selection<SVGGElement, TimelineData, BaseType, TimelineData>, name: string) {
         super(context, name);
         this.tickFormat = null;
         this.axisYOffset = 0;

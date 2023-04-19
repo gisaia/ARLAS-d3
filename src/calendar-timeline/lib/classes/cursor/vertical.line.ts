@@ -1,7 +1,8 @@
 import { Bucket } from '../../interfaces/bucket';
 import { BaseType, Selection } from 'd3-selection';
-import { debounce, debounceTime, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { TemporalObject } from '../temporal.object';
+import { TimelineData } from '../../interfaces/timeline.data';
 
 export class VerticalLine extends TemporalObject {
 
@@ -9,7 +10,7 @@ export class VerticalLine extends TemporalObject {
 
     private currentDate: Date;
 
-    public constructor(context: Selection<SVGGElement, any, BaseType, any>) {
+    public constructor(context: Selection<SVGGElement, TimelineData, BaseType, TimelineData>) {
         super(context, VerticalLine.name.toString());
     }
 

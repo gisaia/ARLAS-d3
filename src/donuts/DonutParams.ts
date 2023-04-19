@@ -17,10 +17,9 @@
  * under the License.
  */
 
-import { TreeNode, DonutNode, DonutTooltip, ARLASDonutTooltip } from './utils/DonutUtils';
 import { Subject } from 'rxjs';
-import { Tooltip } from '../histograms/utils/HistogramUtils';
 import { ColorGenerator } from '../utils/color-generator';
+import { ARLASDonutTooltip, DonutNode, DonutTooltip, TreeNode } from './utils/DonutUtils';
 
 export class DonutParams {
 
@@ -47,8 +46,8 @@ export class DonutParams {
   /**
    * @description List of selected nodes.
    */
-  public selectedArcsList: Array<Array<{ fieldName: string, fieldValue: string }>> =
-    new Array<Array<{ fieldName: string, fieldValue: string }>>();
+  public selectedArcsList: Array<Array<{ fieldName: string; fieldValue: string; }>> =
+    new Array<Array<{ fieldName: string; fieldValue: string; }>>();
 
   /**
    * @description Whether the donut is multi-selectable.
@@ -58,8 +57,8 @@ export class DonutParams {
   /**
    * @description Emits the list of selected nodes and the paths to their ultimate parent
    */
-  public selectedNodesEvent: Subject<Array<Array<{ fieldName: string, fieldValue: string }>>> =
-    new Subject<Array<Array<{ fieldName: string, fieldValue: string }>>>();
+  public selectedNodesEvent: Subject<Array<Array<{ fieldName: string; fieldValue: string; }>>> =
+    new Subject<Array<Array<{ fieldName: string; fieldValue: string; }>>>();
 
   /**
    * @description Emits the hovered node and the path to it's parents.

@@ -17,13 +17,20 @@
  * under the License.
  */
 
+import {
+  HistogramData, HistogramUtils, SwimlaneMode,
+  SwimlaneOptions,
+  SwimlaneRepresentation,
+  SwimlaneStats,
+  TICK_COLOR,
+  TICK_OPACITY,
+  TICK_WIDTH
+} from '../utils/HistogramUtils';
 import { AbstractSwimlane } from './AbstractSwimlane';
-import { HistogramData, HistogramUtils, SwimlaneMode, LaneStats,
-   SwimlaneStats, SwimlaneRepresentation, SwimlaneOptions, NAN_COLOR, TICK_WIDTH, TICK_OPACITY, TICK_COLOR } from '../utils/HistogramUtils';
 
 export class SwimlaneBars extends AbstractSwimlane {
 
-  protected plotOneLane(laneData: Array<HistogramData>, indexOfLane): void {
+  protected plotOneLane(laneData: Array<HistogramData>, indexOfLane: number): void {
     const swimStats: SwimlaneStats = this.histogramParams.swimlaneData.stats;
     const swimRepresentation: SwimlaneRepresentation = this.histogramParams.swimlaneRepresentation;
     const swimColors = this.histogramParams.paletteColors;
@@ -37,9 +44,9 @@ export class SwimlaneBars extends AbstractSwimlane {
       .attr('y', this.histogramParams.swimlaneHeight * (indexOfLane))
       .attr('height', (d) => this.getBucketHeight(d, swimStats, swimRepresentation, swimMode, swimHeight))
       .attr('transform', (d) => 'translate(' + this.histogramParams.swimLaneLabelsWidth + ','
-      + this.getSwimlaneVerticalTranslation(d, swimStats, swimRepresentation, swimMode, swimHeight) + ')')
+        + this.getSwimlaneVerticalTranslation(d, swimStats, swimRepresentation, swimMode, swimHeight) + ')')
       .style('fill', (d) => this.getBucketColor(d, swimOptions, swimStats, swimRepresentation, swimColors))
-      .style('stroke', (d) =>  this.getBucketColor(d, swimOptions, swimStats, swimRepresentation, swimColors))
+      .style('stroke', (d) => this.getBucketColor(d, swimOptions, swimStats, swimRepresentation, swimColors))
       .style('opacity', '1');
 
     if (this.histogramParams.swimlaneMode === SwimlaneMode.fixedHeight) {
@@ -91,7 +98,8 @@ export class SwimlaneBars extends AbstractSwimlane {
     if (this.histogramParams.swimlaneMode === SwimlaneMode.fixedHeight) {
       return laneHeight * 1 / 9;
     } else {
-      return laneHeight * 1 / 9 + (laneHeight - this.getBucketHeight(bucket, swimStats, representation, swimMode, laneHeight));    }
+      return laneHeight * 1 / 9 + (laneHeight - this.getBucketHeight(bucket, swimStats, representation, swimMode, laneHeight));
+    }
   }
 
   /**
@@ -110,9 +118,9 @@ export class SwimlaneBars extends AbstractSwimlane {
       .attr('stroke-width', (opt && opt.level_tick && opt.level_tick.color) ? opt.level_tick.color : TICK_WIDTH)
       .attr('stroke', (opt && opt.level_tick && opt.level_tick.color) ? opt.level_tick.color : TICK_COLOR)
       .attr('opacity', (opt && opt.level_tick && opt.level_tick.opacity) ? opt.level_tick.opacity : TICK_OPACITY)
-      .attr('x1', (d) => this.histogramParams.swimLaneLabelsWidth + this.swimlaneAxes.xDataDomainArray[index](d.key))
+      .attr('x1', (d) => this.histogramParams.swimLaneLabelsWidth + this.swimlaneAxes.xDataDomainArray[index]((+d.key).toString()))
       .attr('y1', (d) => this.getLevelTickHeight(d, swimStats, swimRepresentation, SwimlaneMode.variableHeight, swimHeight, index))
-      .attr('x2', (d) => this.histogramParams.swimLaneLabelsWidth + this.swimlaneAxes.xDataDomainArray[index](d.key) +
+      .attr('x2', (d) => this.histogramParams.swimLaneLabelsWidth + this.swimlaneAxes.xDataDomainArray[index]((+d.key).toString()) +
         this.swimlaneAxes.stepWidth * this.histogramParams.barWeight)
       .attr('y2', (d) => this.getLevelTickHeight(d, swimStats, swimRepresentation, SwimlaneMode.variableHeight, swimHeight, index));
   }

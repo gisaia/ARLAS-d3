@@ -17,9 +17,7 @@
  * under the License.
  */
 import { scaleLog } from 'd3-scale';
-import { axisLeft } from 'd3-axis';
-import { format } from 'd3-format';
-import { Selection, selectAll } from 'd3-selection';
+import { BaseType, Selection } from 'd3-selection';
 
 export class Gauge {
 
@@ -28,12 +26,14 @@ export class Gauge {
     public cursorHeight = 10;
     public cursorRadius = 2;
 
-    constructor(private width: number, private height: number) {
+    public constructor(private width: number, private height: number) {
 
     }
 
-    public plot(maxValue: number, threshold: number, currentValue: number, svg: any) {
-        if (threshold === undefined || currentValue === undefined) { return; }
+    public plot(maxValue: number, threshold: number, currentValue: number, svg: Selection<SVGElement, BaseType, SVGElement, BaseType>) {
+        if (threshold === undefined || currentValue === undefined) {
+            return;
+        }
         // 0 does not exist on a scale log
         if (currentValue === 0) {
             currentValue = 1;

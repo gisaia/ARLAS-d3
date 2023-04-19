@@ -22,8 +22,8 @@ import * as tinycolor from 'tinycolor2';
 import * as moment from 'moment';
 import { Selection, BaseType } from 'd3-selection';
 import { timeFormat, utcFormat } from 'd3-time-format';
-import { Axis } from 'd3-axis';
-import { ScaleLinear } from 'd3-scale';
+import { Axis, AxisDomain } from 'd3-axis';
+import { ScaleBand, ScaleLinear, ScaleTime } from 'd3-scale';
 import { format } from 'd3-format';
 import { HistogramParams, Style, BarOptions } from '../HistogramParams';
 
@@ -60,7 +60,7 @@ export interface HistogramTooltip {
   y?: {
     value: number | string;
     chartId?: string;
-    color?: string
+    color?: string;
   }[];
   max?: number;
   min?: number;
@@ -90,14 +90,9 @@ export interface BrushTooltip {
   cssVisibility?: string;
 }
 
-export interface SwimlaneData {
-  key: string;
-  value: Array<{ key: number, value: number }>;
-}
-
 export interface SwimlaneParsedData {
   key: string;
-  value: Array<{ key: number | Date, value: number }>;
+  value: Array<{ key: number | Date; value: number; }>;
 }
 
 export interface SelectedOutputValues {
@@ -110,38 +105,48 @@ export interface SelectedInputValues {
   endvalue: Date | number;
 }
 
+export type HistogramSVG = Selection<SVGElement, HistogramData, BaseType, HistogramData>;
+export type HistogramSVGG = Selection<SVGGElement, HistogramData, BaseType, HistogramData>;
+export type HistogramSVGRect = Selection<SVGRectElement, HistogramData, BaseType, HistogramData>;
+export type HistogramSVGClipPath = Selection<SVGClipPathElement, HistogramData, BaseType, HistogramData>;
+export type HistogramSVGLine = Selection<SVGLineElement, HistogramData, BaseType, HistogramData>;
+
 export interface ChartDimensions {
-  svg: Selection<BaseType, any, BaseType, any>;
+  svg: HistogramSVG;
   margin: MarginModel;
   width: number;
   height: number;
 }
 
 export interface ChartAxes {
-  xDomain: any;
-  xDataDomain: any;
+  xDomain: ScaleTime<number, number> | ScaleLinear<number, number>;
+  xDataDomain: ScaleBand<string>;
   yDomain: ScaleLinear<number, number>;
   yDomainRight?: ScaleLinear<number, number>;
-  xTicksAxis: Axis<any>;
-  xLabelsAxis: Axis<any>;
-  yTicksAxis: Axis<any>;
-  yLabelsAxis: Axis<any>;
-  yTicksAxisRight?: Axis<any>;
-  yLabelsAxisRight?: Axis<any>;
+  xTicksAxis: Axis<AxisDomain>;
+  xLabelsAxis: Axis<AxisDomain>;
+  yTicksAxis: Axis<AxisDomain>;
+  yLabelsAxis: Axis<AxisDomain>;
+  yTicksAxisRight?: Axis<AxisDomain>;
+  yLabelsAxisRight?: Axis<AxisDomain>;
   stepWidth: number;
-  xAxis: Axis<any>;
-  yAxis: Axis<any>;
-  yAxisRight?: Axis<any>;
+  xAxis: Axis<AxisDomain>;
+  yAxis: Axis<AxisDomain>;
+  yAxisRight?: Axis<AxisDomain>;
 
 }
 
 export interface SwimlaneAxes {
-  xDomain: any;
-  xDataDomainArray: Array<any>;
-  xTicksAxis: Axis<any>;
-  xLabelsAxis: Axis<any>;
+  xDomain: ScaleTime<number, number> | ScaleLinear<number, number>;
+  xDataDomainArray: Array<ScaleBand<string>>;
+  xTicksAxis: Axis<AxisDomain>;
+  xLabelsAxis: Axis<AxisDomain>;
   stepWidth: number;
-  xAxis: Axis<any>;
+  xAxis: Axis<AxisDomain>;
+}
+
+export function isChartAxes(axes: ChartAxes | SwimlaneAxes): axes is ChartAxes {
+  return !!(axes as ChartAxes).yDomain;
 }
 
 export interface LaneStats {
@@ -161,26 +166,26 @@ export interface SwimlaneStats {
 }
 
 export interface SwimlaneOptions {
-  /**Hex color attributted to buckets whose values are NaN */
+  /** Hex color attributted to buckets whose values are NaN */
   nan_color?: string;
-  /**Hex color attributted to buckets whose values are 0 */
+  /** Hex color attributted to buckets whose values are 0 */
   zeros_color?: string;
-  /**The tick plotted on each swimlane bucket that indicates how high/low the bucket value is. */
+  /** The tick plotted on each swimlane bucket that indicates how high/low the bucket value is. */
   level_tick?: TickOptions;
 }
 
 export interface TickOptions {
-  /**Hex color of the tick */
+  /** Hex color of the tick */
   color?: string;
-  /**Width of the tick in pixels */
+  /** Width of the tick in pixels */
   width?: number;
-  /**Opacity of the tick */
+  /** Opacity of the tick */
   opacity?: number;
 }
 
 export interface SwimlaneData {
   stats: SwimlaneStats;
-  lanes: Map<string, Array<{ key: number, value: number }>>;
+  lanes: Map<string, Array<{ key: number; value: number; }>>;
 }
 
 export interface Tooltip {
@@ -199,7 +204,7 @@ export class HistogramUtils {
 
   public static isSelectionBeyondDataDomain(selectedInputValues: SelectedInputValues,
     inputData: Array<HistogramData>,
-    intervalSelectedMap: Map<string, { values: SelectedOutputValues, x_position: number }>): boolean {
+    intervalSelectedMap: Map<string, { values: SelectedOutputValues; x_position: number; }>): boolean {
 
     let min = selectedInputValues.startvalue;
     let max = selectedInputValues.endvalue;
@@ -214,7 +219,7 @@ export class HistogramUtils {
       }
     });
     if (inputData.length !== 0) {
-      return +min < inputData[0].key || +max > inputData[inputData.length - 1].key;
+      return min < inputData[0].key || max > inputData[inputData.length - 1].key;
     } else {
       return true;
     }
@@ -249,7 +254,7 @@ export class HistogramUtils {
     }
   }
 
-  public static parseSwimlaneDataKey(swimlanesInputData: Map<string, Array<{ key: number, value: number }>>,
+  public static parseSwimlaneDataKey(swimlanesInputData: Map<string, Array<{ key: number; value: number; }>>,
     dataType: DataType): Map<string, Array<HistogramData>> {
     const swimlaneParsedDataMap = new Map<string, Array<HistogramData>>();
     swimlanesInputData.forEach((swimlane, key) => {
@@ -303,9 +308,9 @@ export class HistogramUtils {
       } else {
         if (dateInterval !== undefined && dateInterval !== null && dateInterval > 0 && dateInterval < 1) {
           roundPrecision = this.getRoundPrecision(dateInterval);
-          return Number(formatNumber(value, histogramParams.numberFormatChar, roundPrecision));
+          return this.round(value, roundPrecision);
         }
-        return Number(formatNumber(value, histogramParams.numberFormatChar));
+        return value;
       }
     }
   }
@@ -352,7 +357,7 @@ export class HistogramUtils {
           }
         }
       } else {
-        return roundedValue.toString();
+        return formatNumber(roundedValue, histogramParams.numberFormatChar);
       }
     }
   }
@@ -442,7 +447,9 @@ export class HistogramUtils {
         shortValue = shortValue = Math.round(parseFloat((suffixNum !== 0 ? (value / Math.pow(1000, suffixNum)) : value)
           .toPrecision(precision)));
         const dotLessShortValue = (shortValue + '').replace(/[^a-zA-Z]+/g, '');
-        if (dotLessShortValue.length <= 2) { break; }
+        if (dotLessShortValue.length <= 2) {
+          break;
+        }
       }
       let shortNum = shortValue.toString();
       if (shortValue % 1 !== 0) {
@@ -470,7 +477,11 @@ export class HistogramUtils {
           if (isValid) {
             localWhole.push(d);
           }
-          isValid ? wholes.push(localWhole) : splittedData.push(localData);
+          if (isValid) {
+            wholes.push(localWhole);
+          } else {
+            splittedData.push(localData);
+          }
           localData = [];
           localWhole = [];
           if (!isValid) {
@@ -480,7 +491,11 @@ export class HistogramUtils {
             }
           }
         }
-        isValid ? localData.push(d) : localWhole.push(d);
+        if (isValid) {
+          localData.push(d);
+        } else {
+          localWhole.push(d);
+        }
       });
       if (localData.length > 0) {
         splittedData.push(localData);
@@ -604,10 +619,18 @@ export function getBarOptions(barOptions: BarOptions): BarOptions {
       unselected_height: HEAD_BAR.HEIGHT
     };
   } else {
-    if (!returnedBarOptions.head_band.selected_style) { returnedBarOptions.head_band.selected_style = HEAD_BAR.SELECTED_STYLE; }
-    if (!returnedBarOptions.head_band.unselected_style) { returnedBarOptions.head_band.unselected_style = HEAD_BAR.UNSELECTED_STYLE; }
-    if (returnedBarOptions.head_band.selected_height === undefined) { returnedBarOptions.head_band.selected_height = HEAD_BAR.HEIGHT; }
-    if (returnedBarOptions.head_band.unselected_height === undefined) { returnedBarOptions.head_band.unselected_height = HEAD_BAR.HEIGHT; }
+    if (!returnedBarOptions.head_band.selected_style) {
+      returnedBarOptions.head_band.selected_style = HEAD_BAR.SELECTED_STYLE;
+    }
+    if (!returnedBarOptions.head_band.unselected_style) {
+      returnedBarOptions.head_band.unselected_style = HEAD_BAR.UNSELECTED_STYLE;
+    }
+    if (returnedBarOptions.head_band.selected_height === undefined) {
+      returnedBarOptions.head_band.selected_height = HEAD_BAR.HEIGHT;
+    }
+    if (returnedBarOptions.head_band.unselected_height === undefined) {
+      returnedBarOptions.head_band.unselected_height = HEAD_BAR.HEIGHT;
+    }
   }
   if (!returnedBarOptions.selected_style) {
     returnedBarOptions.selected_style = SELECTED_STYLE;

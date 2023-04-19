@@ -22,7 +22,7 @@ import { Selection, BaseType } from 'd3-selection';
 import { HierarchyRectangularNode } from 'd3-hierarchy';
 
 export interface DonutDimensions {
-  svg: Selection< BaseType, any, BaseType, any>;
+  svg: Selection<SVGElement, TreeNode, BaseType, TreeNode>;
   width: number;
   height: number;
   containerWidth: number;
@@ -54,7 +54,7 @@ export interface SimpleNode {
   fieldValue: string;
 }
 
-export interface DonutNode extends HierarchyRectangularNode<any> {
+export interface DonutNode extends HierarchyRectangularNode<TreeNode> {
   isSelected: boolean;
   innerRadius: number;
   outerRadius: number;
@@ -71,7 +71,7 @@ export interface ARLASDonutTooltip {
 }
 export interface DonutTooltipContent {
   percentage?: string;
-  value?: number;
+  value?: string;
   field?: string;
   function?: string;
   metric?: number;
@@ -80,7 +80,7 @@ export interface DonutTooltipContent {
 
 export class DonutUtils {
 
-  public static getNode(nodePath: Array<SimpleNode>, donutNodes: Array<any>): DonutNode {
+  public static getNode(nodePath: Array<SimpleNode>, donutNodes: Array<DonutNode>): DonutNode {
     let count = nodePath.length - 1;
     let nodeToSelect = null;
     for (let i = 0; i < donutNodes.length; i++) {
@@ -91,14 +91,14 @@ export class DonutUtils {
       }
     }
     count--;
-    while (count >= 0 && nodeToSelect !== null ) {
+    while (count >= 0 && nodeToSelect !== null) {
       const children = nodeToSelect.children;
       if (children !== undefined) {
         for (let i = 0; i < children.length; i++) {
           if (children[i].data.fieldValue === nodePath[count].fieldValue &&
             children[i].data.fieldName === nodePath[count].fieldName) {
-              nodeToSelect = children[i];
-              break;
+            nodeToSelect = children[i];
+            break;
           } else {
             if (i === children.length - 1) {
               nodeToSelect = null;
@@ -114,7 +114,7 @@ export class DonutUtils {
   }
 
   public static getNodeColor(d: DonutNode, donutNodeColorizer: ColorGenerator,
-     keysToColors: Array<[string, string]>, colorsSaturationWeight: number): string {
+    keysToColors: Array<[string, string]>, colorsSaturationWeight: number): string {
     if (d.depth > 0) {
       if (donutNodeColorizer) {
         return donutNodeColorizer.getColor(d.data.fieldValue, keysToColors, colorsSaturationWeight);
@@ -126,14 +126,14 @@ export class DonutUtils {
     }
   }
 
-  public static getNodePathAsArray(n: DonutNode): Array<{fieldName: string, fieldValue: string}> {
-    const nodePathAsArray = new Array<{fieldName: string, fieldValue: string}>();
+  public static getNodePathAsArray(n: DonutNode): Array<{ fieldName: string; fieldValue: string; }> {
+    const nodePathAsArray = new Array<{ fieldName: string; fieldValue: string; }>();
     if (n.depth > 0) {
-      nodePathAsArray.push({fieldName: n.data.fieldName, fieldValue: n.data.fieldValue});
+      nodePathAsArray.push({ fieldName: n.data.fieldName, fieldValue: n.data.fieldValue });
       if (n.parent && n.parent.parent) {
         while (n.parent.parent) {
           n = <DonutNode>n.parent;
-          nodePathAsArray.push({fieldName: n.data.fieldName, fieldValue: n.data.fieldValue});
+          nodePathAsArray.push({ fieldName: n.data.fieldName, fieldValue: n.data.fieldValue });
         }
       }
     }
@@ -151,7 +151,7 @@ export class DonutUtils {
         color: DonutUtils.getNodeColor(n, donutNodeColorizer, keysToColors, colorsSaturationWeight)
       };
       if (n.parent) {
-        tooltipContent.percentage = Math.round( n.data.size / n.parent.data.size * 100).toFixed(2);
+        tooltipContent.percentage = Math.round(n.data.size / n.parent.data.size * 100).toFixed(2);
       }
       tooltipArray.push(tooltipContent);
       if (n.parent && n.parent.parent) {
@@ -164,7 +164,7 @@ export class DonutUtils {
             color: DonutUtils.getNodeColor(n, donutNodeColorizer, keysToColors, colorsSaturationWeight)
           };
           if (n.parent) {
-            tc.percentage = Math.round( n.data.size / n.parent.data.size * 100).toFixed(2);
+            tc.percentage = Math.round(n.data.size / n.parent.data.size * 100).toFixed(2);
           }
           tooltipArray.push(tc);
         }
@@ -186,7 +186,7 @@ export class DonutUtils {
     // string to int
     let hash = 0;
     for (let i = 0; i < text.length; i++) {
-       hash = text.charCodeAt(i) + ((hash << 5) - hash);
+      hash = text.charCodeAt(i) + ((hash << 5) - hash);
     }
     // int to rgb
     const hex = (hash & 0x00FFFFFF).toString(16).toUpperCase();

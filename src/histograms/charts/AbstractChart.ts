@@ -21,15 +21,17 @@ import { AbstractHistogram } from '../AbstractHistogram';
 import {
   HistogramData, HistogramUtils, ChartAxes, DataType, SelectedInputValues, tickNumberFormat,
   formatNumber, getBarOptions, SelectedOutputValues,
-  FULLY_SELECTED_BARS, CURRENTLY_SELECTED_BARS, UNSELECTED_BARS, PARTLY_SELECTED_BARS, roundToNearestMultiple
+  FULLY_SELECTED_BARS, CURRENTLY_SELECTED_BARS, UNSELECTED_BARS, PARTLY_SELECTED_BARS,
+  HistogramSVGClipPath, HistogramSVGG, HistogramSVGRect, Position
 } from '../utils/HistogramUtils';
-import { select, ContainerElement, pointer } from 'd3-selection';
-import { scaleLinear } from 'd3-scale';
+import { select, pointer } from 'd3-selection';
+import { scaleBand, scaleLinear } from 'd3-scale';
 import { max } from 'd3-array';
 import { min } from 'd3-array';
-import { axisLeft } from 'd3-axis';
+import { axisBottom, axisLeft } from 'd3-axis';
 import { format } from 'd3-format';
-import { brushX } from 'd3-brush';
+import { BrushSelection, brushX, D3BrushEvent } from 'd3-brush';
+import { timeFormat, utcFormat } from 'd3-time-format';
 
 
 export abstract class AbstractChart extends AbstractHistogram {
@@ -41,10 +43,10 @@ export abstract class AbstractChart extends AbstractHistogram {
   protected NO_DATA_STRIPES_PATTERN = 'M-1,1 l2,-2 M0,10 l10,-10 M9,11 l2,-2';
   protected NO_DATA_STRIPES_SIZE = 10;
 
-  protected clipPathContext;
-  protected currentClipPathContext;
-  protected rectangleCurrentClipper;
-  protected selectedIntervals = new Map<string, { rect: any, startEndValues: SelectedOutputValues }>();
+  protected clipPathContext: HistogramSVGClipPath;
+  protected currentClipPathContext: HistogramSVGClipPath;
+  protected rectangleCurrentClipper: HistogramSVGRect;
+  protected selectedIntervals = new Map<string, { rect: HistogramSVGRect; startEndValues: SelectedOutputValues; }>();
 
   public plot(inputData: Array<HistogramData>) {
     super.init();
@@ -89,19 +91,19 @@ export abstract class AbstractChart extends AbstractHistogram {
       this.histogramParams.endValue = HistogramUtils.toString(this.selectionInterval.endvalue, this.histogramParams, dataInterval);
       const data = this.dataDomain;
       if (data !== null) {
-        if (HistogramUtils.isSelectionBeyondDataDomain(selectedInputValues, <Array<{ key: number, value: number }>>data,
+        if (HistogramUtils.isSelectionBeyondDataDomain(selectedInputValues, <Array<{ key: number; value: number; }>>data,
           this.histogramParams.intervalSelectedMap)) {
           this.hasSelectionExceededData = true;
-          this.plot(<Array<{ key: number, value: number }>>this.histogramParams.histogramData);
+          this.plot(<Array<{ key: number; value: number; }>>this.histogramParams.histogramData);
         } else {
           if (this.hasSelectionExceededData) {
             this.hasSelectionExceededData = false;
-            this.plot(<Array<{ key: number, value: number }>>this.histogramParams.histogramData);
+            this.plot(<Array<{ key: number; value: number; }>>this.histogramParams.histogramData);
           }
           const selectionBrushStart = Math.max(0, axes.xDomain(this.selectionInterval.startvalue));
-          const selectionBrushEnd = Math.min(axes.xDomain(this.selectionInterval.endvalue), (this.chartDimensions).width);
-          if (this.context) {
-            this.context.select('.brush').call(this.selectionBrush.move, [selectionBrushStart, selectionBrushEnd]);
+          const selectionBrushEnd = Math.min(axes.xDomain(this.selectionInterval.endvalue), this.chartDimensions.width);
+          if (this.brushContext) {
+            this.brushContext.call(this.selectionBrush.move, [selectionBrushStart, selectionBrushEnd]);
           }
         }
       }
@@ -188,7 +190,9 @@ export abstract class AbstractChart extends AbstractHistogram {
     if (this.barsContext !== undefined) {
       this.applyStyleOnSelection();
     }
-    this.selectedIntervals.forEach((rectClipper, guid) => { rectClipper.rect.remove(); });
+    this.selectedIntervals.forEach((rectClipper, guid) => {
+      rectClipper.rect.remove();
+    });
     this.selectedIntervals.clear();
     this.histogramParams.intervalListSelection.forEach((v) => {
       if (this.histogramParams.dataType === DataType.time) {
@@ -288,7 +292,7 @@ export abstract class AbstractChart extends AbstractHistogram {
       this.histogramParams.displaySvg = 'none';
     }
     this.initializeChartHeight();
-    const svg = select(this.histogramParams.svgNode);
+    const svg = select<SVGElement, HistogramData>(this.histogramParams.svgNode);
     const margin = this.histogramParams.margin;
     const width = Math.max(+this.histogramParams.chartWidth - this.histogramParams.margin.left - this.histogramParams.margin.right, 0);
     const height = Math.max(+this.histogramParams.chartHeight - this.histogramParams.margin.top -
@@ -296,18 +300,48 @@ export abstract class AbstractChart extends AbstractHistogram {
     this.chartDimensions = { svg, margin, width, height };
   }
 
-  protected createChartAxes(data: Array<HistogramData>): void {
-    const xDomain = (this.getXDomainScale()).range([0, this.chartDimensions.width]);
+  protected createChartXAxes(data: Array<HistogramData>): void {
+    const xDomain = this.getXDomainScale(0, this.chartDimensions.width);
     // The xDomain extent includes data domain and selected values
     const xDomainExtent = this.getXDomainExtent(data, this.selectionInterval.startvalue,
-      this.selectionInterval.endvalue);
+        this.selectionInterval.endvalue);
     xDomain.domain(xDomainExtent);
-    // xDataDomain includes data domain only
-    const xDataDomain = null;
-    const xAxis = null;
-    const xTicksAxis = null;
-    const xLabelsAxis = null;
-    const stepWidth = null;
+
+    this.chartAxes = {
+        xDomain, xDataDomain: undefined, yDomain: undefined, xTicksAxis: undefined,
+        yTicksAxis: undefined, stepWidth: undefined, xLabelsAxis: undefined,
+        yLabelsAxis: undefined, xAxis: undefined, yAxis: undefined
+    };
+
+    this.chartAxes.stepWidth = 0;
+    const startRange = this.chartAxes.xDomain(data[0].key);
+    const endRange = this.chartAxes.xDomain(+data[data.length - 1].key + this.dataInterval);
+    this.chartAxes.xDataDomain = scaleBand().range([startRange, endRange]).paddingInner(0);
+    this.chartAxes.xDataDomain.domain(data.map((d) => (+d.key).toString()));
+    this.chartAxes.xAxis = axisBottom(this.chartAxes.xDomain).tickSize(0);
+    this.chartAxes.xTicksAxis = axisBottom(this.chartAxes.xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 4);
+    const labelPadding = (this.histogramParams.xAxisPosition === Position.bottom) ? 9 : -15;
+    this.chartAxes.xLabelsAxis = axisBottom(this.chartAxes.xDomain).tickSize(0)
+        .tickPadding(labelPadding).ticks(this.histogramParams.xLabels);
+    this.applyFormatOnXticks(data);
+    if (this.histogramParams.dataType === DataType.time) {
+        if (this.histogramParams.ticksDateFormat) {
+            if (this.histogramParams.useUtc) {
+                this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(utcFormat(this.histogramParams.ticksDateFormat));
+            } else {
+                this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(timeFormat(this.histogramParams.ticksDateFormat));
+            }
+        }
+    } else {
+        /** apply space between thousands, millions */
+        this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.
+            tickFormat(d => tickNumberFormat(d, this.histogramParams.numberFormatChar));
+    }
+}
+
+  protected createChartAxes(data: Array<HistogramData>): void {
+    this.createChartXAxes(data);
+
     let yDomain = scaleLinear().range([this.chartDimensions.height, 0]);
     let maximum = max(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MIN_VALUE);
     const minimum = min(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MAX_VALUE);
@@ -319,7 +353,7 @@ export abstract class AbstractChart extends AbstractHistogram {
     const minYDomain = minimum > 0 ? 0 : minimum + miniOffset;
     const maxYDomain = maximum < 0 ? 0 : maximum + maxOffset;
     yDomain.domain([minYDomain, maxYDomain]);
-    const yAllDomain = yDomain;
+    this.chartAxes.yAxis = axisLeft(yDomain).tickSize(0).ticks(0);
     /** if histogram y values are negative and positive, prohibit stripes */
     if (minimum < 0 && maximum > 0) {
       this.histogramParams.yAxisFromZero = true;
@@ -345,11 +379,10 @@ export abstract class AbstractChart extends AbstractHistogram {
       }
     }
 
-    const yTicksAxis = axisLeft(yDomain).ticks(this.histogramParams.yTicks).tickSizeOuter(0);
-    const yLabelsAxis = axisLeft(yDomain).tickSize(0).tickPadding(10).ticks(this.histogramParams.yLabels)
+    this.chartAxes.yDomain = yDomain;
+    this.chartAxes.yTicksAxis = axisLeft(yDomain).ticks(this.histogramParams.yTicks).tickSizeOuter(0);
+    this.chartAxes.yLabelsAxis = axisLeft(yDomain).tickSize(0).tickPadding(10).ticks(this.histogramParams.yLabels)
       .tickFormat(d => !this.histogramParams.shortYLabels ? tickNumberFormat(d, this.histogramParams.numberFormatChar) : format('~s')(d));
-    const yAxis = axisLeft(yAllDomain).tickSize(0).ticks(0);
-    this.chartAxes = { xDomain, xDataDomain, yDomain, xTicksAxis, yTicksAxis, stepWidth, xLabelsAxis, yLabelsAxis, xAxis, yAxis };
   }
 
   protected drawYAxis(chartAxes: ChartAxes, chartIdsToSide?: Map<string, string>, chartId?: string): void {
@@ -422,7 +455,9 @@ export abstract class AbstractChart extends AbstractHistogram {
   }
 
   protected showTooltips(data: Array<HistogramData>, chartIsToSides?: Map<string, string>): void {
-    if (this.histogramParams.dataUnit !== '') { this.histogramParams.dataUnit = '(' + this.histogramParams.dataUnit + ')'; }
+    if (this.histogramParams.dataUnit !== '') {
+      this.histogramParams.dataUnit = '(' + this.histogramParams.dataUnit + ')';
+    }
     this.context
       .on('mousemove', (event) => {
         const previousHoveredBucketKey = this.hoveredBucketKey;
@@ -504,7 +539,7 @@ export abstract class AbstractChart extends AbstractHistogram {
   protected getSelectedBars(startvalue: number, endvalue: number): Array<number> {
     const keys = new Array<number>();
     const bars = HistogramUtils
-      .parseDataKey(<Array<{ key: number; value: number }>>this.histogramParams.histogramData, this.histogramParams.dataType);
+      .parseDataKey(<Array<{ key: number; value: number; }>>this.histogramParams.histogramData, this.histogramParams.dataType);
     bars.forEach((d) => {
       if (+d.key >= startvalue
         && +d.key + this.histogramParams.barWeight * this.dataInterval <= +endvalue) {
@@ -544,15 +579,15 @@ export abstract class AbstractChart extends AbstractHistogram {
   }
 
   protected getbucketInterval(bucketInterval: number, dataType: DataType): {
-    value: number,
-    unit?: string
+    value: number;
+    unit?: string;
   } {
     if (dataType === DataType.time) {
       const D_2_MS = 86400000;
       const M_2_MS = 30 * D_2_MS;
       const Y_2_MS = 12 * M_2_MS;
       const H_2_MS = 3600000;
-      const timestampToInterval = new Map<number, { value: number, unit: string }>();
+      const timestampToInterval = new Map<number, { value: number; unit: string; }>();
       /** seconds */
       timestampToInterval.set(1000, { value: 1, unit: 'second' });
       timestampToInterval.set(2000, { value: 2, unit: 'seconds' });
@@ -593,22 +628,22 @@ export abstract class AbstractChart extends AbstractHistogram {
       const allIntervals = Array.from(timestampToInterval.keys()).map(i => +i).sort((a, b) => a - b);
       let value = allIntervals[0];
       for (let i = 0; i < allIntervals.length; i++) {
-          if (i < allIntervals.length - 1) {
-              const current = allIntervals[i];
-              const next = allIntervals[i + 1];
-              if (bucketInterval >= current && bucketInterval < next) {
-                  const leftDistance = Math.abs(bucketInterval - current);
-                  const rightDistance = Math.abs(bucketInterval - next);
-                  if (leftDistance < rightDistance) {
-                      value = current;
-                  } else {
-                      value = next;
-                  }
-                  break;
-              }
-          } else {
-              value = allIntervals[i];
+        if (i < allIntervals.length - 1) {
+          const current = allIntervals[i];
+          const next = allIntervals[i + 1];
+          if (bucketInterval >= current && bucketInterval < next) {
+            const leftDistance = Math.abs(bucketInterval - current);
+            const rightDistance = Math.abs(bucketInterval - next);
+            if (leftDistance < rightDistance) {
+              value = current;
+            } else {
+              value = next;
+            }
+            break;
           }
+        } else {
+          value = allIntervals[i];
+        }
       }
       return timestampToInterval.get(value);
     } else {
@@ -623,10 +658,10 @@ export abstract class AbstractChart extends AbstractHistogram {
   }
 
   protected addSelectionBrush(chartAxes: ChartAxes, leftOffset: number): void {
-    this.selectionBrush = brushX().extent([[chartAxes.stepWidth / 5 * this.yDimension, 0],
-    [(this.chartDimensions).width - leftOffset, (this.chartDimensions).height]]);
+    this.selectionBrush = brushX<HistogramData>().extent([[chartAxes.stepWidth / 5 * this.yDimension, 0],
+    [(this.chartDimensions).width - leftOffset, this.chartDimensions.height]]);
     const selectionBrushStart = Math.max(0, chartAxes.xDomain(this.selectionInterval.startvalue));
-    const selectionBrushEnd = Math.min(chartAxes.xDomain(this.selectionInterval.endvalue), (this.chartDimensions).width);
+    const selectionBrushEnd = Math.min(chartAxes.xDomain(this.selectionInterval.endvalue), this.chartDimensions.width);
     this.brushContext = this.context.append('g')
       .attr('class', 'brush')
       .attr('transform', 'translate(' + leftOffset + ', 0)')
@@ -635,9 +670,7 @@ export abstract class AbstractChart extends AbstractHistogram {
 
     this.handleStartOfBrushingEvent(chartAxes);
 
-    const brushResizePath = (d) => {
-      return (d.type === 'e') ? 0 : -2.8;
-    };
+    const brushResizePath = (d) => (d.type === 'e') ? 0 : -2.8;
 
     this.brushHandles = this.brushContext.selectAll('.histogram__brush--handles')
       .data([{ type: 'w' }, { type: 'e' }])
@@ -651,12 +684,12 @@ export abstract class AbstractChart extends AbstractHistogram {
       .attr('x', brushResizePath)
       .attr('y', this.brushHandlesHeight);
 
-    this.brushContext.call((this.selectionBrush).move, [selectionBrushStart, selectionBrushEnd]);
+    this.brushContext.call(this.selectionBrush.move, [selectionBrushStart, selectionBrushEnd]);
     this.handleOnBrushingEvent(chartAxes);
     this.handleEndOfBrushingEvent(chartAxes);
   }
 
-  protected applyStyleOnSelectedBars(barsContext: any): void {
+  protected applyStyleOnSelectedBars(barsContext: HistogramSVGG): void {
     if (this.histogramParams.barOptions) {
       const barOptions = getBarOptions(this.histogramParams.barOptions);
       const selectedFill = barOptions.selected_style.fill;
@@ -670,51 +703,51 @@ export abstract class AbstractChart extends AbstractHistogram {
         .attr('stroke', selectedStroke)
         .attr('stroke-width', selectedStrokeWidth);
 
-      barsContext.filter((d) => +d.key >= this.selectionInterval.startvalue
-        && +d.key + this.histogramParams.barWeight * this.dataInterval <= this.selectionInterval.endvalue)
+      barsContext.filter((d) => +d.key >= +this.selectionInterval.startvalue
+        && +d.key + this.histogramParams.barWeight * this.dataInterval <= +this.selectionInterval.endvalue)
         .attr('fill', selectedFill)
         .attr('stroke', selectedStroke)
         .attr('stroke-width', selectedStrokeWidth);
 
-      barsContext.filter((d) => (+d.key < this.selectionInterval.startvalue || +d.key > this.selectionInterval.endvalue)
+      barsContext.filter((d) => (+d.key < +this.selectionInterval.startvalue || +d.key > +this.selectionInterval.endvalue)
         && (!this.selectedBars.has(+d.key)))
         .attr('fill', unselectedFill)
         .attr('stroke', unselectedStroke)
         .attr('stroke-width', unselectedStrokeWidth);
 
-      barsContext.filter((d) => +d.key < this.selectionInterval.startvalue && (!this.selectedBars.has(+d.key))
-        && +d.key + this.histogramParams.barWeight * this.dataInterval > this.selectionInterval.startvalue)
+      barsContext.filter((d) => +d.key < +this.selectionInterval.startvalue && (!this.selectedBars.has(+d.key))
+        && +d.key + this.histogramParams.barWeight * this.dataInterval > +this.selectionInterval.startvalue)
         .attr('fill', selectedFill)
         .attr('stroke', selectedStroke)
         .attr('stroke-width', selectedStrokeWidth);
 
-      barsContext.filter((d) => +d.key <= this.selectionInterval.endvalue && (!this.selectedBars.has(+d.key))
-        && +d.key + this.histogramParams.barWeight * this.dataInterval > this.selectionInterval.endvalue)
+      barsContext.filter((d) => +d.key <= +this.selectionInterval.endvalue && (!this.selectedBars.has(+d.key))
+        && +d.key + this.histogramParams.barWeight * this.dataInterval > +this.selectionInterval.endvalue)
         .attr('fill', selectedFill)
         .attr('stroke', selectedStroke)
         .attr('stroke-width', selectedStrokeWidth);
     } else {
       barsContext.filter((d) => this.selectedBars.has(+d.key)).attr('class', FULLY_SELECTED_BARS);
 
-      barsContext.filter((d) => +d.key >= this.selectionInterval.startvalue
-        && +d.key + this.histogramParams.barWeight * this.dataInterval <= this.selectionInterval.endvalue)
+      barsContext.filter((d) => +d.key >= +this.selectionInterval.startvalue
+        && +d.key + this.histogramParams.barWeight * this.dataInterval <= +this.selectionInterval.endvalue)
         .attr('class', CURRENTLY_SELECTED_BARS);
 
-      barsContext.filter((d) => (+d.key < this.selectionInterval.startvalue || +d.key > this.selectionInterval.endvalue)
+      barsContext.filter((d) => (+d.key < +this.selectionInterval.startvalue || +d.key > +this.selectionInterval.endvalue)
         && (!this.selectedBars.has(+d.key)))
         .attr('class', UNSELECTED_BARS);
 
-      barsContext.filter((d) => +d.key < this.selectionInterval.startvalue && (!this.selectedBars.has(+d.key))
-        && +d.key + this.histogramParams.barWeight * this.dataInterval > this.selectionInterval.startvalue)
+      barsContext.filter((d) => +d.key < +this.selectionInterval.startvalue && (!this.selectedBars.has(+d.key))
+        && +d.key + this.histogramParams.barWeight * this.dataInterval > +this.selectionInterval.startvalue)
         .attr('class', PARTLY_SELECTED_BARS);
 
-      barsContext.filter((d) => +d.key <= this.selectionInterval.endvalue && (!this.selectedBars.has(+d.key))
-        && +d.key + this.histogramParams.barWeight * this.dataInterval > this.selectionInterval.endvalue)
+      barsContext.filter((d) => +d.key <= +this.selectionInterval.endvalue && (!this.selectedBars.has(+d.key))
+        && +d.key + this.histogramParams.barWeight * this.dataInterval > +this.selectionInterval.endvalue)
         .attr('class', PARTLY_SELECTED_BARS);
     }
   }
 
-  protected getAppendedRectangle(start: Date | number, end: Date | number): any {
+  protected getAppendedRectangle(start: Date | number, end: Date | number): HistogramSVGRect {
     return this.clipPathContext.append('rect')
       .attr('id', 'clip-rect')
       .attr('x', this.chartAxes.xDomain(start))
@@ -745,13 +778,11 @@ export abstract class AbstractChart extends AbstractHistogram {
   protected abstract setTooltipXposition(xPosition: number): number;
   protected abstract setTooltipYposition(yPosition: number): number;
 
-  private translateBrushHandles(selection: any, chartAxes: ChartAxes) {
+  private translateBrushHandles(selection: BrushSelection, chartAxes: ChartAxes) {
     const xTranslation = this.brushHandlesHeight - (this.chartDimensions.height - this.brushHandlesHeight) / 2;
     if (selection !== null) {
-      const sx = selection.map(chartAxes.xDomain.invert);
-      this.brushHandles.attr('display', null).attr('transform', function (d, i) {
-        return 'translate(' + [selection[i], -xTranslation] + ')';
-      });
+      this.brushHandles.attr('display', null).attr('transform', (d, i) =>
+        'translate(' + [selection[i], -xTranslation] + ')');
     } else {
       this.brushHandles.attr('display', 'none');
     }
@@ -763,7 +794,7 @@ export abstract class AbstractChart extends AbstractHistogram {
     } else {
       this.brushHandlesHeight = this.chartDimensions.height;
     }
-    this.selectionBrush.on('start', (event) => {
+    this.selectionBrush.on('start', (event: D3BrushEvent<HistogramData>) => {
       const selection = event.selection;
       this.isBrushed = false;
       this.translateBrushHandles(selection, chartAxes);
@@ -771,12 +802,12 @@ export abstract class AbstractChart extends AbstractHistogram {
   }
 
   private handleOnBrushingEvent(chartAxes: ChartAxes): void {
-    this.selectionBrush.on('brush', (event) => {
+    this.selectionBrush.on('brush', (event: D3BrushEvent<HistogramData>) => {
       this.isBrushing = true;
       const selection = event.selection;
       if (selection !== null) {
-        this.selectionInterval.startvalue = selection.map(chartAxes.xDomain.invert, chartAxes.xDomain)[0];
-        this.selectionInterval.endvalue = selection.map(chartAxes.xDomain.invert, chartAxes.xDomain)[1];
+        this.selectionInterval.startvalue = selection.map(d => chartAxes.xDomain.invert(d), chartAxes.xDomain)[0];
+        this.selectionInterval.endvalue = selection.map(d => chartAxes.xDomain.invert(d), chartAxes.xDomain)[1];
         const dataInterval = this.histogramParams.bucketRange;
         this.histogramParams.startValue = HistogramUtils.toString(this.selectionInterval.startvalue, this.histogramParams, dataInterval);
         this.histogramParams.endValue = HistogramUtils.toString(this.selectionInterval.endvalue, this.histogramParams, dataInterval);
@@ -790,15 +821,15 @@ export abstract class AbstractChart extends AbstractHistogram {
   }
 
   private handleEndOfBrushingEvent(chartAxes: ChartAxes): void {
-    this.selectionBrush.on('end', (event) => {
+    this.selectionBrush.on('end', (event: D3BrushEvent<HistogramData>) => {
       const selection = event.selection;
       if (selection !== null) {
         if (!this.fromSetInterval && this.isBrushing) {
           const dataInterval = this.histogramParams.bucketRange;
-          this.selectionInterval.startvalue = HistogramUtils.roundValue(selection.map(chartAxes.xDomain.invert, chartAxes.xDomain)[0],
-                                                                        this.histogramParams, dataInterval);
-          this.selectionInterval.endvalue = HistogramUtils.roundValue(selection.map(chartAxes.xDomain.invert, chartAxes.xDomain)[1],
-                                                                      this.histogramParams, dataInterval);
+          this.selectionInterval.startvalue = HistogramUtils.roundValue(+selection.map(d => chartAxes.xDomain.invert(d), chartAxes.xDomain)[0],
+            this.histogramParams, dataInterval);
+          this.selectionInterval.endvalue = HistogramUtils.roundValue(+selection.map(d => chartAxes.xDomain.invert(d), chartAxes.xDomain)[1],
+            this.histogramParams, dataInterval);
 
           this.histogramParams.startValue = HistogramUtils.toString(this.selectionInterval.startvalue, this.histogramParams, dataInterval);
           this.histogramParams.endValue = HistogramUtils.toString(this.selectionInterval.endvalue, this.histogramParams, dataInterval);
@@ -809,7 +840,7 @@ export abstract class AbstractChart extends AbstractHistogram {
           const isSelectionBeyondDataDomain = HistogramUtils.isSelectionBeyondDataDomain(this.selectionInterval, this.dataDomain,
             this.histogramParams.intervalSelectedMap);
           if (!isSelectionBeyondDataDomain && this.hasSelectionExceededData) {
-            this.plot(<Array<HistogramData>>this.histogramParams.histogramData);
+            this.plot(this.histogramParams.histogramData);
             this.hasSelectionExceededData = false;
           }
         }

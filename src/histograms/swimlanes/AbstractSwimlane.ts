@@ -17,13 +17,15 @@
  * under the License.
  */
 
- import { AbstractHistogram } from '../AbstractHistogram';
-import { SwimlaneAxes, HistogramData, HistogramUtils,
-   DataType, Tooltip, Position, SwimlaneData, SwimlaneStats, SwimlaneRepresentation,
-   LaneStats, SwimlaneOptions, NAN_COLOR, formatNumber, FULLY_SELECTED_BARS, UNSELECTED_BARS } from '../utils/HistogramUtils';
-import { select, pointer, ContainerElement } from 'd3-selection';
-import { scaleBand } from 'd3-scale';
-import { axisBottom } from 'd3-axis';
+import { AbstractHistogram, } from '../AbstractHistogram';
+import {
+  SwimlaneAxes, HistogramData, HistogramUtils,
+  DataType, Tooltip, Position, SwimlaneData, SwimlaneStats, SwimlaneRepresentation,
+  LaneStats, SwimlaneOptions, NAN_COLOR, formatNumber, FULLY_SELECTED_BARS, UNSELECTED_BARS, HistogramSVGG, HistogramSVGRect
+} from '../utils/HistogramUtils';
+import { select, pointer, ContainerElement, BaseType, Selection } from 'd3-selection';
+import { ScaleBand, scaleBand } from 'd3-scale';
+import { Axis, AxisDomain, axisBottom } from 'd3-axis';
 
 export abstract class AbstractSwimlane extends AbstractHistogram {
 
@@ -31,13 +33,13 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
   protected swimlaneIntervalBorders: [number | Date, number | Date];
   protected isSwimlaneHeightFixed = false;
   protected swimlaneHasMoreThanTwoBuckets = false;
-  protected swimlaneContextList = new Array<{name: string, context: any}>();
-  protected verticalTooltipLine;
-  protected labelsContext;
+  protected swimlaneContextList = new Array<{ name: string; context: HistogramSVGG; }>();
+  protected verticalTooltipLine: Selection<SVGLineElement, HistogramData, BaseType, HistogramData>;
+  protected labelsContext: HistogramSVGG;
   protected aBucketIsEncountred = false;
-  protected swimlaneBarsWeight;
-  protected labelsContextList = new Array<{name: string, context: any}>();
-  protected labelsRectContextList = new Array<{name: string, context: any}>();
+  protected swimlaneBarsWeight: number;
+  protected labelsContextList = new Array<{ name: string; context: Selection<SVGTextElement, HistogramData, BaseType, HistogramData>; }>();
+  protected labelsRectContextList = new Array<{ name: string; context: HistogramSVGRect; }>();
 
   public plot(inputData: SwimlaneData) {
     super.init();
@@ -67,21 +69,21 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
   public buildLegend(stats: SwimlaneStats): void {
     const legend = [];
     if (this.histogramParams.swimlaneRepresentation === SwimlaneRepresentation.column) {
-      for (let i = 0; i <= 100; i += 10 ) {
+      for (let i = 0; i <= 100; i += 10) {
         let color;
         if (i === 0 && this.histogramParams.swimlaneOptions && this.histogramParams.swimlaneOptions.zeros_color) {
           color = this.histogramParams.swimlaneOptions.zeros_color;
-          legend.push({key: i + '%', color: color});
+          legend.push({ key: i + '%', color: color });
         } else {
           color = HistogramUtils.getColor(i / 100, this.histogramParams.paletteColors).toHexString();
         }
         if (i === 0 && this.histogramParams.swimlaneOptions && this.histogramParams.swimlaneOptions.zeros_color) {
           color = HistogramUtils.getColor(i / 100, this.histogramParams.paletteColors).toHexString();
-          legend.push({key: ' ', color: '#fff'});
-          legend.push({key: '>0%', color: color});
+          legend.push({ key: ' ', color: '#fff' });
+          legend.push({ key: '>0%', color: color });
         } else {
           const key = (i % 50 === 0) ? i + '%' : ' ';
-          legend.push({key, color});
+          legend.push({ key, color });
         }
       }
     } else {
@@ -89,22 +91,22 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
       const max = stats.globalStats.max;
       const globalMax = Math.max(Math.abs(max), Math.abs(min));
       const span = (max - min) / 10;
-      for (let i = 0; i <= 10; i ++ ) {
+      for (let i = 0; i <= 10; i++) {
         const colorValue = min + span * i;
         let color;
         if (colorValue === 0 && this.histogramParams.swimlaneOptions && this.histogramParams.swimlaneOptions.zeros_color) {
           color = this.histogramParams.swimlaneOptions.zeros_color;
-          legend.push({key: colorValue, color: color});
+          legend.push({ key: colorValue, color: color });
         } else {
           color = HistogramUtils.getColor(colorValue / globalMax, this.histogramParams.paletteColors).toHexString();
         }
         if (i === 0 && this.histogramParams.swimlaneOptions && this.histogramParams.swimlaneOptions.zeros_color) {
           color = HistogramUtils.getColor(i / 100, this.histogramParams.paletteColors).toHexString();
-          legend.push({key: ' ', color: '#fff'});
-          legend.push({key: '>0', color: color});
+          legend.push({ key: ' ', color: '#fff' });
+          legend.push({ key: '>0', color: color });
         } else {
           const key = (i % 5 === 0) ? HistogramUtils.numToString(colorValue) : ' ';
-          legend.push({key, color});
+          legend.push({ key, color });
         }
       }
     }
@@ -122,21 +124,21 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
         this.histogramParams.chartHeight = this.histogramParams.histogramContainer.offsetHeight;
       } else {
         this.histogramParams.chartHeight = this.histogramParams.swimlaneHeight * this.histogramParams.swimlaneData.stats.nbLanes
-         + this.histogramParams.margin.top +
-         this.histogramParams.margin.bottom;
+          + this.histogramParams.margin.top +
+          this.histogramParams.margin.bottom;
       }
     }
 
     if (this.isSwimlaneHeightFixed === false) {
       this.histogramParams.swimlaneHeight = Math.max(+this.histogramParams.chartHeight
-        - this.histogramParams.margin.top - this.histogramParams.margin.bottom, 0)  / this.histogramParams.swimlaneData.stats.nbLanes;
+        - this.histogramParams.margin.top - this.histogramParams.margin.bottom, 0) / this.histogramParams.swimlaneData.stats.nbLanes;
     }
     this.plot(this.histogramParams.swimlaneData);
   }
 
   public truncateLabels() {
     if (this.labelsContext !== undefined) {
-      (this.labelsContext.selectAll('text')).nodes().forEach((textNode) => {
+      this.labelsContext.selectAll<SVGTextContentElement, HistogramData>('text').nodes().forEach((textNode) => {
         const self = select(textNode);
         let textLength = self.node().getComputedTextLength();
         let text = self.text();
@@ -175,7 +177,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     });
   }
 
-  protected applyHoverStyleOnSwimlaneLabels(labelRectContext: {name: string, context: any}): void {
+  protected applyHoverStyleOnSwimlaneLabels(labelRectContext: {name: string; context: HistogramSVGRect; }): void {
     if (this.histogramParams.selectedSwimlanes.size === 0) {
       labelRectContext.context.attr('class', 'swimlane-label-container-neutral');
     } else {
@@ -188,12 +190,12 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
   }
 
   protected plotSwimlane(data: Map<string, Array<HistogramData>>): void {
-    this.swimlaneContextList = new Array<{name: string, context: any}>();
+    this.swimlaneContextList = new Array<{ name: string; context: HistogramSVGG; }>();
     const keys = data.keys();
     for (let i = 0; i < data.size; i++) {
       const key = keys.next().value;
       this.plotOneLane(data.get(key), i);
-      this.swimlaneContextList.push({name: key, context: this.barsContext});
+      this.swimlaneContextList.push({ name: key, context: this.barsContext });
     }
 
     this.swimlaneContextList.forEach(swimlaneContext => {
@@ -216,17 +218,17 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     } else if (this.histogramParams.swimlaneHeight !== null && this.plottingCount === 0) {
       this.isSwimlaneHeightFixed = true;
       this.histogramParams.chartHeight = this.histogramParams.swimlaneHeight * this.histogramParams.swimlaneData.stats.nbLanes
-      + this.histogramParams.margin.top + this.histogramParams.margin.bottom;
+        + this.histogramParams.margin.top + this.histogramParams.margin.bottom;
     } else if (this.histogramParams.swimlaneHeight !== null && this.plottingCount !== 0) {
       if (this.isHeightFixed) {
         this.histogramParams.swimlaneHeight = Math.max(+this.histogramParams.chartHeight
           - this.histogramParams.margin.top - this.histogramParams.margin.bottom, 0) / this.histogramParams.swimlaneData.stats.nbLanes;
       } else {
         this.histogramParams.chartHeight = this.histogramParams.swimlaneHeight * this.histogramParams.swimlaneData.stats.nbLanes
-        + this.histogramParams.margin.top + this.histogramParams.margin.bottom;
+          + this.histogramParams.margin.top + this.histogramParams.margin.bottom;
       }
     }
-    const svg = select(this.histogramParams.svgNode);
+    const svg = select<SVGElement, HistogramData>(this.histogramParams.svgNode);
     const margin = this.histogramParams.margin;
     const width = Math.max(+this.histogramParams.chartWidth - this.histogramParams.margin.left - this.histogramParams.margin.right, 0);
     const height = Math.max(+this.histogramParams.chartHeight - this.histogramParams.margin.top - this.histogramParams.margin.bottom, 0);
@@ -234,11 +236,11 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
   }
 
   protected createSwimlaneAxes(data: Map<string, Array<HistogramData>>): void {
-    const xDomain = (this.getXDomainScale()).range([0, this.chartDimensions.width - this.histogramParams.swimLaneLabelsWidth]);
+    const xDomain = this.getXDomainScale(0, this.chartDimensions.width - this.histogramParams.swimLaneLabelsWidth);
     let bucketKey = +this.swimlaneIntervalBorders[0];
     this.setSwimlaneDataInterval(data);
-    const swimlaneArray = new Array<any>();
-    while (bucketKey < (+this.swimlaneIntervalBorders[1])) {
+    const swimlaneArray = new Array<HistogramData>();
+    while (bucketKey < +this.swimlaneIntervalBorders[1]) {
       swimlaneArray.push({ key: bucketKey, value: 0 });
       bucketKey = bucketKey + this.dataInterval;
     }
@@ -256,11 +258,10 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
       this.selectionInterval.startvalue, this.selectionInterval.endvalue);
     xDomain.domain(xDomainExtent);
     // xDataDomain includes data domain only
-    const xDataDomainArray = [];
-    let xAxis;
-    let xTicksAxis;
-    let xLabelsAxis;
-    let stepWidth;
+    const xDataDomainArray: Array<ScaleBand<string>> = [];
+    let xTicksAxis: Axis<AxisDomain>;
+    let xLabelsAxis: Axis<AxisDomain>;
+    let stepWidth: number;
     // Compute the range (in pixels) of xDataDomain where data will be plotted
     const ticksPeriod = Math.max(1, Math.round(this.dataDomain.length / this.histogramParams.xTicks));
     const labelsPeriod = Math.max(1, Math.round(this.dataDomain.length / this.histogramParams.xLabels));
@@ -272,23 +273,21 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     const labelPadding = (this.histogramParams.xAxisPosition === Position.bottom) ? 9 : -15;
     if (this.histogramParams.dataType === DataType.numeric) {
       xTicksAxis = axisBottom(xDomain).tickPadding(5).tickValues(xAllDataDomain.domain()
-        .filter((d, i) => !(i % ticksPeriod))).tickSize(this.minusSign * 4);
+        .filter((d, i) => !(i % ticksPeriod)).map(d => Number(d))).tickSize(this.minusSign * 4);
       xLabelsAxis = axisBottom(xDomain).tickSize(0).tickPadding(labelPadding).tickValues(xAllDataDomain.domain()
-        .filter((d, i) => !(i % labelsPeriod)));
+        .filter((d, i) => !(i % labelsPeriod)).map(d => Number(d)));
     } else {
       xTicksAxis = axisBottom(xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 4);
       xLabelsAxis = axisBottom(xDomain).tickSize(0).tickPadding(labelPadding).ticks(this.histogramParams.xLabels);
     }
-    xAxis = axisBottom(xDomain).tickSize(0);
+    const xAxis = axisBottom(xDomain).tickSize(0);
 
     data.forEach(swimlane => {
       const startRange = xDomain(swimlane[0].key);
-      let endRange;
-      let xDataDomain;
+      const endRange = xDomain(+swimlane[swimlane.length - 1].key + this.dataInterval);;
+      const xDataDomain = scaleBand().range([startRange, endRange]).paddingInner(0);
       stepWidth = xDomain(+swimlane[0].key + this.dataInterval) - xDomain(+swimlane[0].key);
-      endRange = xDomain(+swimlane[swimlane.length - 1].key + this.dataInterval);
-      xDataDomain = scaleBand().range([startRange, endRange]).paddingInner(0);
-      xDataDomain.domain(swimlane.map((d) => d.key));
+      xDataDomain.domain(swimlane.map((d) => (+d.key).toString()));
       xDataDomainArray.push(xDataDomain);
     });
     this.swimlaneAxes = { xDomain, xDataDomainArray, xTicksAxis, stepWidth, xLabelsAxis, xAxis };
@@ -369,7 +368,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
           tooltip.yContent = formatNumber(data[i].value, this.histogramParams.numberFormatChar);
           if (representation === SwimlaneRepresentation.column) {
             const sum = swimStats.columnStats.get(+data[i].key).sum;
-            const percentage = (sum > 0 ) ? 100 * Math.round(data[i].value / sum * 1000) / 1000 : 0;
+            const percentage = (sum > 0) ? 100 * Math.round(data[i].value / sum * 1000) / 1000 : 0;
             tooltip.yAdditonalInfo = ' - ' + percentage + '%';
           }
         } else {
@@ -418,54 +417,54 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
    */
   protected getBucketColor(bucket: HistogramData, swimOptions: SwimlaneOptions, swimStats: SwimlaneStats,
     representation: SwimlaneRepresentation, colors: string | [number, number]): string {
-     const columnStats: Map<number, LaneStats> = swimStats.columnStats;
-     const absMax = Math.abs(swimStats.globalStats.max);
-     const absMin = Math.abs(swimStats.globalStats.min);
-     const globalMax = Math.max(absMax, absMin);
-     const bucketValue = bucket.value;
-     if (bucketValue.toString() === NaN.toString()) {
-       if (swimOptions && swimOptions.nan_color) {
-         return swimOptions.nan_color;
-       } else {
-         return NAN_COLOR;
-       }
-     } else {
-       let colorValue;
-       /** calculates the value that will be transformed to a color */
-       if (representation === SwimlaneRepresentation.global) {
-         colorValue = globalMax === 0 ? 0 : +bucketValue / globalMax;
-       } else {
-         /** representation === SwimlaneRepresentation.column */
-         const columnSum = swimStats.columnStats.get(+bucket.key).sum;
-         colorValue = columnSum === 0 ? 0 : +bucketValue / columnStats.get(+bucket.key).sum;
-       }
-       /** for colorValue == 0; if `zeros_color` is specified, we return it otherwise we use the `colors` palette */
-       if (colorValue === 0 && swimOptions && swimOptions.zeros_color) {
-         return swimOptions.zeros_color;
-       } else {
-         return HistogramUtils.getColor(colorValue, colors).toHexString();
-       }
-     }
-   }
+    const columnStats: Map<number, LaneStats> = swimStats.columnStats;
+    const absMax = Math.abs(swimStats.globalStats.max);
+    const absMin = Math.abs(swimStats.globalStats.min);
+    const globalMax = Math.max(absMax, absMin);
+    const bucketValue = bucket.value;
+    if (bucketValue.toString() === NaN.toString()) {
+      if (swimOptions && swimOptions.nan_color) {
+        return swimOptions.nan_color;
+      } else {
+        return NAN_COLOR;
+      }
+    } else {
+      let colorValue;
+      /** calculates the value that will be transformed to a color */
+      if (representation === SwimlaneRepresentation.global) {
+        colorValue = globalMax === 0 ? 0 : +bucketValue / globalMax;
+      } else {
+        /** representation === SwimlaneRepresentation.column */
+        const columnSum = swimStats.columnStats.get(+bucket.key).sum;
+        colorValue = columnSum === 0 ? 0 : +bucketValue / columnStats.get(+bucket.key).sum;
+      }
+      /** for colorValue == 0; if `zeros_color` is specified, we return it otherwise we use the `colors` palette */
+      if (colorValue === 0 && swimOptions && swimOptions.zeros_color) {
+        return swimOptions.zeros_color;
+      } else {
+        return HistogramUtils.getColor(colorValue, colors).toHexString();
+      }
+    }
+  }
 
   protected addLabels(swimlanesMapData: Map<string, Array<HistogramData>>): void {
     this.labelsContext = this.context.append('g').classed('swimlane-labels-container', true);
     let i = 0;
-    this.labelsContextList = new Array<{name: string, context: any}>();
-    this.labelsRectContextList = new Array<{name: string, context: any}>();
-    swimlanesMapData.forEach( (swimlane, key) => {
-      const labelRectContext  = this.labelsContext.append('rect')
+    this.labelsContextList = new Array<{ name: string; context: Selection<SVGTextElement, HistogramData, BaseType, HistogramData>; }>();
+    this.labelsRectContextList = new Array<{ name: string; context: HistogramSVGRect; }>();
+    swimlanesMapData.forEach((swimlane, key) => {
+      const labelRectContext = this.labelsContext.append('rect')
         .attr('width', this.histogramParams.swimLaneLabelsWidth - 5)
         .attr('height', this.histogramParams.swimlaneHeight)
         .attr('fill', '#FFFFFF')
         .attr('transform', 'translate(0,' + (this.histogramParams.swimlaneHeight * (i)) + ')')
         .style('cursor', 'pointer');
-        this.labelsRectContextList.push({name: key, context: labelRectContext});
+      this.labelsRectContextList.push({ name: key, context: labelRectContext });
       const labelContext = this.labelsContext.append('text')
-        .text(function () { return key; })
+        .text(() => key)
         .style('cursor', 'pointer')
-        .attr('transform', 'translate(3,' + (this.histogramParams.swimlaneHeight * (i + 4 / 7) +  this.histogramParams.margin.top) + ')');
-        this.labelsContextList.push({name: key, context: labelContext});
+        .attr('transform', 'translate(3,' + (this.histogramParams.swimlaneHeight * (i + 4 / 7) + this.histogramParams.margin.top) + ')');
+      this.labelsContextList.push({ name: key, context: labelContext });
       i++;
     });
     for (let j = 0; j < this.labelsContextList.length; j++) {
@@ -506,7 +505,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
       if (swimlaneData.get(key).length > 1) {
         this.swimlaneHasMoreThanTwoBuckets = true;
         this.histogramParams.displaySvg = 'block';
-        dataInterval =  (+swimlaneData.get(key)[1].key - +swimlaneData.get(key)[0].key);
+        dataInterval = (+swimlaneData.get(key)[1].key - +swimlaneData.get(key)[0].key);
         break;
       }
     }
@@ -539,7 +538,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     return dataInterval;
   }
 
-  protected setSelectedSwimlanes(labelContext: {name: string, context: any}): void {
+  protected setSelectedSwimlanes(labelContext: { name: string; context: HistogramSVGG; }): void {
     if (!this.histogramParams.selectedSwimlanes) {
       this.histogramParams.selectedSwimlanes = new Set<string>();
     }
@@ -569,7 +568,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
       }
     }
     this.swimlaneIntervalBorders = (dataType === DataType.time) ?
-     [(new Date(minInterval)), new Date(maxInterval + bucketLength)] : [minInterval, maxInterval + bucketLength];
+      [(new Date(minInterval)), new Date(maxInterval + bucketLength)] : [minInterval, maxInterval + bucketLength];
   }
 
   protected getHistogramMinMaxBorders(data: Array<HistogramData>): [number | Date, number | Date] {
