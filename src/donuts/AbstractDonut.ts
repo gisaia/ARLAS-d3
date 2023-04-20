@@ -98,7 +98,7 @@ export abstract class AbstractDonut {
     const radius = Math.min(width, height) / 2;
     const svg = select<SVGElement, TreeNode>(this.donutParams.svgElement)
       .attr('class', 'donut__svg')
-      .attr('width', containerWidth)
+      .attr('width', width)
       .attr('height', height);
     this.donutDimensions = { svg, width, containerWidth, height, radius };
   }
