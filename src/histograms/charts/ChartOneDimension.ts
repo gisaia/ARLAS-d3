@@ -18,6 +18,7 @@
  */
 
 
+import { SelectionType } from '../HistogramParams';
 import { HistogramData, HistogramUtils, ChartAxes, DataType, Position } from '../utils/HistogramUtils';
 import { AbstractChart } from './AbstractChart';
 import { axisBottom } from 'd3-axis';
@@ -80,8 +81,8 @@ export class ChartOneDimension extends AbstractChart {
     super.drawChartAxes(chartAxes, leftOffset);
   }
 
-  protected addSelectionBrush(chartAxes: ChartAxes, leftOffset: number): void {
-    super.addSelectionBrush(chartAxes, leftOffset);
+  protected addSelectionBrush(selectionType: SelectionType, chartAxes: ChartAxes, leftOffset: number): void {
+    super.addSelectionBrush(selectionType, chartAxes, leftOffset);
     if (this.histogramParams.multiselectable) {
       this.onSelectionDoubleClick(chartAxes);
     }

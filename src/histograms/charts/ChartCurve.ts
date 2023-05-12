@@ -6,6 +6,7 @@ import { AbstractChart } from './AbstractChart';
 import { axisLeft, axisRight } from 'd3-axis';
 import { ScaleLinear, scaleLinear } from 'd3-scale';
 import { format } from 'd3-format';
+import { SelectionType } from '../HistogramParams';
 
 
 
@@ -153,7 +154,7 @@ export class ChartCurve extends AbstractChart {
             }
             this.showTooltips(data, chartIdsToSides);
             if (this.histogramParams.isHistogramSelectable) {
-                this.addSelectionBrush(this.chartAxes, 0);
+                this.addSelectionBrush(this.histogramParams.selectionType, this.chartAxes, 0);
             }
             this.plottingCount++;
         } else {
@@ -164,15 +165,15 @@ export class ChartCurve extends AbstractChart {
         }
     }
     protected onSelectionClick(): void {
-        this.brushContext.on('click', () => {
-            if (!this.isBrushed && this.rectangleCurrentClipper !== null) {
+        this.brush.brushContext.on('click', () => {
+            if (!this.brush.isBrushed && this.rectangleCurrentClipper !== null) {
                 this.rectangleCurrentClipper.remove();
                 this.rectangleCurrentClipper = null;
             }
         });
     }
-    protected addSelectionBrush(chartAxes: ChartAxes, leftOffset: number): void {
-        super.addSelectionBrush(chartAxes, leftOffset);
+    protected addSelectionBrush(selectionType: SelectionType, chartAxes: ChartAxes, leftOffset: number): void {
+        super.addSelectionBrush(selectionType, chartAxes, leftOffset);
         this.applyStyleOnSelection();
         this.onSelectionClick();
         if (this.histogramParams.multiselectable) {
