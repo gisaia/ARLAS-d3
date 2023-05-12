@@ -30,8 +30,11 @@ import { max } from 'd3-array';
 import { min } from 'd3-array';
 import { axisBottom, axisLeft } from 'd3-axis';
 import { format } from 'd3-format';
-import { BrushSelection, brushX, D3BrushEvent } from 'd3-brush';
+import { D3BrushEvent } from 'd3-brush';
 import { timeFormat, utcFormat } from 'd3-time-format';
+import { SelectionType } from '../HistogramParams';
+import { Brush } from '../brushes/brush';
+import { RectangleBrush } from '../brushes/rectangle-brush';
 
 
 export abstract class AbstractChart extends AbstractHistogram {
@@ -43,6 +46,8 @@ export abstract class AbstractChart extends AbstractHistogram {
   protected NO_DATA_STRIPES_PATTERN = 'M-1,1 l2,-2 M0,10 l10,-10 M9,11 l2,-2';
   protected NO_DATA_STRIPES_SIZE = 10;
 
+
+  protected brush: Brush;
   protected clipPathContext: HistogramSVGClipPath;
   protected currentClipPathContext: HistogramSVGClipPath;
   protected rectangleCurrentClipper: HistogramSVGRect;
@@ -66,7 +71,7 @@ export abstract class AbstractChart extends AbstractHistogram {
       this.plotChart(data);
       this.showTooltips(data);
       if (this.histogramParams.isHistogramSelectable) {
-        this.addSelectionBrush(this.chartAxes, 0);
+        this.addSelectionBrush(this.histogramParams.selectionType, this.chartAxes, 0);
       }
       this.plottingCount++;
     } else {
@@ -102,8 +107,8 @@ export abstract class AbstractChart extends AbstractHistogram {
           }
           const selectionBrushStart = Math.max(0, axes.xDomain(this.selectionInterval.startvalue));
           const selectionBrushEnd = Math.min(axes.xDomain(this.selectionInterval.endvalue), this.chartDimensions.width);
-          if (this.brushContext) {
-            this.brushContext.call(this.selectionBrush.move, [selectionBrushStart, selectionBrushEnd]);
+          if (this.brush) {
+            this.brush.move([selectionBrushStart, selectionBrushEnd]);
           }
         }
       }
@@ -217,8 +222,8 @@ export abstract class AbstractChart extends AbstractHistogram {
   }
 
   protected onSelectionDoubleClick(axes: ChartAxes) {
-    this.brushContext.on('dblclick', () => {
-      if (this.isBrushed) {
+    this.brush.brushContext.on('dblclick', () => {
+      if (this.brush.isBrushed) {
         const finalPosition = this.getIntervalMiddlePositon(axes, +this.selectionInterval.startvalue, +this.selectionInterval.endvalue);
         let guid;
         if ((typeof (<Date>this.selectionInterval.startvalue).getMonth === 'function')) {
@@ -657,34 +662,18 @@ export abstract class AbstractChart extends AbstractHistogram {
     return this.chartAxes;
   }
 
-  protected addSelectionBrush(chartAxes: ChartAxes, leftOffset: number): void {
-    this.selectionBrush = brushX<HistogramData>().extent([[chartAxes.stepWidth / 5 * this.yDimension, 0],
-    [(this.chartDimensions).width - leftOffset, this.chartDimensions.height]]);
+  protected addSelectionBrush(selectionType: SelectionType, chartAxes: ChartAxes, leftOffset: number): void {
+    if (selectionType === SelectionType.rectangle) {
+      this.brush = new RectangleBrush(this.context, this.chartDimensions, this.chartAxes)
+        .setHandleHeight(this.histogramParams.handlesHeightWeight);
+    }
     const selectionBrushStart = Math.max(0, chartAxes.xDomain(this.selectionInterval.startvalue));
     const selectionBrushEnd = Math.min(chartAxes.xDomain(this.selectionInterval.endvalue), this.chartDimensions.width);
-    this.brushContext = this.context.append('g')
-      .attr('class', 'brush')
-      .attr('transform', 'translate(' + leftOffset + ', 0)')
-      .style('pointer-events', 'visible')
-      .call(this.selectionBrush);
+    this.brush
+      .plot()
+      .move([selectionBrushStart, selectionBrushEnd]);
 
-    this.handleStartOfBrushingEvent(chartAxes);
 
-    const brushResizePath = (d) => (d.type === 'e') ? 0 : -2.8;
-
-    this.brushHandles = this.brushContext.selectAll('.histogram__brush--handles')
-      .data([{ type: 'w' }, { type: 'e' }])
-      .enter().append('rect')
-      .attr('stroke', '#5e5e5e')
-      .attr('fill', '#5e5e5e')
-      .attr('cursor', 'ew-resize')
-      .style('z-index', '30000')
-      .attr('width', 2.5)
-      .attr('height', this.brushHandlesHeight)
-      .attr('x', brushResizePath)
-      .attr('y', this.brushHandlesHeight);
-
-    this.brushContext.call(this.selectionBrush.move, [selectionBrushStart, selectionBrushEnd]);
     this.handleOnBrushingEvent(chartAxes);
     this.handleEndOfBrushingEvent(chartAxes);
   }
@@ -778,32 +767,9 @@ export abstract class AbstractChart extends AbstractHistogram {
   protected abstract setTooltipXposition(xPosition: number): number;
   protected abstract setTooltipYposition(yPosition: number): number;
 
-  private translateBrushHandles(selection: BrushSelection, chartAxes: ChartAxes) {
-    const xTranslation = this.brushHandlesHeight - (this.chartDimensions.height - this.brushHandlesHeight) / 2;
-    if (selection !== null) {
-      this.brushHandles.attr('display', null).attr('transform', (d, i) =>
-        'translate(' + [selection[i], -xTranslation] + ')');
-    } else {
-      this.brushHandles.attr('display', 'none');
-    }
-  }
-
-  private handleStartOfBrushingEvent(chartAxes: ChartAxes): void {
-    if (this.histogramParams.brushHandlesHeightWeight <= 1 && this.histogramParams.brushHandlesHeightWeight > 0) {
-      this.brushHandlesHeight = this.chartDimensions.height * this.histogramParams.brushHandlesHeightWeight;
-    } else {
-      this.brushHandlesHeight = this.chartDimensions.height;
-    }
-    this.selectionBrush.on('start', (event: D3BrushEvent<HistogramData>) => {
-      const selection = event.selection;
-      this.isBrushed = false;
-      this.translateBrushHandles(selection, chartAxes);
-    });
-  }
-
   private handleOnBrushingEvent(chartAxes: ChartAxes): void {
-    this.selectionBrush.on('brush', (event: D3BrushEvent<HistogramData>) => {
-      this.isBrushing = true;
+    this.brush.extent.on('brush', (event: D3BrushEvent<HistogramData>) => {
+      this.brush.isBrushing = true;
       const selection = event.selection;
       if (selection !== null) {
         this.selectionInterval.startvalue = selection.map(d => chartAxes.xDomain.invert(d), chartAxes.xDomain)[0];
@@ -814,17 +780,17 @@ export abstract class AbstractChart extends AbstractHistogram {
         this.histogramParams.showTitle = false;
         this.setBrushCornerTooltipsPositions();
         this.applyStyleOnSelection();
-        this.translateBrushHandles(selection, chartAxes);
+        this.brush.translateBrushHandles(selection);
         this.clearTooltipCursor();
       }
     });
   }
 
   private handleEndOfBrushingEvent(chartAxes: ChartAxes): void {
-    this.selectionBrush.on('end', (event: D3BrushEvent<HistogramData>) => {
+    this.brush.extent.on('end', (event: D3BrushEvent<HistogramData>) => {
       const selection = event.selection;
       if (selection !== null) {
-        if (!this.fromSetInterval && this.isBrushing) {
+        if (!this.fromSetInterval && this.brush.isBrushing) {
           const dataInterval = this.histogramParams.bucketRange;
           this.selectionInterval.startvalue = HistogramUtils.roundValue(+selection.map(d => chartAxes.xDomain.invert(d), chartAxes.xDomain)[0],
             this.histogramParams, dataInterval);
@@ -845,10 +811,10 @@ export abstract class AbstractChart extends AbstractHistogram {
           }
         }
         this.histogramParams.showTitle = true;
-        this.isBrushing = false;
-        this.isBrushed = true;
+        this.brush.isBrushing = false;
+        this.brush.isBrushed = true;
       } else {
-        this.translateBrushHandles(null, chartAxes);
+        this.brush.translateBrushHandles(null);
       }
     });
   }

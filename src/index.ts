@@ -17,7 +17,7 @@
  * under the License.
  */
 
-export { HistogramParams, BarOptions, BarHeadBand } from './histograms/HistogramParams';
+export { HistogramParams, BarOptions, BarHeadBand, SelectionType } from './histograms/HistogramParams';
 export { ChartBars } from './histograms/charts/ChartBars';
 export { ChartArea } from './histograms/charts/ChartArea';
 export { ChartCurve } from './histograms/charts/ChartCurve';

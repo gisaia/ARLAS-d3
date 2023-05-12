@@ -25,6 +25,7 @@ import {
 } from '../utils/HistogramUtils';
 import { curveLinear, CurveFactory, curveMonotoneX, area } from 'd3-shape';
 import { min, max } from 'd3-array';
+import { SelectionType } from '../HistogramParams';
 
 export class ChartArea extends AbstractChart {
 
@@ -174,8 +175,8 @@ export class ChartArea extends AbstractChart {
   }
 
   protected onSelectionClick(): void {
-    this.brushContext.on('click', () => {
-      if (!this.isBrushed && this.rectangleCurrentClipper !== null) {
+    this.brush.brushContext.on('click', () => {
+      if (!this.brush.isBrushed && this.rectangleCurrentClipper !== null) {
         this.rectangleCurrentClipper.remove();
         this.rectangleCurrentClipper = null;
       }
@@ -189,8 +190,8 @@ export class ChartArea extends AbstractChart {
 
   protected updateSelectionStyle(id: string): void { }
 
-  protected addSelectionBrush(chartAxes: ChartAxes, leftOffset: number): void {
-    super.addSelectionBrush(chartAxes, leftOffset);
+  protected addSelectionBrush(selectionType: SelectionType, chartAxes: ChartAxes, leftOffset: number): void {
+    super.addSelectionBrush(selectionType, chartAxes, leftOffset);
     this.applyStyleOnSelection();
     this.onSelectionClick();
     if (this.histogramParams.multiselectable) {

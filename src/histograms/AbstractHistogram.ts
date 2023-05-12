@@ -22,7 +22,6 @@ import {
   DataType, HistogramData, Position, BrushCornerTooltips, SwimlaneData, isChartAxes, HistogramSVGG
 } from './utils/HistogramUtils';
 import { HistogramParams } from './HistogramParams';
-import { BrushBehavior } from 'd3-brush';
 import { scaleUtc, scaleLinear, scaleTime, ScaleTime, ScaleLinear, ScaleBand } from 'd3-scale';
 import { min, max } from 'd3-array';
 
@@ -31,13 +30,10 @@ export abstract class AbstractHistogram {
   public histogramParams: HistogramParams;
   public brushCornerTooltips: BrushCornerTooltips;
 
-  public isBrushing = false;
-
   /** Contexts */
   protected context: HistogramSVGG;
   protected barsContext: HistogramSVGG;
   protected noDatabarsContext: HistogramSVGG;
-  protected brushContext: HistogramSVGG;
   protected tooltipCursorContext: HistogramSVGG;
   protected allAxesContext: HistogramSVGG;
 
@@ -51,11 +47,7 @@ export abstract class AbstractHistogram {
   protected dataInterval: number;
 
   /** Brush selection */
-  protected selectionBrush: BrushBehavior<HistogramData>;
   protected selectionInterval: SelectedOutputValues = { startvalue: null, endvalue: null };
-  protected brushHandlesHeight: number = null;
-  protected brushHandles;
-  protected isBrushed = false;
 
   protected hasSelectionExceededData = null;
   protected selectedBars = new Set<number>();

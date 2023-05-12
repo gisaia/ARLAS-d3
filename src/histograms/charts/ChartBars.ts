@@ -25,6 +25,7 @@ import { AbstractChart } from './AbstractChart';
 import { ScaleBand } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
 import { max, min } from 'd3-array';
+import { SelectionType } from '../HistogramParams';
 
 export class ChartBars extends AbstractChart {
 
@@ -211,8 +212,8 @@ export class ChartBars extends AbstractChart {
     this.drawYAxis(chartAxes);
   }
 
-  protected addSelectionBrush(chartAxes: ChartAxes, leftOffset: number): void {
-    super.addSelectionBrush(chartAxes, leftOffset);
+  protected addSelectionBrush(selectionType: SelectionType, chartAxes: ChartAxes, leftOffset: number): void {
+    super.addSelectionBrush(selectionType, chartAxes, leftOffset);
     if (this.histogramParams.multiselectable) {
       this.onSelectionDoubleClick(chartAxes);
     }

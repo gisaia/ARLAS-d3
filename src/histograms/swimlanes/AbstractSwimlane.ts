@@ -356,7 +356,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
       endPosition = startPosition + this.swimlaneAxes.stepWidth * this.histogramParams.barWeight;
       middlePosition = startPosition + this.swimlaneAxes.stepWidth * this.histogramParams.barWeight / 2;
 
-      if (xy[0] >= startPosition && xy[0] < endPosition && !this.isBrushing) {
+      if (xy[0] >= startPosition && xy[0] < endPosition) {
         this.verticalTooltipLine.style('display', 'block').attr('transform', 'translate(' + middlePosition + ',' + '0)');
         tooltip.isShown = true;
         dx = this.setTooltipXposition(xy[0], tooltip);
@@ -381,9 +381,6 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
         this.hoveredBucketKey = data[i].key;
         break;
       } else {
-        if (this.isBrushing) {
-          this.verticalTooltipLine.style('display', 'none');
-        }
         const hiddenTooltip: Tooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
         this.histogramParams.swimlaneTooltipsMap.set(key, hiddenTooltip);
       }

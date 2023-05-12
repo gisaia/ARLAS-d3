@@ -87,7 +87,10 @@ export class HistogramParams {
 
   /** Selection & brush */
 
-  public brushHandlesHeightWeight = 0.5;
+  public selectionType: SelectionType = SelectionType.rectangle;
+  public handlesHeightWeight = 0.5;
+  public handlesRadius = 2;
+
   public intervalSelection: SelectedInputValues;
   public intervalListSelection: SelectedInputValues[];
   public topOffsetRemoveInterval: number;
@@ -173,3 +176,9 @@ export interface Style {
   background_color?: string;
   background_opacity?: number;
 }
+
+export enum SelectionType {
+  slider = 'slider',
+  rectangle = 'rectangle'
+}
+
