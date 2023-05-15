@@ -83,6 +83,77 @@ export abstract class AbstractChart extends AbstractHistogram {
     }
   }
 
+  /**
+   * This method is called whenever the brush is being moved. It sets the positions the brush's left and right corner tooltips.
+   */
+  protected setBrushCornerTooltipsPositions() {
+
+    this.brushCornerTooltips.leftCornerTooltip.content = this.histogramParams.startValue;
+    this.brushCornerTooltips.rightCornerTooltip.content = this.histogramParams.endValue;
+
+    const leftPosition = this.getAxes().xDomain(this.selectionInterval.startvalue);
+    const rightPosition = this.getAxes().xDomain(this.selectionInterval.endvalue);
+
+    // If the html container of each corner tooltip is set, then we proceed to set their positions
+    if (this.brushCornerTooltips && this.brushCornerTooltips.leftCornerTooltip.htmlContainer &&
+      this.brushCornerTooltips.rightCornerTooltip.htmlContainer) {
+      const leftTooltipWidth = this.brushCornerTooltips.leftCornerTooltip.htmlContainer.offsetWidth;
+      const rightTooltipWidth = this.brushCornerTooltips.rightCornerTooltip.htmlContainer.offsetWidth;
+      if (rightTooltipWidth !== 0 && leftTooltipWidth !== 0) {
+        if (leftPosition + leftTooltipWidth + 5 > rightPosition - rightTooltipWidth) {
+          // If left tooltip and right tooltip meet, switch from horizontal to vertical positions
+          this.brushCornerTooltips.horizontalCssVisibility = 'hidden';
+          this.brushCornerTooltips.verticalCssVisibility = 'visible';
+          this.setVerticalTooltipsWidth();
+          this.setBrushVerticalTooltipsXPositions(leftPosition, rightPosition);
+          this.setBrushVerticalTooltipsYPositions();
+        } else {
+          this.brushCornerTooltips.horizontalCssVisibility = 'visible';
+          this.brushCornerTooltips.verticalCssVisibility = 'hidden';
+          this.setBrushHorizontalTooltipsXPositions(leftPosition, rightPosition);
+          this.setBrushHorizontalTooltipsYPositions();
+        }
+      }
+    } else {
+      this.brushCornerTooltips.verticalCssVisibility = 'hidden';
+      this.brushCornerTooltips.horizontalCssVisibility = 'hidden';
+    }
+  }
+
+  protected setVerticalTooltipsWidth() {
+    this.brushCornerTooltips.leftCornerTooltip.width = this.brushCornerTooltips.rightCornerTooltip.width = this.chartDimensions.height;
+  }
+
+  protected setBrushVerticalTooltipsXPositions(leftPosition: number, rightPosition: number) {
+    this.brushCornerTooltips.leftCornerTooltip.xPosition = -this.chartDimensions.height + this.histogramParams.margin.left + leftPosition
+      - this.brush.size();
+    this.brushCornerTooltips.rightCornerTooltip.xPosition = this.histogramParams.margin.left + rightPosition
+      + this.brush.size();
+  }
+
+  protected setBrushVerticalTooltipsYPositions() {
+    if (this.histogramParams.xAxisPosition === Position.bottom) {
+      this.brushCornerTooltips.leftCornerTooltip.yPosition = this.histogramParams.margin.top;
+    } else {
+      this.brushCornerTooltips.leftCornerTooltip.yPosition = this.histogramParams.margin.bottom;
+    }
+    this.brushCornerTooltips.rightCornerTooltip.yPosition = this.brushCornerTooltips.leftCornerTooltip.yPosition;
+  }
+
+  protected setBrushHorizontalTooltipsXPositions(leftPosition: number, rightPosition: number) {
+    this.brushCornerTooltips.leftCornerTooltip.xPosition = leftPosition + this.histogramParams.margin.left;
+    this.brushCornerTooltips.rightCornerTooltip.xPosition = this.histogramParams.margin.right + this.chartDimensions.width - rightPosition;
+  }
+
+  protected setBrushHorizontalTooltipsYPositions() {
+    if (this.histogramParams.xAxisPosition === Position.bottom) {
+      this.brushCornerTooltips.leftCornerTooltip.yPosition = this.chartDimensions.height + this.brush.size() + 10;
+    } else {
+      this.brushCornerTooltips.leftCornerTooltip.yPosition = -3;
+    }
+    this.brushCornerTooltips.rightCornerTooltip.yPosition = this.brushCornerTooltips.leftCornerTooltip.yPosition;
+  }
+
   public setSelectedInterval(selectedInputValues: SelectedInputValues): void {
     const axes = this.getAxes();
     this.checkSelectedValuesValidity(selectedInputValues);
