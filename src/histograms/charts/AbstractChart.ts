@@ -35,6 +35,7 @@ import { timeFormat, utcFormat } from 'd3-time-format';
 import { SelectionType } from '../HistogramParams';
 import { Brush } from '../brushes/brush';
 import { RectangleBrush } from '../brushes/rectangle-brush';
+import { SliderBrush } from '../brushes/slider-brush';
 
 
 export abstract class AbstractChart extends AbstractHistogram {
@@ -666,6 +667,9 @@ export abstract class AbstractChart extends AbstractHistogram {
     if (selectionType === SelectionType.rectangle) {
       this.brush = new RectangleBrush(this.context, this.chartDimensions, this.chartAxes)
         .setHandleHeight(this.histogramParams.handlesHeightWeight);
+    } else {
+      this.brush = new SliderBrush(this.context, this.chartDimensions, this.chartAxes)
+        .setHandleRadius(this.histogramParams.handlesRadius);
     }
     const selectionBrushStart = Math.max(0, chartAxes.xDomain(this.selectionInterval.startvalue));
     const selectionBrushEnd = Math.min(chartAxes.xDomain(this.selectionInterval.endvalue), this.chartDimensions.width);
@@ -771,6 +775,7 @@ export abstract class AbstractChart extends AbstractHistogram {
     this.brush.extent.on('brush', (event: D3BrushEvent<HistogramData>) => {
       this.brush.isBrushing = true;
       const selection = event.selection;
+      this.brush.onBrushing();
       if (selection !== null) {
         this.selectionInterval.startvalue = selection.map(d => chartAxes.xDomain.invert(d), chartAxes.xDomain)[0];
         this.selectionInterval.endvalue = selection.map(d => chartAxes.xDomain.invert(d), chartAxes.xDomain)[1];
@@ -816,6 +821,7 @@ export abstract class AbstractChart extends AbstractHistogram {
       } else {
         this.brush.translateBrushHandles(null);
       }
+      this.brush.onBrushEnd();
     });
   }
 

@@ -210,7 +210,7 @@
   opacity: 0.6;
 }
 
-.histogram__brush--handles /*public*/ /*Sets the brush handles style*/
+.histogram__brush--handles, .histogram__brush--circular-handles /*public*/ /*Sets the brush handles style*/
 {
   stroke: #868686;
   fill: #868686;

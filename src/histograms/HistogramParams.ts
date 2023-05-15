@@ -89,7 +89,7 @@ export class HistogramParams {
 
   public selectionType: SelectionType = SelectionType.rectangle;
   public handlesHeightWeight = 0.5;
-  public handlesRadius = 2;
+  public handlesRadius = 3;
 
   public intervalSelection: SelectedInputValues;
   public intervalListSelection: SelectedInputValues[];

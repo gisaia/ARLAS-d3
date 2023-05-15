@@ -98,6 +98,7 @@ displayHistogram(histogramArea, 'containerArea')
 function displayHistogram(histogram, containerName) {
   histogram.histogramParams = histogramParams;
   histogram.histogramParams.multiselectable = true;
+  // histogram.histogramParams.selectionType = 'slider';
   histogram.histogramParams.intervalSelectedMap = new Map();
   histogram.histogramParams.histogramContainer = document.getElementById(containerName)
   histogram.histogramParams.svgNode = document.getElementById(containerName).querySelector('svg');

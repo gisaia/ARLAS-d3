@@ -35,6 +35,20 @@ export class RectangleBrush extends Brush {
         }
     }
 
+    public onBrushEnd() {}
+
+    public onBrushStart() {}
+
+    public onBrushing() {}
+
+    public getCssName(): string {
+        return 'brush';
+    }
+
+    public getFillOpacity(): number {
+        return 0.3;
+    }
+
     protected drawHandles(): void {
         const brushResizePath = (d) => (d.type === 'e') ? 0 : -2.8;
         this.handles = this.brushContext.selectAll('.histogram__brush--handles')
