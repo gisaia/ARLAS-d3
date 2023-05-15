@@ -23,11 +23,13 @@ export abstract class Brush {
 
     public plot(): Brush {
         this.brushContext = this.context.append('g')
-            .attr('class', 'brush')
+            .attr('class', this.getCssName())
             .style('pointer-events', 'visible')
             .call(this.getExtent());
+        this.brushContext.selectAll('.selection')
+            .attr('fill-opacity', this.getFillOpacity());
         this.drawHandles();
-        this.onBrushStart();
+        this.callBrushStart();
         return this;
     }
 
@@ -36,15 +38,27 @@ export abstract class Brush {
         return this;
     }
 
+    public abstract onBrushEnd();
+
+    public abstract onBrushStart();
+
+    public abstract onBrushing();
+
     public abstract translateBrushHandles(selection: BrushSelection);
 
-    protected onBrushStart() {
+    public abstract getCssName();
+
+    public abstract getFillOpacity();
+
+    protected callBrushStart() {
         this.extent.on('start', (event: D3BrushEvent<HistogramData>) => {
+            this.onBrushStart();
             const selection = event.selection;
             this.isBrushed = false;
             this.translateBrushHandles(selection);
         });
     }
+
 
 
     protected abstract drawHandles(): void;

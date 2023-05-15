@@ -112,7 +112,7 @@
 
 .selected_bars_zone {
   fill: #b7b7b7;
-  fill-opacity: 0.1;
+  fill-opacity: 0;
 }
 
 .histogram__brush-tooltip /* @doc Sets all the brush tooltips styles*/
@@ -234,7 +234,12 @@
   opacity: 0.1;
 }
 
-.histogram__brush--handles /* @doc Sets the brush handles style*/
+.slider-brush .selection /* @doc Sets the brush selection style*/
+{
+  opacity: 0;
+}
+
+.histogram__brush--handles, .histogram__brush--circular-handles /*public*/ /*Sets the brush handles style*/
 {
   stroke: #868686;
   fill: #868686;
@@ -424,8 +429,4 @@
 .swimlane-label-container-hovered /* @doc Sets the hovered label container style of the swimlane*/
 {
   fill: #efefef;
-}
-
-.selection {
-  opacity: 0.6;
 }
