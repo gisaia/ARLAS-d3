@@ -48,7 +48,7 @@ export abstract class AbstractChart extends AbstractHistogram {
   protected NO_DATA_STRIPES_SIZE = 10;
 
 
-  protected brush: Brush;
+  public brush: Brush;
   protected clipPathContext: HistogramSVGClipPath;
   protected currentClipPathContext: HistogramSVGClipPath;
   protected rectangleCurrentClipper: HistogramSVGRect;
