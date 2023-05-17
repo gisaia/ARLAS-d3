@@ -6,10 +6,16 @@ export class SliderBrush extends Brush {
 
     public handleRadius: number;
     public lineContext: HistogramSVGG;
+    private strokeWidth = 1.5;
 
     public setHandleRadius(handleRadius): SliderBrush {
         this.handleRadius = handleRadius;
         return this;
+    }
+
+    public size(): number {
+        const enlargementRatio = 1.7;
+        return this.handleRadius * enlargementRatio + 2;
     }
 
     public plot() {
@@ -19,7 +25,7 @@ export class SliderBrush extends Brush {
             .attr('y1', y0Position)
             .attr('y2', y0Position)
             .style('stroke', '#000')
-            .attr('stroke-width', 1);
+            .attr('stroke-width', this.strokeWidth);
         return super.plot();;
     }
 
@@ -80,6 +86,7 @@ export class SliderBrush extends Brush {
             .attr('cx', d => 0)
             .attr('cy', d => y0Position)
             .style('stroke', '#000')
+            .attr('stroke-width', this.strokeWidth)
             .style('fill', '#fff')
             .on('mouseover', (event, hoveredHandle) => {
                 this.setHoveredHandleStyle();
@@ -93,7 +100,7 @@ export class SliderBrush extends Brush {
 
     private setHoveredHandleStyle() {
         const enlargementRatio = 1.7;
-        const strokeWidth = 1.5;
+        const strokeWidth = 2;
         this.lineContext.selection()
             .attr('stroke-width', strokeWidth);
         this.brushContext
@@ -105,14 +112,13 @@ export class SliderBrush extends Brush {
     }
 
     private setHandleStyle() {
-        const strokeWidth = 1;
         this.lineContext.selection()
-            .attr('stroke-width', strokeWidth);
+            .attr('stroke-width', this.strokeWidth);
         this.brushContext
             .selectAll('circle')
             .transition()
             .duration(100)
             .attr('r', this.handleRadius)
-            .attr('stroke-width', strokeWidth);
+            .attr('stroke-width', this.strokeWidth);
     }
 }

@@ -18,6 +18,10 @@ export abstract class Brush {
         this.axes = axes;
     }
 
+    public size() {
+        return 0;
+    }
+
     public abstract getExtent(): BrushBehavior<HistogramData>;
 
 

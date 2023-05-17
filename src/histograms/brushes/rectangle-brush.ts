@@ -5,6 +5,7 @@ import { BrushBehavior, BrushSelection, brushX } from 'd3-brush';
 export class RectangleBrush extends Brush {
 
     public handleHeight: number;
+    public handleWidth = 2.5;
 
     public setHandleHeight(handleHeightWeight): RectangleBrush {
         if (handleHeightWeight <= 1 && handleHeightWeight > 0) {
@@ -23,6 +24,10 @@ export class RectangleBrush extends Brush {
             ]);
         }
         return this.extent;
+    }
+
+    public size() {
+        return this.handleWidth + 2;
     }
 
     public translateBrushHandles(selection: BrushSelection) {
@@ -50,7 +55,7 @@ export class RectangleBrush extends Brush {
     }
 
     protected drawHandles(): void {
-        const brushResizePath = (d) => (d.type === 'e') ? 0 : -2.8;
+        const brushResizePath = (d) => (d.type === 'e') ? 0 : -this.handleWidth;
         this.handles = this.brushContext.selectAll('.histogram__brush--handles')
             .data([{ type: 'w' }, { type: 'e' }])
             .enter().append('rect')
@@ -58,7 +63,7 @@ export class RectangleBrush extends Brush {
             .attr('fill', '#5e5e5e')
             .attr('cursor', 'ew-resize')
             .style('z-index', '30000')
-            .attr('width', 2.5)
+            .attr('width', this.handleWidth)
             .attr('height', this.handleHeight)
             .attr('x', brushResizePath)
             .attr('y', this.handleHeight);
