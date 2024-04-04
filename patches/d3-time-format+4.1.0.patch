@@ -1,8 +1,8 @@
 diff --git a/node_modules/d3-time-format/package.json b/node_modules/d3-time-format/package.json
-index fbdac72..012de40 100644
+index fbdac72..9ec47dc 100644
 --- a/node_modules/d3-time-format/package.json
 +++ b/node_modules/d3-time-format/package.json
-@@ -35,7 +35,13 @@
+@@ -35,7 +35,16 @@
        "umd": "./dist/d3-time-format.min.js",
        "default": "./src/index.js"
      },
@@ -13,6 +13,9 @@ index fbdac72..012de40 100644
 +    },
 +    "./locale/fr-FR.json": {
 +      "default": "./locale/fr-FR.json"
++    },
++    "./locale/es-ES.json": {
++      "default": "./locale/es-ES.json"
 +    }
    },
    "sideEffects": [
