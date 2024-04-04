@@ -1,6 +1,10 @@
 # Change Log
 
-## [v11.1.0](https://github.com/gisaia/ARLAS-d3/tree/v11.1.0) (2023-05-17)
+## [v11.1.1](https://github.com/gisaia/ARLAS-d3/tree/v11.1.1) (2024-04-04)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.1.0...v11.1.1)
+
+## [v11.1.0](https://github.com/gisaia/ARLAS-d3/tree/v11.1.0) (2023-06-01)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.1.0-beta.3...v11.1.0)
 
