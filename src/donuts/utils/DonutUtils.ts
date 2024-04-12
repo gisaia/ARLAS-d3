@@ -151,7 +151,8 @@ export class DonutUtils {
         color: DonutUtils.getNodeColor(n, donutNodeColorizer, keysToColors, colorsSaturationWeight)
       };
       if (n.parent) {
-        tooltipContent.percentage = Math.round(n.data.size / n.parent.data.size * 100).toFixed(2);
+        const num = (n.data.size / n.parent.data.size * 100);
+        tooltipContent.percentage = (Math.round(num * 100) / 100).toString();
       }
       tooltipArray.push(tooltipContent);
       if (n.parent && n.parent.parent) {
@@ -164,7 +165,8 @@ export class DonutUtils {
             color: DonutUtils.getNodeColor(n, donutNodeColorizer, keysToColors, colorsSaturationWeight)
           };
           if (n.parent) {
-            tc.percentage = Math.round(n.data.size / n.parent.data.size * 100).toFixed(2);
+            const num = (n.data.size / n.parent.data.size * 100);
+            tc.percentage =   (Math.round(num * 100) / 100).toString();
           }
           tooltipArray.push(tc);
         }
