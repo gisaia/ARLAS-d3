@@ -56,7 +56,9 @@ export interface HistogramTooltip {
   title?: string;
   dataType?: string;
   xValue?: number | string | Date;
-  xRange?: { value: number; unit?: string; };
+  xStartDate?:  number | string | Date;
+  xEndDate?:  number | string | Date;
+  xRange?: { value: number; unit?: string;};
   y?: {
     value: number | string;
     chartId?: string;
@@ -387,14 +389,13 @@ export class HistogramUtils {
       case duration.asHours() >= 1: {
         return '%d %B %Y %Hh';
       }
-      case duration.asHours() >= 1: {
-        return '%d %B %Y %Hh';
-      }
       case duration.asMinutes() >= 1: {
         return '%d %B %Y %H:%M';
-        break;
       }
       case duration.asSeconds() >= 1: {
+        return '%d %B %Y %H:%M:%S';
+      } // we had a problem with milli seconde
+      case duration.asMilliseconds() >= 1: {
         return '%d %B %Y %H:%M:%S';
       }
     }

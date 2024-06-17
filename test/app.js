@@ -29,7 +29,6 @@ const inputCharts = {
   "showYLabels": true,
   "showStripes": false,
   "showHorizontalLines": false,
-  "isSmoothedCurve": true,
   "barWeight": 0.8,
   "topOffsetRemoveInterval": 10,
   "uid": "test",
@@ -37,8 +36,9 @@ const inputCharts = {
 }
 
 const histogramParams = new HistogramParams();
+histogramParams.useUtc = true;
 for (const [key, value] of Object.entries(inputCharts)) {
-  histogramParams[key] = value
+  histogramParams[key] = value;
 }
 
 const defaultHistogramData = [

@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
+    "build-dev": "tsc -p tsconfig.json --watch && cp -r src/styles dist/ && cp -r patches dist/",
     "build-release": "tsc -p tsconfig.json && cp -r src/styles dist/ && cp -r patches dist/",
     "lint": "eslint . --ext .ts",
     "postinstall": "patch-package"
@@ -53,5 +54,8 @@
   "bugs": {
     "url": "https://github.com/gisaia/ARLAS-d3/issues"
   },
-  "homepage": "https://github.com/gisaia/ARLAS-d3"
+  "homepage": "https://github.com/gisaia/ARLAS-d3",
+  "overrides": {
+    "braces": "3.0.3"
+  }
 }
