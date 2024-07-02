@@ -56,8 +56,8 @@ export interface HistogramTooltip {
   title?: string;
   dataType?: string;
   xValue?: number | string | Date;
-  xStartDate?:  number | string | Date;
-  xEndDate?:  number | string | Date;
+  xStartValue?:  number | string | Date;
+  xEndValue?:  number | string | Date;
   xRange?: { value: number; unit?: string;};
   y?: {
     value: number | string;

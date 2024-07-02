@@ -574,8 +574,8 @@ export abstract class AbstractChart extends AbstractHistogram {
     const hoveredBuckets = data.filter(b => +b.key <= xDomainValue && +b.key > xDomainValue - dataInterval);
     const ys = [];
     let x;
-    let xEndDate;
-    let xStartDate;
+    let xEndValue;
+    let xStartValue;
     hoveredBuckets.forEach(hb => {
       if (HistogramUtils.isValueValid(hb)) {
         let color;
@@ -584,9 +584,9 @@ export abstract class AbstractChart extends AbstractHistogram {
         }
 
         x = HistogramUtils.toString(hb.key, this.histogramParams, dataInterval);
-        const calculatedTimeStamp = dataInterval +(+hb.key);
-        xStartDate = x;
-        xEndDate = HistogramUtils.toString(calculatedTimeStamp, this.histogramParams, dataInterval);
+        const calculatedEndValue = dataInterval +(+hb.key);
+        xStartValue = x;
+        xEndValue = HistogramUtils.toString(calculatedEndValue, this.histogramParams, dataInterval);
         ys.push({
           value: formatNumber(hb.value, this.histogramParams.numberFormatChar),
           chartId: hb.chartId,
@@ -601,8 +601,8 @@ export abstract class AbstractChart extends AbstractHistogram {
       this.histogramParams.tooltipEvent.next(
         {
           xValue: x,
-          xStartDate,
-          xEndDate,
+          xStartValue: xStartValue,
+          xEndValue: xEndValue,
           xRange: this.histogramParams.bucketInterval,
           dataType: (this.histogramParams.dataType === DataType.time ? 'time' : 'numeric'),
           y: ys,
