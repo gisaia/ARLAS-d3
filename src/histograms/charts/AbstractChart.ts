@@ -19,15 +19,27 @@
 
 import { AbstractHistogram } from '../AbstractHistogram';
 import {
-  HistogramData, HistogramUtils, ChartAxes, DataType, SelectedInputValues, tickNumberFormat,
-  formatNumber, getBarOptions, SelectedOutputValues,
-  FULLY_SELECTED_BARS, CURRENTLY_SELECTED_BARS, UNSELECTED_BARS, PARTLY_SELECTED_BARS,
-  HistogramSVGClipPath, HistogramSVGG, HistogramSVGRect, Position
+  ChartAxes,
+  CURRENTLY_SELECTED_BARS,
+  DataType,
+  formatNumber,
+  FULLY_SELECTED_BARS,
+  getBarOptions,
+  HistogramData,
+  HistogramSVGClipPath,
+  HistogramSVGG,
+  HistogramSVGRect,
+  HistogramUtils,
+  PARTLY_SELECTED_BARS,
+  Position,
+  SelectedInputValues,
+  SelectedOutputValues,
+  tickNumberFormat,
+  UNSELECTED_BARS
 } from '../utils/HistogramUtils';
-import { select, pointer } from 'd3-selection';
+import { pointer, select } from 'd3-selection';
 import { scaleBand, scaleLinear } from 'd3-scale';
-import { max } from 'd3-array';
-import { min } from 'd3-array';
+import { max, min } from 'd3-array';
 import { axisBottom, axisLeft } from 'd3-axis';
 import { format } from 'd3-format';
 import { D3BrushEvent } from 'd3-brush';
@@ -562,13 +574,19 @@ export abstract class AbstractChart extends AbstractHistogram {
     const hoveredBuckets = data.filter(b => +b.key <= xDomainValue && +b.key > xDomainValue - dataInterval);
     const ys = [];
     let x;
+    let xEndValue;
+    let xStartValue;
     hoveredBuckets.forEach(hb => {
       if (HistogramUtils.isValueValid(hb)) {
         let color;
         if (!!hb.chartId && !!this.histogramParams.colorGenerator) {
           color = this.histogramParams.colorGenerator.getColor(hb.chartId);
         }
+
         x = HistogramUtils.toString(hb.key, this.histogramParams, dataInterval);
+        const calculatedEndValue = dataInterval +(+hb.key);
+        xStartValue = x;
+        xEndValue = HistogramUtils.toString(calculatedEndValue, this.histogramParams, dataInterval);
         ys.push({
           value: formatNumber(hb.value, this.histogramParams.numberFormatChar),
           chartId: hb.chartId,
@@ -583,6 +601,8 @@ export abstract class AbstractChart extends AbstractHistogram {
       this.histogramParams.tooltipEvent.next(
         {
           xValue: x,
+          xStartValue: xStartValue,
+          xEndValue: xEndValue,
           xRange: this.histogramParams.bucketInterval,
           dataType: (this.histogramParams.dataType === DataType.time ? 'time' : 'numeric'),
           y: ys,
