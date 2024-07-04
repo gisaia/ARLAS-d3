@@ -226,24 +226,6 @@ export abstract class AbstractChart extends AbstractHistogram {
     }
   }
 
-  public overRemove(e) {
-    if (e.path[1].offsetTop !== undefined && e.clientX !== undefined) {
-      this.histogramParams.tooltip.isRightSide = true;
-      const dx = (this.chartDimensions.width) - 2 * e.clientX + 25;
-      this.histogramParams.tooltip.xContent = 'Remove this';
-      this.histogramParams.tooltip.yContent = 'period';
-      this.histogramParams.tooltip.isShown = true;
-      this.histogramParams.tooltip.xPosition = (e.clientX + dx);
-      this.histogramParams.tooltip.yPosition = (e.path[1].offsetTop + 30);
-    }
-  }
-
-  public leaveRemove() {
-    this.histogramParams.tooltip.isShown = false;
-    this.clearTooltipCursor();
-  }
-
-
   public resize(histogramContainer: HTMLElement): void {
     this.histogramParams.histogramContainer = histogramContainer;
     if (this.isWidthFixed === false && this.plottingCount > 0) {
