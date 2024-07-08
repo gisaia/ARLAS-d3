@@ -167,6 +167,9 @@ export abstract class AbstractChart extends AbstractHistogram {
   }
 
   public setSelectedInterval(selectedInputValues: SelectedInputValues): void {
+    if (this.brush.isBrushed || this.brush.isBrushing) {
+      return;
+    }
     const axes = this.getAxes();
     this.checkSelectedValuesValidity(selectedInputValues);
     this.fromSetInterval = true;
@@ -238,6 +241,9 @@ export abstract class AbstractChart extends AbstractHistogram {
   }
 
   public redrawSelectedIntervals() {
+    if (this.brush.isBrushed || this.brush.isBrushing) {
+      return;
+    }
     const axes = this.getAxes();
     this.selectedBars.clear();
     this.histogramParams.selectionListIntervalId = [];
