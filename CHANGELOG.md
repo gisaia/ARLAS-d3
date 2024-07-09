@@ -1,8 +1,16 @@
 # Change Log
 
-## [v11.2.0](https://github.com/gisaia/ARLAS-d3/tree/v11.2.0) (2024-07-04)
+## [v11.2.1](https://github.com/gisaia/ARLAS-d3/tree/v11.2.1) (2024-07-09)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.2.0...v11.2.1)
+
+## [v11.2.0](https://github.com/gisaia/ARLAS-d3/tree/v11.2.0) (2024-07-05)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.1.1...v11.2.0)
+
+**New stuff:**
+
+- Display start value and end value of a timeline bucket [\#228](https://github.com/gisaia/ARLAS-d3/issues/228)
 
 **Fixed bugs:**
 
