@@ -140,10 +140,13 @@ export abstract class AbstractHistogram {
     }
   }
 
+  /**
+   * Create the link between the scale of the chart and the width available
+   */
   protected getXDomainScale(rangeStart: number, rangeEnd: number): ScaleTime<number, number> | ScaleLinear<number, number> {
     const scale = ((this.histogramParams.dataType === DataType.time) ?
-    (this.histogramParams.useUtc) ?
-      scaleUtc() : scaleTime() : scaleLinear()).range([rangeStart, rangeEnd]);
+    (this.histogramParams.useUtc ?
+      scaleUtc() : scaleTime()) : scaleLinear()).range([rangeStart, rangeEnd]);
     return (scale instanceof Array ? scaleLinear(scale) : scale);
   }
 
@@ -174,7 +177,7 @@ export abstract class AbstractHistogram {
   }
 
   protected getXDomainExtent(data: Array<HistogramData>, selectedStartValue: Date | number,
-    selectedEndValue: Date | number): Array<Date | number | { valueOf(): number; }> {
+      selectedEndValue: Date | number): Array<Date | number | { valueOf(): number; }> {
     this.setDataInterval(data);
     const xDomainExtent = new Array<Date | number | { valueOf(): number; }>();
     const dataKeyUnionSelectedValues = new Array<Date | number>();

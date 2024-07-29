@@ -89,10 +89,11 @@ export class ChartCurve extends AbstractChart {
                 this.histogramParams.margin.right = 10;
             }
             this.initializeChartDimensions();
+            const extendedData = this.extendData(data);
             if (chartIdToData.size === 1) {
                 // We add just one Y axis on the left
                 // No normalization
-                this.createChartXAxes(data);
+                this.createChartXAxes(extendedData);
                 this.createChartYLeftAxes(data);
                 this.drawChartAxes(this.chartAxes, 0);
                 this.drawYAxis(this.chartAxes, chartIdsToSides, Array.from(chartIds)[0]);
@@ -102,7 +103,7 @@ export class ChartCurve extends AbstractChart {
                 // We add on Y axis on right
                 // We add on Y axis on left
                 // No normalization
-                this.createChartXAxes(data);
+                this.createChartXAxes(extendedData);
                 if (!!this.histogramParams.mainChartId && chartIdToData.has(this.histogramParams.mainChartId)) {
                     this.createChartYRightAxes(dataArray[0]);
                     this.createChartYLeftAxes(dataArray[1]);
@@ -132,7 +133,7 @@ export class ChartCurve extends AbstractChart {
             } else {
                 // No Y axis
                 // We normalize the data
-                this.createChartXAxes(data);
+                this.createChartXAxes(extendedData);
                 this.createChartNormalizeLeftAxes();
                 this.drawChartAxes(this.chartAxes, 0);
                 this.createClipperContext();
