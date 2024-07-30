@@ -38,7 +38,7 @@ export class ChartCurve extends AbstractChart {
             if (chartIdToData.size === 0) {
                 chartIdToData.set('default', data);
             }
-            const chartIdsToSides = new Map();
+            const chartIdsToSides = new Map<string, 'left' | 'right'>();
             let i = 0;
             const dataArray: Array<Array<HistogramData>> = [];
             chartIdToData.forEach((values, id) => {
@@ -427,20 +427,29 @@ export class ChartCurve extends AbstractChart {
     protected getEndPosition(data: Array<HistogramData>, index: number): number {
         return this.chartAxes.xDomain(data[index].key) + 10;
     }
+    /**
+     * @deprecated
+     */
     protected setTooltipXposition(xPosition: number): number {
-        // Deprecated method
         return 0;
     }
+    /**
+     * @deprecated
+     */
     protected setTooltipYposition(yPosition: number): number {
         // Deprecated method
         return 0;
     }
 
-    private normalize(x, xMin, xMax) {
+    private normalize(x: number, xMin: number, xMax: number) {
         return (x - xMin) / (xMax - xMin);
     }
 
     private createClipperContext() {
+        if (!this.checkDomainInitialized()) {
+            return;
+        }
+
         this.clipPathContext = this.context.append('defs').append('clipPath')
             .attr('id', this.histogramParams.uid);
         this.currentClipPathContext = this.context.append('defs').append('clipPath')

@@ -44,7 +44,7 @@ export class SliderBrush extends Brush {
     }
 
     public translateBrushHandles(selection: BrushSelection) {
-        if (selection !== null) {
+        if (selection !== null && this.checkSelectionNotNaN(selection)) {
             this.handles.attr('display', null).attr('transform', (d, i) =>
                 'translate(' + [selection[i], 0] + ')');
             this.lineContext.selection()

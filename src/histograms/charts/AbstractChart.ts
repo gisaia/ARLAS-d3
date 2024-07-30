@@ -471,10 +471,10 @@ export abstract class AbstractChart extends AbstractHistogram {
       .tickFormat(d => !this.histogramParams.shortYLabels ? tickNumberFormat(d, this.histogramParams.numberFormatChar) : format('~s')(d));
   }
 
-  protected drawYAxis(chartAxes: ChartAxes, chartIdsToSide?: Map<string, string>, chartId?: string): void {
+  protected drawYAxis(chartAxes: ChartAxes, chartIdsToSide?: Map<string, 'left' | 'right'>, chartId?: string): void {
     // yTicksAxis and yLabelsAxis are translated of 1px to the left so that they are not hidden by the histogram
     let translate = 'translate(-1, 0)';
-    let side;
+    let side: 'left' | 'right';
     if (!!chartId && !!chartIdsToSide) {
       side = chartIdsToSide.get(chartId);
     }
@@ -484,7 +484,7 @@ export abstract class AbstractChart extends AbstractHistogram {
     if (side === 'right') {
       translate = 'translate('.concat((this.chartDimensions.width + 1).toString()).concat(', 0)');
     }
-    let axisColor;
+    let axisColor: string;
     if (!!chartId && !!this.histogramParams.colorGenerator) {
       axisColor = this.histogramParams.colorGenerator.getColor(chartId);
     }
@@ -838,6 +838,9 @@ export abstract class AbstractChart extends AbstractHistogram {
   }
 
   protected applyStyleOnClipper(): void {
+    if (!this.checkDomainInitialized()) {
+      return;
+    }
     if (this.rectangleCurrentClipper === null) {
       this.rectangleCurrentClipper = this.currentClipPathContext.append('rect')
         .attr('id', 'clip-rect')
@@ -972,5 +975,10 @@ export abstract class AbstractChart extends AbstractHistogram {
     if (selectedInputValues.startvalue === null && selectedInputValues.endvalue === null) {
       throw new Error('Start and end values are null');
     }
+  }
+
+  protected checkDomainInitialized(): boolean {
+    return !(this.chartAxes.xDomain(this.selectionInterval.startvalue) === undefined
+      || this.chartAxes.xDomain(this.selectionInterval.endvalue) === undefined);
   }
 }

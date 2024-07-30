@@ -367,6 +367,10 @@ export class ChartBars extends AbstractChart {
   }
 
   private createClipperContext() {
+    if (!this.checkDomainInitialized()) {
+      return;
+    }
+
     this.clipPathContext = this.context.append('defs').append('clipPath')
       .attr('id', this.histogramParams.uid);
     this.currentClipPathContext = this.context.append('defs').append('clipPath')
