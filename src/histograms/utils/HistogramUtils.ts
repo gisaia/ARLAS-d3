@@ -229,6 +229,30 @@ export class HistogramUtils {
     }
   }
 
+  public static isDataDomainWithinSelection(selectedInputValues: SelectedInputValues,
+    inputData: Array<HistogramData>,
+    intervalSelectedMap: Map<string, { values: SelectedOutputValues; x_position: number; }>): boolean {
+
+    let min = selectedInputValues.startvalue;
+    let max = selectedInputValues.endvalue;
+
+    intervalSelectedMap.forEach(values => {
+      if (min > values.values.startvalue) {
+        min = values.values.startvalue;
+      }
+
+      if (max < values.values.endvalue) {
+        max = values.values.endvalue;
+      }
+    });
+
+    if (inputData.length !== 0) {
+      return min <= inputData[0].key && max >= inputData[inputData.length - 1].key;
+    } else {
+      return true;
+    }
+  }
+
   public static parseDataKey(inputData: Array<HistogramData>,
     dataType: DataType): Array<HistogramData> {
     if (dataType === DataType.time) {
