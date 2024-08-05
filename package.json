@@ -8,7 +8,8 @@
     "build-dev": "tsc -p tsconfig.json --watch && cp -r src/styles dist/ && cp -r patches dist/",
     "build-release": "tsc -p tsconfig.json && cp -r src/styles dist/ && cp -r patches dist/",
     "lint": "eslint . --ext .ts",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "license-check": "license-check-and-add check -f license-check-and-add.json"
   },
   "repository": {
     "type": "git",
@@ -49,6 +50,7 @@
     "@typescript-eslint/eslint-plugin": "^5.27.1",
     "@typescript-eslint/parser": "^5.27.1",
     "eslint": "^8.17.0",
+    "license-check-and-add": "^4.0.5",
     "typescript": "~4.6.0"
   },
   "bugs": {
