@@ -66,6 +66,9 @@ export abstract class AbstractChart extends AbstractHistogram {
   protected rectangleCurrentClipper: HistogramSVGRect;
   protected selectedIntervals = new Map<string, { rect: HistogramSVGRect; startEndValues: SelectedOutputValues; }>();
 
+  /** Maximum number of buckets that a chart can have */
+  private MAX_BUCKET_NUMBER = 1000;
+
   public plot(inputData: Array<HistogramData>) {
     super.init();
     this.dataDomain = inputData;
@@ -866,6 +869,12 @@ export abstract class AbstractChart extends AbstractHistogram {
     }
 
     const bucketSize = this.getDataInterval(data);
+    // The charts have a maximum number of buckets that can be plotted
+    // To avoid errors, we intentionally not plot it
+    if ((+this.selectionInterval.endvalue - +this.selectionInterval.startvalue) / bucketSize > (this.MAX_BUCKET_NUMBER - data.length)) {
+      return data;
+    }
+
     let extendedData = new Array<HistogramData>();
     if (+data[0].key > +this.selectionInterval.startvalue) {
       let fakeDataKey = +data[0].key;
