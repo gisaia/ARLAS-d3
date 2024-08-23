@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import { BrushBehavior, BrushSelection, D3BrushEvent } from 'd3-brush';
 import { ChartAxes, ChartDimensions, HistogramData, HistogramSVGG } from '../utils/HistogramUtils';
 
@@ -56,21 +57,23 @@ export abstract class Brush {
     }
 
     public move([start, end]: number[]): Brush {
-        this.brushContext.call(this.extent.move, [start, end]);
+        if (this.checkSelectionNotNaN([start, end])) {
+            this.brushContext.call(this.extent.move, [start, end]);
+        }
         return this;
     }
 
-    public abstract onBrushEnd();
+    public abstract onBrushEnd(): void;
 
-    public abstract onBrushStart();
+    public abstract onBrushStart(): void;
 
-    public abstract onBrushing();
+    public abstract onBrushing(): void;
 
-    public abstract translateBrushHandles(selection: BrushSelection);
+    public abstract translateBrushHandles(selection: BrushSelection): void;
 
-    public abstract getCssName();
+    public abstract getCssName(): string;
 
-    public abstract getFillOpacity();
+    public abstract getFillOpacity(): number;
 
     protected callBrushStart() {
         this.extent.on('start', (event: D3BrushEvent<HistogramData>) => {
@@ -81,8 +84,17 @@ export abstract class Brush {
         });
     }
 
-
-
     protected abstract drawHandles(): void;
 
+    protected checkSelectionNotNaN(selection: BrushSelection): boolean {
+        return !this.checkIfNaN(selection[0]) && !this.checkIfNaN(selection[1]);
+    }
+
+    private checkIfNaN(v: number | [number, number]): boolean {
+        if (typeof v === 'number') {
+            return isNaN(v);
+        } else {
+            return isNaN(v[0]) || isNaN(v[1]);
+        }
+    }
 }

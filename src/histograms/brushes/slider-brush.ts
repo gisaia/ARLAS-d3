@@ -16,9 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+import { BrushBehavior, BrushSelection, brushX } from 'd3-brush';
 import { HistogramData, HistogramSVGG } from 'histograms/utils/HistogramUtils';
 import { Brush } from './brush';
-import { BrushBehavior, BrushSelection, brushX } from 'd3-brush';
 
 export class SliderBrush extends Brush {
 
@@ -62,7 +63,7 @@ export class SliderBrush extends Brush {
     }
 
     public translateBrushHandles(selection: BrushSelection) {
-        if (selection !== null) {
+        if (selection !== null && this.checkSelectionNotNaN(selection)) {
             this.handles.attr('display', null).attr('transform', (d, i) =>
                 'translate(' + [selection[i], 0] + ')');
             this.lineContext.selection()

@@ -16,9 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+import { BrushBehavior, BrushSelection, brushX } from 'd3-brush';
 import { HistogramData } from 'histograms/utils/HistogramUtils';
 import { Brush } from './brush';
-import { BrushBehavior, BrushSelection, brushX } from 'd3-brush';
 
 export class RectangleBrush extends Brush {
 
@@ -50,7 +51,7 @@ export class RectangleBrush extends Brush {
 
     public translateBrushHandles(selection: BrushSelection) {
         const xTranslation = this.handleHeight - (this.dimensions.height - this.handleHeight) / 2;
-        if (selection !== null) {
+        if (selection !== null && this.checkSelectionNotNaN(selection)) {
             this.handles.attr('display', null).attr('transform', (d, i) =>
                 'translate(' + [selection[i], -xTranslation] + ')');
         } else {

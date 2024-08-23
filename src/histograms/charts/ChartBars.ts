@@ -32,10 +32,6 @@ export class ChartBars extends AbstractChart {
   private strippedBarsContext: HistogramSVGG;
   private headBandsContext: HistogramSVGG;
 
-  private minimumData = Number.MAX_VALUE;
-  private maximumData = Number.MIN_VALUE;
-  private minOffset = 0;
-  private maxOffset = 0;
   public plot(inputData: Array<HistogramData>) {
     super.plot(inputData);
   }
@@ -115,11 +111,6 @@ export class ChartBars extends AbstractChart {
     const minOffset = this.histogramParams.showStripes ? 0 : 0.1 * (maximum - minimum);
     const maxOffset = 0.05 * (maximum - minimum);
 
-    this.maximumData = maximum;
-    this.minimumData = minimum;
-    this.maxOffset = maxOffset;
-    this.minOffset = minOffset;
-
     let barsHeight = this.chartDimensions.height;
     if (this.yStartsFromMin && this.histogramParams.showStripes) {
       barsHeight = 0.9 * this.chartDimensions.height;
@@ -191,19 +182,6 @@ export class ChartBars extends AbstractChart {
       } else {
         this.chartAxes.stepWidth = this.chartAxes.xDomain(<number>data[0].key + this.dataInterval) - this.chartAxes.xDomain(data[0].key);
       }
-    }
-
-    const ticksPeriod = Math.max(1, Math.round(data.length / this.histogramParams.xTicks));
-    const labelsPeriod = Math.max(1, Math.round(data.length / this.histogramParams.xLabels));
-    const labelPadding = (this.histogramParams.xAxisPosition === Position.bottom) ? 9 : -15;
-    // TO KEEP OR NOT ?
-    if (this.histogramParams.dataType === DataType.numeric) {
-      this.chartAxes.xTicksAxis = axisBottom(this.chartAxes.xDomain).tickValues(this.chartAxes.xDataDomain.domain()
-        .filter((d, i) => !(i % ticksPeriod)).map(d => Number(d))).tickSize(this.minusSign * 4);
-      this.chartAxes.xLabelsAxis = axisBottom(this.chartAxes.xDomain).tickSize(0).tickPadding(labelPadding)
-        .tickValues(this.chartAxes.xDataDomain.domain().filter((d, i) => !(i % labelsPeriod)).map(d => Number(d)))
-        .tickFormat(d => tickNumberFormat(d, this.histogramParams.numberFormatChar));
-      this.applyFormatOnXticks(data);
     }
   }
 
@@ -389,6 +367,10 @@ export class ChartBars extends AbstractChart {
   }
 
   private createClipperContext() {
+    if (!this.checkDomainInitialized()) {
+      return;
+    }
+
     this.clipPathContext = this.context.append('defs').append('clipPath')
       .attr('id', this.histogramParams.uid);
     this.currentClipPathContext = this.context.append('defs').append('clipPath')

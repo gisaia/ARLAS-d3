@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { ChartCurve, HistogramParams, ChartBars, SwimlaneBars, ChartArea, OneSelectionDonut, DonutParams } from '../dist/index.js'
+import { ChartCurve, HistogramParams, ChartBars, SwimlaneBars, ChartArea, OneSelectionDonut, DonutParams, DataType } from '../dist/index.js'
 import { Dimensions, Granularity, Margins, Timeline } from '../dist/index.js'
 
 
@@ -104,31 +104,41 @@ const defaultHistogramData = [
   { value: 120 + 300, key: 14000, chartId: '3' },
   { value: 156 + 340, key: 15000, chartId: '3' },
   { value: 156 + 300, key: 16000, chartId: '3' },
-
 ];
 
-const histogramBars = new ChartBars();
-displayHistogram(histogramBars, 'containerBars')
-const histogramCurve = new ChartCurve();
-displayHistogram(histogramCurve, 'containerCurve')
-const histogramArea = new ChartArea();
-displayHistogram(histogramArea, 'containerArea')
+const startDate = 1616180400000;
+const dt = 1000 * 3600 * 24;
 
-function displayHistogram(histogram, containerName) {
+const timeHistogramData = [];
+for (let i=0; i<10; i++) {
+  timeHistogramData.push({ value: Math.random() * 300 - 100, key: new Date(startDate + i*dt), chartId: '1' });
+}
+
+const histogramBars = new ChartBars();
+displayHistogram(histogramBars, 'containerBars', defaultHistogramData);
+const histogramCurve = new ChartCurve();
+displayHistogram(histogramCurve, 'containerCurve', defaultHistogramData, true);
+const histogramArea = new ChartArea();
+displayHistogram(histogramArea, 'containerArea', defaultHistogramData);
+const timeHistogramBars = new ChartBars();
+displayHistogram(timeHistogramBars, 'containerHistTime', timeHistogramData, false, DataType.time)
+
+function displayHistogram(histogram, containerName, data, selectionOverflow = false, dataType = DataType.numeric) {
   histogram.histogramParams = histogramParams;
+  histogram.histogramParams.dataType = dataType;
   histogram.histogramParams.multiselectable = true;
   // histogram.histogramParams.selectionType = 'slider';
   histogram.histogramParams.intervalSelectedMap = new Map();
   histogram.histogramParams.histogramContainer = document.getElementById(containerName)
   histogram.histogramParams.svgNode = document.getElementById(containerName).querySelector('svg');
 
-  histogram.selectionInterval = {
-    startvalue: defaultHistogramData[0].key,
-    endvalue: defaultHistogramData[defaultHistogramData.length - 1].key
-  };
-  histogram.histogramParams.histogramData = defaultHistogramData;
-  histogram.plot(defaultHistogramData);
-  histogram.resize(document.getElementById(containerName));
+  histogram.histogramParams.histogramData = data;
+  histogram.plot(data);
+
+  histogram.setSelectedInterval({
+    startvalue: data[0].key,
+    endvalue: selectionOverflow ? 10 * +data[data.length - 1].key : +data[data.length - 1].key
+  });
 }
 
 /** Timeline */

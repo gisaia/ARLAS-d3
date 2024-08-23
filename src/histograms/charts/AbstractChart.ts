@@ -66,6 +66,9 @@ export abstract class AbstractChart extends AbstractHistogram {
   protected rectangleCurrentClipper: HistogramSVGRect;
   protected selectedIntervals = new Map<string, { rect: HistogramSVGRect; startEndValues: SelectedOutputValues; }>();
 
+  /** Maximum number of buckets that a chart can have */
+  private MAX_BUCKET_NUMBER = 1000;
+
   public plot(inputData: Array<HistogramData>) {
     super.init();
     this.dataDomain = inputData;
@@ -79,7 +82,8 @@ export abstract class AbstractChart extends AbstractHistogram {
       this.initializeDescriptionValues(minMaxBorders[0], minMaxBorders[1], this.histogramParams.bucketRange);
       this.initializeChartDimensions();
       this.customizeData(data);
-      this.createChartAxes(data);
+      const extendData = this.extendData(data);
+      this.createChartAxes(extendData);
       this.drawChartAxes(this.chartAxes, 0);
       this.plotChart(data);
       this.showTooltips(data);
@@ -170,12 +174,14 @@ export abstract class AbstractChart extends AbstractHistogram {
     if (this.brush?.isBrushed || this.brush?.isBrushing) {
       return;
     }
-    const axes = this.getAxes();
+
     this.checkSelectedValuesValidity(selectedInputValues);
     this.fromSetInterval = true;
     const parsedSelectedValues = HistogramUtils.parseSelectedValues(selectedInputValues, this.histogramParams.dataType);
-    if (parsedSelectedValues.startvalue !== this.selectionInterval.startvalue ||
-      parsedSelectedValues.endvalue !== this.selectionInterval.endvalue) {
+    // Has the selection changed ?
+    if (parsedSelectedValues.startvalue !== this.selectionInterval.startvalue
+        || parsedSelectedValues.endvalue !== this.selectionInterval.endvalue) {
+      // Set the new selection
       this.selectionInterval.startvalue = parsedSelectedValues.startvalue;
       this.selectionInterval.endvalue = parsedSelectedValues.endvalue;
       const dataInterval = this.getDataInterval(<Array<HistogramData>>this.histogramParams.histogramData);
@@ -183,15 +189,19 @@ export abstract class AbstractChart extends AbstractHistogram {
       this.histogramParams.endValue = HistogramUtils.toString(this.selectionInterval.endvalue, this.histogramParams, dataInterval);
       const data = this.dataDomain;
       if (data !== null) {
-        if (HistogramUtils.isSelectionBeyondDataDomain(selectedInputValues, <Array<{ key: number; value: number; }>>data,
-          this.histogramParams.intervalSelectedMap)) {
+        // If beyond then outside of the scale of the axis
+        if (HistogramUtils.isSelectionBeyondDataDomain(selectedInputValues, data, this.histogramParams.intervalSelectedMap)) {
           this.hasSelectionExceededData = true;
-          this.plot(<Array<{ key: number; value: number; }>>this.histogramParams.histogramData);
+          this.plot(this.histogramParams.histogramData);
         } else {
-          if (this.hasSelectionExceededData) {
+          // Also check if there are no data beyond selection, then replot
+          // There for when the axis are resized due to selection being [0,0] when first plotting
+          if (this.hasSelectionExceededData
+              || HistogramUtils.isDataDomainWithinSelection(selectedInputValues, data, this.histogramParams.intervalSelectedMap)) {
             this.hasSelectionExceededData = false;
-            this.plot(<Array<{ key: number; value: number; }>>this.histogramParams.histogramData);
+            this.plot(this.histogramParams.histogramData);
           }
+          const axes = this.getAxes();
           const selectionBrushStart = Math.max(0, axes.xDomain(this.selectionInterval.startvalue));
           const selectionBrushEnd = Math.min(axes.xDomain(this.selectionInterval.endvalue), this.chartDimensions.width);
           if (this.brush) {
@@ -393,7 +403,9 @@ export abstract class AbstractChart extends AbstractHistogram {
     this.chartAxes.stepWidth = 0;
     const startRange = this.chartAxes.xDomain(data[0].key);
     const endRange = this.chartAxes.xDomain(+data[data.length - 1].key + this.dataInterval);
-    this.chartAxes.xDataDomain = scaleBand().range([startRange, endRange]).paddingInner(0);
+    this.chartAxes.xDataDomain = scaleBand()
+      .range([startRange, endRange])
+      .paddingInner(0);
     this.chartAxes.xDataDomain.domain(data.map((d) => (+d.key).toString()));
     this.chartAxes.xAxis = axisBottom(this.chartAxes.xDomain).tickSize(0);
     this.chartAxes.xTicksAxis = axisBottom(this.chartAxes.xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 4);
@@ -462,10 +474,10 @@ export abstract class AbstractChart extends AbstractHistogram {
       .tickFormat(d => !this.histogramParams.shortYLabels ? tickNumberFormat(d, this.histogramParams.numberFormatChar) : format('~s')(d));
   }
 
-  protected drawYAxis(chartAxes: ChartAxes, chartIdsToSide?: Map<string, string>, chartId?: string): void {
+  protected drawYAxis(chartAxes: ChartAxes, chartIdsToSide?: Map<string, 'left' | 'right'>, chartId?: string): void {
     // yTicksAxis and yLabelsAxis are translated of 1px to the left so that they are not hidden by the histogram
     let translate = 'translate(-1, 0)';
-    let side;
+    let side: 'left' | 'right';
     if (!!chartId && !!chartIdsToSide) {
       side = chartIdsToSide.get(chartId);
     }
@@ -475,7 +487,7 @@ export abstract class AbstractChart extends AbstractHistogram {
     if (side === 'right') {
       translate = 'translate('.concat((this.chartDimensions.width + 1).toString()).concat(', 0)');
     }
-    let axisColor;
+    let axisColor: string;
     if (!!chartId && !!this.histogramParams.colorGenerator) {
       axisColor = this.histogramParams.colorGenerator.getColor(chartId);
     }
@@ -829,6 +841,9 @@ export abstract class AbstractChart extends AbstractHistogram {
   }
 
   protected applyStyleOnClipper(): void {
+    if (!this.checkDomainInitialized()) {
+      return;
+    }
     if (this.rectangleCurrentClipper === null) {
       this.rectangleCurrentClipper = this.currentClipPathContext.append('rect')
         .attr('id', 'clip-rect')
@@ -841,6 +856,64 @@ export abstract class AbstractChart extends AbstractHistogram {
         .attr('x', this.chartAxes.xDomain(this.selectionInterval.startvalue))
         .attr('width', this.chartAxes.xDomain(this.selectionInterval.endvalue) - this.chartAxes.xDomain(this.selectionInterval.startvalue));
     }
+  }
+
+  /**
+   * When the selection is wider than the range of the data, adds "fake" buckets, for the x axis to be fully drawn
+   * @param data Data to plot
+   * @returns Extended data to fit the selection
+   */
+  protected extendData(data: Array<HistogramData>): Array<HistogramData> {
+    if (this.selectionInterval.startvalue === this.selectionInterval.endvalue) {
+      return data;
+    }
+
+    const bucketSize = this.getDataInterval(data);
+    // The charts have a maximum number of buckets that can be plotted
+    // To avoid errors, we intentionally not plot it
+    if ((+this.selectionInterval.endvalue - +this.selectionInterval.startvalue) / bucketSize > (this.MAX_BUCKET_NUMBER - data.length)) {
+      return data;
+    }
+
+    let extendedData = new Array<HistogramData>();
+    if (+data[0].key > +this.selectionInterval.startvalue) {
+      let fakeDataKey = +data[0].key;
+      while (fakeDataKey > +this.selectionInterval.startvalue) {
+        fakeDataKey = fakeDataKey - bucketSize;
+        if (this.histogramParams.dataType === DataType.numeric) {
+          extendedData.push({
+            key: fakeDataKey,
+            value: 0
+          });
+        } else {
+          extendedData.push({
+            key: new Date(fakeDataKey),
+            value: 0
+          });
+        }
+      }
+    }
+
+    extendedData = extendedData.concat(data);
+    if (+data[data.length - 1].key < +this.selectionInterval.endvalue) {
+      let fakeDataKey = +data[data.length - 1].key;
+      while (fakeDataKey < +this.selectionInterval.endvalue) {
+        fakeDataKey += +bucketSize;
+        if (this.histogramParams.dataType === DataType.numeric) {
+          extendedData.push({
+            key: fakeDataKey,
+            value: 0
+          });
+        } else {
+          extendedData.push({
+            key: new Date(fakeDataKey),
+            value: 0
+          });
+        }
+      }
+    }
+
+    return extendedData;
   }
 
   protected abstract plotChart(data: Array<HistogramData>): void;
@@ -911,5 +984,10 @@ export abstract class AbstractChart extends AbstractHistogram {
     if (selectedInputValues.startvalue === null && selectedInputValues.endvalue === null) {
       throw new Error('Start and end values are null');
     }
+  }
+
+  protected checkDomainInitialized(): boolean {
+    return !(this.chartAxes.xDomain(this.selectionInterval.startvalue) === undefined
+      || this.chartAxes.xDomain(this.selectionInterval.endvalue) === undefined);
   }
 }
