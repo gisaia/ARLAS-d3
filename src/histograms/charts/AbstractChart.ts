@@ -82,8 +82,8 @@ export abstract class AbstractChart extends AbstractHistogram {
       this.initializeDescriptionValues(minMaxBorders[0], minMaxBorders[1], this.histogramParams.bucketRange);
       this.initializeChartDimensions();
       this.customizeData(data);
-      const extendData = this.extendData(data);
-      this.createChartAxes(extendData);
+      const extendedData = this.extendData(data);
+      this.createChartAxes(extendedData);
       this.drawChartAxes(this.chartAxes, 0);
       this.plotChart(data);
       this.showTooltips(data);
@@ -895,8 +895,10 @@ export abstract class AbstractChart extends AbstractHistogram {
     }
 
     extendedData = extendedData.concat(data);
-    if (+data[data.length - 1].key < +this.selectionInterval.endvalue) {
-      let fakeDataKey = +data[data.length - 1].key;
+    // We need to add a bucket only if the start of the next bucket
+    // is not in the data but included in the selection
+    if (+data[data.length - 1].key + bucketSize < +this.selectionInterval.endvalue) {
+      let fakeDataKey = +data[data.length - 1].key + bucketSize;
       while (fakeDataKey < +this.selectionInterval.endvalue) {
         fakeDataKey += +bucketSize;
         if (this.histogramParams.dataType === DataType.numeric) {
