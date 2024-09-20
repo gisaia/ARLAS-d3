@@ -881,12 +881,12 @@ export abstract class AbstractChart extends AbstractHistogram {
       while (fakeDataKey > +this.selectionInterval.startvalue) {
         fakeDataKey = fakeDataKey - bucketSize;
         if (this.histogramParams.dataType === DataType.numeric) {
-          extendedData.push({
+          extendedData.unshift({
             key: fakeDataKey,
             value: 0
           });
         } else {
-          extendedData.push({
+          extendedData.unshift({
             key: new Date(fakeDataKey),
             value: 0
           });
