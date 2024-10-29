@@ -92,7 +92,7 @@ export class ChartCurve extends AbstractChart {
             const minMaxBorders = dataArray.map(d => this.getHistogramMinMaxBorders(d));
             const minOfMin = min(minMaxBorders.map(d => d[0]));
             const maxOfMax = max(minMaxBorders.map(d => d[1]));
-            this.histogramParams.dataLength = (new Set(data.map(d => d.key))).size;
+            this.histogramParams.dataLength = (new Set(data.map(d => d.key.toString()))).size;
             this.initializeDescriptionValues(minOfMin, maxOfMax, this.histogramParams.bucketRange);
             /** add margin to right to show 2nd y axis */
             if (chartIdToData.size === 1) {
