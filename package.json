@@ -59,6 +59,6 @@
   },
   "homepage": "https://github.com/gisaia/ARLAS-d3",
   "overrides": {
-    "braces": "3.0.3"
+    "cross-spawn": "~7.0.5"
   }
 }
