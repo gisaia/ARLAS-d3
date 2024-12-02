@@ -46,12 +46,12 @@
     "tinycolor2": "~1.4.1"
   },
   "devDependencies": {
-    "@types/node": "^18.10.0",
+    "@types/node": "^18.19.0",
     "@typescript-eslint/eslint-plugin": "^5.27.1",
     "@typescript-eslint/parser": "^5.27.1",
     "eslint": "^8.17.0",
     "license-check-and-add": "^4.0.5",
-    "node": "^18.10.0",
+    "node": "^18.19.0",
     "typescript": "4.8.2"
   },
   "bugs": {
