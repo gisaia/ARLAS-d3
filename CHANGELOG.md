@@ -1,5 +1,9 @@
 # Change Log
 
+## [v12.0.0-beta.3](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0-beta.3) (2024-12-10)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v12.0.0-rc.1...v12.0.0-beta.3)
+
 ## [v12.0.0-rc.1](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0-rc.1) (2024-12-02)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v12.0.0-beta.2...v12.0.0-rc.1)
