@@ -36,7 +36,7 @@
     "moment": "^2.29.4",
     "patch-package": "^6.4.7",
     "rxjs": "^7.4.0",
-    "tinycolor2": "~1.4.1"
+    "tinycolor2": "~1.6.0"
   },
   "bugs": {
     "url": "https://github.com/gisaia/ARLAS-d3/issues"
