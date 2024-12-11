@@ -35,7 +35,7 @@
     "d3-transition": "^3.0.1",
     "moment": "^2.29.4",
     "patch-package": "^6.4.7",
-    "rxjs": "~7.4.0",
+    "rxjs": "^7.4.0",
     "tinycolor2": "~1.4.1"
   },
   "bugs": {
