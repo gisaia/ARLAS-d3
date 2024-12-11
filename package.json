@@ -42,14 +42,14 @@
     "d3-transition": "^3.0.1",
     "moment": "^2.29.4",
     "patch-package": "^6.4.7",
-    "rxjs": "~7.4.0",
+    "rxjs": "^7.4.0",
     "tinycolor2": "~1.4.1"
   },
   "devDependencies": {
     "@types/node": "^18.19.1",
-    "@typescript-eslint/eslint-plugin": "^5.27.1",
-    "@typescript-eslint/parser": "^5.27.1",
-    "eslint": "^8.17.0",
+    "@typescript-eslint/eslint-plugin": "^7.2.0",
+    "@typescript-eslint/parser": "^7.2.0",
+    "eslint": "^8.57.0",
     "license-check-and-add": "^4.0.5",
     "node": "^18.19.1",
     "typescript": "~5.4.0"
