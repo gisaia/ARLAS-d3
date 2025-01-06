@@ -1,4 +1,5 @@
 name: Release ARLAS-d3
+run-name: Release ARLAS-d3 ${{inputs.version}} ${{inputs.stage}} ${{inputs.stage_iteration}}
 
 on:
   workflow_dispatch:
