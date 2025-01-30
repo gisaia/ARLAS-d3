@@ -71,6 +71,7 @@ export abstract class AbstractChart extends AbstractHistogram {
 
   private reFunc = null;
   private meanSIze = 0;
+  private t = null;
 
   public plot(inputData: Array<HistogramData>) {
     super.init();
@@ -243,17 +244,20 @@ export abstract class AbstractChart extends AbstractHistogram {
         const t =  this.histogramParams.xTicks;
         let c = v;
         let tc = t;
+        const fc = this.xLabelsAxis.selectAll('text').size();
         return ( count) => {
-            console.error('original x axis label', v)
+            console.error('original x axis label', count)
             c =  (v / (v / count));
             tc = (tc /  (tc / count));
-            return {label:c, tick: tc};
+            return {label:c, tick: tc, prec: (count / fc) * 100, ori: v};
         }
     }
 
   public resize(histogramContainer: HTMLElement): void {
     this.histogramParams.histogramContainer = histogramContainer;
+    let isBigger = false;
     if (this.isWidthFixed === false && this.plottingCount > 0) {
+      isBigger = this.histogramParams.histogramContainer.offsetWidth > this.histogramParams.chartWidth;
       this.histogramParams.chartWidth = this.histogramParams.histogramContainer.offsetWidth;
 
      // this.refreshData();
@@ -271,13 +275,16 @@ export abstract class AbstractChart extends AbstractHistogram {
         this.reFunc = this.resized();
        this.meanSIze = this.getLabelMeanWidth();
         console.error(this.meanSIze)
+        this.t = scaleLinear().domain([0,100])
+            .range([this.histogramParams.xLabels, 0]);
       }
 
 
       const res = this.reFunc(overlapCount);
-     //  const t = this.histogramParams.chartWidth /  res.label * this.meanSIze;
-      this.histogramParams.xLabels = res.label;
-      this.histogramParams.xTicks = res.tick;
+      console.error(res,  this.t(res.prec))
+      const t = this.histogramParams.chartWidth / this.meanSIze;
+      this.histogramParams.xLabels =  this.t(res.prec);
+    this.histogramParams.xTicks = this.t(res.prec);
     }
 
     if (this.isHeightFixed === false && this.plottingCount > 0) {
