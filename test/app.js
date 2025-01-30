@@ -22,9 +22,9 @@ import { Dimensions, Granularity, Margins, Timeline } from '../dist/index.js'
 
 
 const inputCharts = {
-  "xTicks": 9,
+  "xTicks": 60,
   "yTicks": 2,
-  "xLabels": 9,
+  "xLabels": 50,
   "yLabels": 2,
   "xUnit": "",
   "yUnit": "",
@@ -39,7 +39,7 @@ const inputCharts = {
   "ticksDateFormat": "%b %d %Y  %H:%M",
   "chartType": "bars",
   "chartHeight": 150,
-  "chartWidth": 500,
+  "chartWidth": null,
   "yAxisStartsFromZero": true,
   "descriptionPosition": "top",
   "showXTicks": true,
@@ -76,6 +76,8 @@ const defaultHistogramData = [
   { value: 100, key: 12000, chartId: '1' },
   { value: 222, key: 13000, chartId: '1' },
   { value: 120, key: 14000, chartId: '1' },
+  { value: 123, key: 15000, chartId: '1' },
+  { value: 123, key: 16000, chartId: '1' },
 
 
   { value: 212 + 200, key: 5000, chartId: '2' },
@@ -124,9 +126,12 @@ const timeHistogramBars = new ChartBars();
 displayHistogram(timeHistogramBars, 'containerHistTime', timeHistogramData, false, DataType.time)
 
 function displayHistogram(histogram, containerName, data, selectionOverflow = false, dataType = DataType.numeric) {
-  histogram.histogramParams = histogramParams;
+  histogram.histogramParams = {...histogramParams};
   histogram.histogramParams.dataType = dataType;
   histogram.histogramParams.multiselectable = true;
+  histogram.histogramParams.chartWidth = null;
+
+  console.log(histogram.histogramParams)
   // histogram.histogramParams.selectionType = 'slider';
   histogram.histogramParams.intervalSelectedMap = new Map();
   histogram.histogramParams.histogramContainer = document.getElementById(containerName)
@@ -140,6 +145,13 @@ function displayHistogram(histogram, containerName, data, selectionOverflow = fa
     endvalue: selectionOverflow ? 10 * +data[data.length - 1].key : +data[data.length - 1].key
   });
 }
+console.log(histogramArea)
+window.addEventListener('resize', () => {
+  console.log('resize')
+ // histogramBars.resize(document.getElementById('containerBars'));
+  histogramCurve.resize(document.getElementById('containerCurve'));
+  //histogramArea.resize(document.getElementById('containerArea'));
+});
 
 /** Timeline */
 

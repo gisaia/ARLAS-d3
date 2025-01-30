@@ -24,6 +24,7 @@ import {
 import { HistogramParams } from './HistogramParams';
 import { scaleUtc, scaleLinear, scaleTime, ScaleTime, ScaleLinear, ScaleBand } from 'd3-scale';
 import { min, max } from 'd3-array';
+import { Selection } from "d3-selection";
 
 export abstract class AbstractHistogram {
 
@@ -261,6 +262,60 @@ export abstract class AbstractHistogram {
     if (!this.histogramParams.showXLabels) {
       this.xLabelsAxis.attr('class', 'histogram__labels-axis__hidden');
     }
+  }
+  public getLabelMeanWidth(){
+    const label: Selection<any, any, any, any>  =  this.xLabelsAxis.selectAll('text');
+    let mean =  0
+    for (let i = 0; i < label.size(); i++) {
+      const c = this.getDimension(label.nodes()[i]);
+      mean += c.width;
+    }
+    return mean / label.size();
+  }
+
+  public checkOverlap(){
+    const label: Selection<any, any, any, any>  = this.xLabelsAxis.selectAll('text');
+    console.log(label);
+    let coverlapCount = 0;
+    for (let i = 0; i < label.size(); i++) {
+      const next = i + 1;
+      if(label.data()[next]){
+
+        const c = this.getDimension(label.nodes()[i]);
+        const n = this.getDimension(label.nodes()[next]);
+        console.log(label.nodes()[i], coverlapCount, label.nodes()[next]);
+        if(!this.getOverlapFromX(c,n)) {
+          coverlapCount++;
+        }
+        console.log('overlap count => ', coverlapCount, label.size(),  label.size() / coverlapCount);
+      }
+    }
+    return coverlapCount;
+  }
+
+  public getDimension(node){
+    if(node.getBoundingClientRect()) {
+      return node.getBoundingClientRect();
+    }
+
+    if (node instanceof SVGGraphicsElement) { // check if node is svg element
+      return node.getBBox();
+    } else { // else is html element
+      return node.getBoundingClientRect();
+    }
+  }
+
+  public getOverlapFromX (l, r) {
+    const overlapPadding = 4;
+    const a  = {left: 0, right: 0};
+    const b = {left: 0, right: 0};
+    a.left = l.x - overlapPadding;
+    a.right = l.x + l.width + overlapPadding;
+    b.left = r.x - overlapPadding;
+    b.right = r.x + r.width + overlapPadding;
+    console.log(l, r);
+    console.log(a.left, a.right, b.left, b.right);
+    return a.left >= b.right || a.right <= b.left;
   }
 
   protected plotBars(data: Array<HistogramData>, axes: ChartAxes | SwimlaneAxes, xDataDomain: ScaleBand<string>, barWeight?: number): void {

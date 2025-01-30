@@ -69,6 +69,9 @@ export abstract class AbstractChart extends AbstractHistogram {
   /** Maximum number of buckets that a chart can have */
   private MAX_BUCKET_NUMBER = 1000;
 
+  private reFunc = null;
+  private meanSIze = 0;
+
   public plot(inputData: Array<HistogramData>) {
     super.init();
     this.dataDomain = inputData;
@@ -235,10 +238,41 @@ export abstract class AbstractChart extends AbstractHistogram {
     }
   }
 
+    protected resized(){
+        const v =  this.histogramParams.xLabels;
+        const t =  this.histogramParams.xTicks;
+        let c = v;
+        let tc = t;
+        return ( count) => {
+            console.error('original x axis label', v)
+            c = c / (c / count);
+            tc = t / (t / count);
+            return {label:c, tick: tc};
+        }
+    }
+
   public resize(histogramContainer: HTMLElement): void {
     this.histogramParams.histogramContainer = histogramContainer;
     if (this.isWidthFixed === false && this.plottingCount > 0) {
       this.histogramParams.chartWidth = this.histogramParams.histogramContainer.offsetWidth;
+
+     // this.refreshData();
+     // this.refresh()
+    }
+
+    const overlapCount = this.checkOverlap();
+    console.log(overlapCount);
+    if(overlapCount){
+      if(!this.reFunc) {
+        this.reFunc = this.resized();
+        this.meanSIze = this.getLabelMeanWidth();
+        console.error(this.meanSIze)
+      }
+
+      const res = this.reFunc(overlapCount);
+      const t = this.histogramParams.chartWidth /  res.label * this.meanSIze;
+      this.histogramParams.xLabels = t;
+      this.histogramParams.xTicks = t;
     }
 
     if (this.isHeightFixed === false && this.plottingCount > 0) {
