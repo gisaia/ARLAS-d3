@@ -245,8 +245,8 @@ export abstract class AbstractChart extends AbstractHistogram {
         let tc = t;
         return ( count) => {
             console.error('original x axis label', v)
-            c = c / (c / count);
-            tc = t / (t / count);
+            c =  (v / (v / count));
+            tc = (tc /  (tc / count));
             return {label:c, tick: tc};
         }
     }
@@ -260,19 +260,24 @@ export abstract class AbstractChart extends AbstractHistogram {
      // this.refresh()
     }
 
+    if(this.meanSIze){
+      console.error('displayabl label' ,this.histogramParams.chartWidth / this.meanSIze, this.histogramParams.chartWidth ,  this.meanSIze)
+    }
+
     const overlapCount = this.checkOverlap();
     console.log(overlapCount);
     if(overlapCount){
       if(!this.reFunc) {
         this.reFunc = this.resized();
-        this.meanSIze = this.getLabelMeanWidth();
+       this.meanSIze = this.getLabelMeanWidth();
         console.error(this.meanSIze)
       }
 
+
       const res = this.reFunc(overlapCount);
-      const t = this.histogramParams.chartWidth /  res.label * this.meanSIze;
-      this.histogramParams.xLabels = t;
-      this.histogramParams.xTicks = t;
+     //  const t = this.histogramParams.chartWidth /  res.label * this.meanSIze;
+      this.histogramParams.xLabels = res.label;
+      this.histogramParams.xTicks = res.tick;
     }
 
     if (this.isHeightFixed === false && this.plottingCount > 0) {
