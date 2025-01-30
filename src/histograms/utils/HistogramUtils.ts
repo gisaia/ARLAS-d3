@@ -18,7 +18,7 @@
  * under the License.
  */
 
-import * as tinycolor from 'tinycolor2';
+import tinycolor from 'tinycolor2';
 import * as moment from 'moment';
 import { Selection, BaseType } from 'd3-selection';
 import { timeFormat, utcFormat } from 'd3-time-format';

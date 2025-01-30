@@ -12,6 +12,7 @@
         "experimentalDecorators": true,
         "stripInternal": true,
         "skipLibCheck": true,
+        "allowSyntheticDefaultImports": true,
         "types": [
             "d3"
         ],

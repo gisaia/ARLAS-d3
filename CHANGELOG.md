@@ -1,5 +1,33 @@
 # Change Log
 
+## [v12.0.0](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0) (2025-01-30)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v12.0.0-rc.2...v12.0.0)
+
+## [v12.0.0-rc.2](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0-rc.2) (2024-12-18)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v12.0.0-beta.5...v12.0.0-rc.2)
+
+## [v12.0.0-beta.5](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0-beta.5) (2024-12-11)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v12.0.0-beta.4...v12.0.0-beta.5)
+
+## [v12.0.0-beta.4](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0-beta.4) (2024-12-11)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v12.0.0-beta.3...v12.0.0-beta.4)
+
+## [v12.0.0-beta.3](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0-beta.3) (2024-12-10)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v12.0.0-rc.1...v12.0.0-beta.3)
+
+## [v12.0.0-rc.1](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0-rc.1) (2024-12-02)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v12.0.0-beta.2...v12.0.0-rc.1)
+
+## [v12.0.0-beta.2](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0-beta.2) (2024-11-14)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.2.6...v12.0.0-beta.2)
+
 ## [v11.2.6](https://github.com/gisaia/ARLAS-d3/tree/v11.2.6) (2024-10-30)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v12.0.0-beta.1...v11.2.6)
