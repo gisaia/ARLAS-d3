@@ -24,6 +24,7 @@ import {
 import { HistogramParams } from './HistogramParams';
 import { scaleUtc, scaleLinear, scaleTime, ScaleTime, ScaleLinear, ScaleBand } from 'd3-scale';
 import { min, max } from 'd3-array';
+import { Selection } from 'd3-selection';
 
 export abstract class AbstractHistogram {
 
@@ -64,6 +65,9 @@ export abstract class AbstractHistogram {
   protected yDimension = 1;
   protected plottingCount = 0;
   protected minusSign = 1;
+
+  protected _xlabelMeanWidth = 0;
+
 
   public constructor() {
     this.brushCornerTooltips = this.createEmptyBrushCornerTooltips();
@@ -225,20 +229,7 @@ export abstract class AbstractHistogram {
     // leftOffset is the width of Y labels, so x axes are translated by leftOffset
     // Y axis is translated to the left of 1px so that the chart doesn't hide it
     // Therefore, we substruct 1px (leftOffset - 1) so that the first tick of xAxis will coincide with y axis
-    let horizontalOffset = this.chartDimensions.height;
-    if (isChartAxes(chartAxes)) {
-      if (!this.histogramParams.yAxisFromZero) {
-        const minMax = chartAxes.yDomain.domain();
-        if (minMax[0] >= 0) {
-          horizontalOffset = chartAxes.yDomain(minMax[0]);
-        } else {
-          horizontalOffset = chartAxes.yDomain(minMax[1]);
-        }
-      } else {
-        horizontalOffset = chartAxes.yDomain(0);
-
-      }
-    }
+    const horizontalOffset = this.getHorizontalOffset(chartAxes);
     this.xAxis = this.allAxesContext.append('g')
       .attr('class', 'histogram__only-axis')
       .attr('transform', 'translate(' + (leftOffset - 1) + ',' + horizontalOffset + ')')
@@ -251,6 +242,7 @@ export abstract class AbstractHistogram {
       .attr('class', 'histogram__labels-axis')
       .attr('transform', 'translate(' + (leftOffset - 1) + ',' + this.chartDimensions.height * this.histogramParams.xAxisPosition + ')')
       .call(chartAxes.xLabelsAxis);
+
     this.xTicksAxis.selectAll('path').attr('class', 'histogram__axis');
     this.xAxis.selectAll('path').attr('class', 'histogram__axis');
     this.xTicksAxis.selectAll('line').attr('class', 'histogram__ticks');
@@ -261,6 +253,81 @@ export abstract class AbstractHistogram {
     if (!this.histogramParams.showXLabels) {
       this.xLabelsAxis.attr('class', 'histogram__labels-axis__hidden');
     }
+  }
+
+  public getHorizontalOffset(chartAxes){
+    let h = this.chartDimensions.height;
+    if (isChartAxes(chartAxes)) {
+      if (!this.histogramParams.yAxisFromZero) {
+        const minMax = chartAxes.yDomain.domain();
+        if (minMax[0] >= 0) {
+          h = chartAxes.yDomain(minMax[0]);
+        } else {
+          h = chartAxes.yDomain(minMax[1]);
+        }
+      } else {
+        h = chartAxes.yDomain(0);
+      }
+    }
+    return h;
+  }
+
+  public updateNumberOfLabelDisplayedIfOverlap(chartAxes: ChartAxes | SwimlaneAxes, leftOffset = 0){
+      const horizontalOffset = this.getHorizontalOffset(chartAxes);
+      let sumWidth = 0;
+      const virtualLabels = this.chartDimensions.svg.append('g');
+      const labels = virtualLabels.append('g')
+          .attr('class', 'histogram__labels-axis')
+          .attr('transform', 'translate(' + (leftOffset - 1) + ',' + this.chartDimensions.height * this.histogramParams.xAxisPosition + ')')
+          .call(chartAxes.xLabelsAxis).selectAll('text');
+
+      let hasOverlap = false;
+      for (let i = 0; i < labels.size(); i++) {
+        const next = i + 1;
+        if(labels.data()[next]){
+          const c = this.getDimension(labels.nodes()[i]);
+          const n = this.getDimension(labels.nodes()[next]);
+          if(!this.getOverlapFromX(c,n)) {
+            hasOverlap = true;
+          }
+          sumWidth += c.width;
+        }
+    }
+
+    if(!this._xlabelMeanWidth) {
+      this._xlabelMeanWidth  = sumWidth / this.histogramParams.xLabels;
+    }
+
+    virtualLabels.remove();
+    if(!hasOverlap) {
+      return  0;
+    }
+
+    const labelCount = min([
+        this.histogramParams.xLabels,
+      Math.floor(this.histogramParams.chartWidth  /  (this._xlabelMeanWidth + horizontalOffset))]
+    );
+
+    chartAxes.xLabelsAxis.ticks(labelCount);
+    chartAxes.xTicksAxis.ticks(labelCount * 4);
+  }
+
+  public getDimension(node): DOMRect {
+    if (typeof node.getBoundingClientRect === 'function') {
+      return node.getBoundingClientRect();
+    } else if (node instanceof SVGGraphicsElement) { // check if node is svg element
+      return node.getBBox();
+    }
+  }
+
+  public getOverlapFromX (l, r) {
+    const a  = {left: 0, right: 0};
+    const b = {left: 0, right: 0};
+    a.left = l.x - this.histogramParams.overlapXTolerance;
+    a.right = l.x + l.width + this.histogramParams.overlapXTolerance;
+    b.left = r.x - this.histogramParams.overlapXTolerance;
+    b.right = r.x + r.width + this.histogramParams.overlapXTolerance;
+    return a.left >= b.right || a.right <= b.left;
   }
 
   protected plotBars(data: Array<HistogramData>, axes: ChartAxes | SwimlaneAxes, xDataDomain: ScaleBand<string>, barWeight?: number): void {

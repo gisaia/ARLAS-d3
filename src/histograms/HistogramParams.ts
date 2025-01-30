@@ -70,6 +70,7 @@ export class HistogramParams {
   public ticksDateFormat: string = null;
   public xAxisPosition: Position = Position.bottom;
   public descriptionPosition: Position = Position.bottom;
+  public overlapXTolerance  = 2;
 
   /** Desctiption */
   public chartTitle = '';

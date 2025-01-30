@@ -69,6 +69,7 @@ export abstract class AbstractChart extends AbstractHistogram {
   /** Maximum number of buckets that a chart can have */
   private MAX_BUCKET_NUMBER = 1000;
 
+
   public plot(inputData: Array<HistogramData>) {
     super.init();
     this.dataDomain = inputData;
@@ -84,6 +85,7 @@ export abstract class AbstractChart extends AbstractHistogram {
       this.customizeData(data);
       const extendedData = this.extendData(data);
       this.createChartAxes(extendedData);
+      this.updateNumberOfLabelDisplayedIfOverlap(this.chartAxes, 0);
       this.drawChartAxes(this.chartAxes, 0);
       this.plotChart(data);
       this.showTooltips(data);
@@ -405,6 +407,7 @@ export abstract class AbstractChart extends AbstractHistogram {
     const labelPadding = (this.histogramParams.xAxisPosition === Position.bottom) ? 9 : -15;
     this.chartAxes.xLabelsAxis = axisBottom(this.chartAxes.xDomain).tickSize(0)
         .tickPadding(labelPadding).ticks(this.histogramParams.xLabels);
+
     this.applyFormatOnXticks(data);
     if (this.histogramParams.dataType === DataType.time) {
         if (this.histogramParams.ticksDateFormat) {
