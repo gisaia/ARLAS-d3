@@ -66,6 +66,11 @@ export abstract class AbstractHistogram {
   protected plottingCount = 0;
   protected minusSign = 1;
 
+  protected _factor = null;
+  protected _xlabelCount = null;
+  protected _xHistowidth = null;
+
+
   public constructor() {
     this.brushCornerTooltips = this.createEmptyBrushCornerTooltips();
   }
@@ -113,6 +118,8 @@ export abstract class AbstractHistogram {
     if (this.histogramParams.xAxisPosition === Position.top) {
       this.minusSign = -1;
     }
+
+    this._xlabelCount = this.histogramParams.xLabels;
   }
 
   protected initializeDescriptionValues(start: Date | number, end: Date | number, dataInterval: number) {
@@ -226,20 +233,7 @@ export abstract class AbstractHistogram {
     // leftOffset is the width of Y labels, so x axes are translated by leftOffset
     // Y axis is translated to the left of 1px so that the chart doesn't hide it
     // Therefore, we substruct 1px (leftOffset - 1) so that the first tick of xAxis will coincide with y axis
-    let horizontalOffset = this.chartDimensions.height;
-    if (isChartAxes(chartAxes)) {
-      if (!this.histogramParams.yAxisFromZero) {
-        const minMax = chartAxes.yDomain.domain();
-        if (minMax[0] >= 0) {
-          horizontalOffset = chartAxes.yDomain(minMax[0]);
-        } else {
-          horizontalOffset = chartAxes.yDomain(minMax[1]);
-        }
-      } else {
-        horizontalOffset = chartAxes.yDomain(0);
-
-      }
-    }
+    const horizontalOffset = this.getHorizontalOffset(chartAxes);
     this.xAxis = this.allAxesContext.append('g')
       .attr('class', 'histogram__only-axis')
       .attr('transform', 'translate(' + (leftOffset - 1) + ',' + horizontalOffset + ')')
@@ -251,7 +245,8 @@ export abstract class AbstractHistogram {
     this.xLabelsAxis = this.allAxesContext.append('g')
       .attr('class', 'histogram__labels-axis')
       .attr('transform', 'translate(' + (leftOffset - 1) + ',' + this.chartDimensions.height * this.histogramParams.xAxisPosition + ')')
-      .call(chartAxes.xLabelsAxis);
+      .call(chartAxes.xLabelsAxis)
+
     this.xTicksAxis.selectAll('path').attr('class', 'histogram__axis');
     this.xAxis.selectAll('path').attr('class', 'histogram__axis');
     this.xTicksAxis.selectAll('line').attr('class', 'histogram__ticks');
@@ -263,6 +258,25 @@ export abstract class AbstractHistogram {
       this.xLabelsAxis.attr('class', 'histogram__labels-axis__hidden');
     }
   }
+
+  public getHorizontalOffset(chartAxes){
+    let calue = this.chartDimensions.height;
+    if (isChartAxes(chartAxes)) {
+      if (!this.histogramParams.yAxisFromZero) {
+        const minMax = chartAxes.yDomain.domain();
+        if (minMax[0] >= 0) {
+          calue = chartAxes.yDomain(minMax[0]);
+        } else {
+          calue = chartAxes.yDomain(minMax[1]);
+        }
+      } else {
+        calue = chartAxes.yDomain(0);
+
+      }
+    }
+    return calue;
+  }
+
   public getLabelMeanWidth(){
     const label: Selection<any, any, any, any>  =  this.xLabelsAxis.selectAll('text');
     let mean =  0
@@ -273,24 +287,56 @@ export abstract class AbstractHistogram {
     return mean / label.size();
   }
 
-  public checkOverlap(){
-    const label: Selection<any, any, any, any>  = this.xLabelsAxis.selectAll('text');
-    console.log(label);
-    let coverlapCount = 0;
-    for (let i = 0; i < label.size(); i++) {
-      const next = i + 1;
-      if(label.data()[next]){
+  public checkOverlap(ch:any, leftOffset = 0){
+    /**
+     *  To improve 2 methode
+     *  1: nombre d'élément en fonction de la taille moyenne du label.
+     *  On récupère l'offset horizontal
+     *  on récupère la taille moyenne des label
+     *  ensuite onf ait (width du chart / taillMoyen + offset)
+     *  On aobtien le nombre à affiché
+     *   2 facteur linéaire
+     *   au premiers overlap on récupère le facteur linéaire (on divise le nb toal par le nombre de paire de label qui soverlap)
+     *   ensuite on applique ce facteur en fonction du nombre d'overlap retrouver.
+     */
+      const horizontalOffset = this.getHorizontalOffset(ch);
+      let labelMeanWidth = 0;
+      const virtualLabels = this.chartDimensions.svg.append('g');
+      const labels = virtualLabels.append('g')
+          .attr('class', 'histogram__labels-axis')
+          .attr('transform', 'translate(' + (leftOffset - 1) + ',' + this.chartDimensions.height * this.histogramParams.xAxisPosition + ')')
+          .call(ch.xLabelsAxis).selectAll('text');
+      console.log(labels);
+      let coverlapCount = 0;
+      for (let i = 0; i < labels.size(); i++) {
+        const next = i + 1;
+        if(labels.data()[next]){
+          const c = this.getDimension(labels.nodes()[i]);
+          const n = this.getDimension(labels.nodes()[next]);
+          console.log(labels.nodes()[i], coverlapCount, labels.nodes()[next]);
+          if(!this.getOverlapFromX(c,n)) {
+            coverlapCount++;
+          }
 
-        const c = this.getDimension(label.nodes()[i]);
-        const n = this.getDimension(label.nodes()[next]);
-        console.log(label.nodes()[i], coverlapCount, label.nodes()[next]);
-        if(!this.getOverlapFromX(c,n)) {
-          coverlapCount++;
+          labelMeanWidth += c.width;
+          console.log('overlap count => ', coverlapCount, labels.size(),  labels.size() / coverlapCount);
         }
-        console.log('overlap count => ', coverlapCount, label.size(),  label.size() / coverlapCount);
-      }
     }
-    return coverlapCount;
+
+      virtualLabels.remove();
+      labelMeanWidth  = labelMeanWidth / this.histogramParams.xLabels;
+      let  displayed = this._xlabelCount  ?? this.histogramParams.xLabels;
+      if(coverlapCount > 0) {
+
+        this._factor = (this.histogramParams.xLabels / (coverlapCount / 2));
+        // console.error(this._xlabelCount,  this._factor, coverlapCount);
+       // displayed = Math.round(this.histogramParams.chartWidth  /  (labelMeanWidth + horizontalOffset));
+        displayed = min([this.histogramParams.xLabels, Math.ceil( this._xlabelCount / coverlapCount  * this._factor));
+        this._xlabelCount =displayed;
+       // displayed =  Math.round((((this.histogramParams.chartWidth - (this._xlabelCount * horizontalOffset) )  * (this._xlabelCount) / this._xHistowidth);
+      }
+    console.error('displayed', displayed, coverlapCount)
+      return displayed;
   }
 
   public getDimension(node){
@@ -306,7 +352,7 @@ export abstract class AbstractHistogram {
   }
 
   public getOverlapFromX (l, r) {
-    const overlapPadding = 4;
+    const overlapPadding = 2;
     const a  = {left: 0, right: 0};
     const b = {left: 0, right: 0};
     a.left = l.x - overlapPadding;
