@@ -407,9 +407,6 @@ export abstract class AbstractChart extends AbstractHistogram {
     this.chartAxes.xLabelsAxis = axisBottom(this.chartAxes.xDomain).tickSize(0)
         .tickPadding(labelPadding).ticks(this.histogramParams.xLabels);
 
-    const over = this.checkOverlap( this.chartAxes);
-    this.chartAxes.xLabelsAxis.ticks(over);
-
     this.applyFormatOnXticks(data);
     if (this.histogramParams.dataType === DataType.time) {
         if (this.histogramParams.ticksDateFormat) {
@@ -423,6 +420,15 @@ export abstract class AbstractChart extends AbstractHistogram {
         /** apply space between thousands, millions */
         this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.
             tickFormat(d => tickNumberFormat(d, this.histogramParams.numberFormatChar));
+    }
+
+     const overlapCount = this.labelOverlap(this.chartAxes);
+   if(overlapCount !== 0){
+      this.calcNumberOfLabelDisplayed(overlapCount);
+    }
+    if(this._xlabelCount < this.histogramParams.xLabels) {
+      this.chartAxes.xLabelsAxis.ticks(this._xlabelCount);
+      this.chartAxes.xTicksAxis.ticks(this._xlabelCount * 3);
     }
 }
 

@@ -148,9 +148,10 @@ function displayHistogram(histogram, containerName, data, selectionOverflow = fa
 console.log(histogramArea)
 window.addEventListener('resize', () => {
   console.log('resize')
- // histogramBars.resize(document.getElementById('containerBars'));
+  histogramBars.resize(document.getElementById('containerBars'));
   histogramCurve.resize(document.getElementById('containerCurve'));
-  //histogramArea.resize(document.getElementById('containerArea'));
+    histogramArea.resize(document.getElementById('containerArea'));
+  timeHistogramBars.resize(document.getElementById('containerHistTime'));
 });
 
 /** Timeline */
