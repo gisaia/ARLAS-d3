@@ -66,7 +66,6 @@ export abstract class AbstractHistogram {
   protected plottingCount = 0;
   protected minusSign = 1;
 
-  protected _xlabelCount = 0;
   protected _xlabelMeanWidth = 0;
 
 
@@ -79,9 +78,6 @@ export abstract class AbstractHistogram {
   public init() {
     /** each time we [re]plot, the bucket range is reset */
     this.histogramParams.bucketRange = undefined;
-    if(this._xlabelCount === 0){
-      this._xlabelCount = this.histogramParams.xLabels;
-    }
     this.setHistogramMargins();
     if (this.context) {
       this.context.remove();
@@ -307,13 +303,13 @@ export abstract class AbstractHistogram {
     if(!hasOverlap) {
       return  0;
     }
-    console.error('has hasOverlap');
-    this._xlabelCount = min([
+
+    const labelCount = min([
         this.histogramParams.xLabels,
       Math.round(this.histogramParams.chartWidth  /  (this._xlabelMeanWidth + horizontalOffset))]
     );
-    chartAxes.xLabelsAxis.ticks(this._xlabelCount);
-    chartAxes.xTicksAxis.ticks(this._xlabelCount * 4);
+    chartAxes.xLabelsAxis.ticks(labelCount);
+    chartAxes.xTicksAxis.ticks(labelCount * 4);
   }
 
   public getDimension(node) {
