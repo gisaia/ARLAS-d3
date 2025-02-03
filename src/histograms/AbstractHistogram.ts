@@ -66,8 +66,8 @@ export abstract class AbstractHistogram {
   protected plottingCount = 0;
   protected minusSign = 1;
 
-  protected _factor = null;
-  protected _xlabelCount = null;
+  protected _xlabelCount = 0;
+  protected _xlabelMeanWidth = 0;
 
 
   public constructor() {
@@ -79,6 +79,9 @@ export abstract class AbstractHistogram {
   public init() {
     /** each time we [re]plot, the bucket range is reset */
     this.histogramParams.bucketRange = undefined;
+    if(this._xlabelCount === 0){
+      this._xlabelCount = this.histogramParams.xLabels;
+    }
     this.setHistogramMargins();
     if (this.context) {
       this.context.remove();
@@ -117,8 +120,6 @@ export abstract class AbstractHistogram {
     if (this.histogramParams.xAxisPosition === Position.top) {
       this.minusSign = -1;
     }
-
-    this._xlabelCount = this.histogramParams.xLabels;
   }
 
   protected initializeDescriptionValues(start: Date | number, end: Date | number, dataInterval: number) {
@@ -276,103 +277,43 @@ export abstract class AbstractHistogram {
     return calue;
   }
 
-  public getLabelMeanWidth(){
-    const label =  this.xLabelsAxis.selectAll('text');
-    let mean =  0;
-    for (let i = 0; i < label.size(); i++) {
-      const c = this.getDimension(label.nodes()[i]);
-      mean += c.width;
-    }
-    return mean / label.size();
-  }
-
-  public labelOverlap(ch, leftOffset = 0){
-
-    // create a virtual node to get the width of the labels
-    const virtualLabels = this.chartDimensions.svg.append('g');
-    const labels = virtualLabels.append('g')
-        .attr('class', 'histogram__labels-axis')
-        .attr('transform', 'translate(' + (leftOffset - 1) + ',' + this.chartDimensions.height * this.histogramParams.xAxisPosition + ')')
-        .call(ch.xLabelsAxis).selectAll('text');
-
-    let overlapCount = 0;
-    for (let i = 0; i < labels.size(); i++) {
-      const next = i + 1;
-      if(labels.data()[next]){
-        const c = this.getDimension(labels.nodes()[i]);
-        const n = this.getDimension(labels.nodes()[next]);
-        if(c && n && !this.getOverlapFromX(c,n)) {
-          overlapCount++;
-          console.error(labels.nodes()[i]);
-        }
-      }
-    }
-    console.error('overlap count => ', overlapCount);
-    // clear svg
-    virtualLabels.remove();
-    return overlapCount;
-  }
-
-  public calcNumberOfLabelDisplayed(overlapCount: number){
-      // get a factor to know .
-      this._factor = (this._xlabelCount / (overlapCount / 2));
-      this._xlabelCount  =  min([this.histogramParams.xLabels,  Math.floor( this._xlabelCount  / overlapCount * this._factor)]);
-      console.error(this._xlabelCount,  overlapCount * this._factor,    Math.floor(this._xlabelCount  / overlapCount * this._factor));
-
-  }
-
-
-  public checkOverlap(ch, leftOffset = 0){
-    /**
-     *  To improve 2 methode
-     *  1: nombre d'élément en fonction de la taille moyenne du label.
-     *  On récupère l'offset horizontal
-     *  on récupère la taille moyenne des label
-     *  ensuite onf ait (width du chart / taillMoyen + offset)
-     *  On aobtien le nombre à affiché
-     *   2 facteur linéaire
-     *   au premiers overlap on récupère le facteur linéaire (on divise le nb toal par le nombre de paire de label qui soverlap)
-     *   ensuite on applique ce facteur en fonction du nombre d'overlap retrouver.
-     */
-      const horizontalOffset = this.getHorizontalOffset(ch);
-      let labelMeanWidth = 0;
+  public updateNumberOfLabelDisplayedIfOverlap(chartAxes, leftOffset = 0){
+      const horizontalOffset = this.getHorizontalOffset(chartAxes);
+      let sumWidth = 0;
       const virtualLabels = this.chartDimensions.svg.append('g');
       const labels = virtualLabels.append('g')
           .attr('class', 'histogram__labels-axis')
           .attr('transform', 'translate(' + (leftOffset - 1) + ',' + this.chartDimensions.height * this.histogramParams.xAxisPosition + ')')
-          .call(ch.xLabelsAxis).selectAll('text');
-      console.log(labels);
-      let coverlapCount = 0;
+          .call(chartAxes.xLabelsAxis).selectAll('text');
+
+      let hasOverlap = false;
       for (let i = 0; i < labels.size(); i++) {
         const next = i + 1;
         if(labels.data()[next]){
           const c = this.getDimension(labels.nodes()[i]);
           const n = this.getDimension(labels.nodes()[next]);
-          console.log(labels.nodes()[i], coverlapCount, labels.nodes()[next]);
           if(!this.getOverlapFromX(c,n)) {
-            coverlapCount++;
+            hasOverlap = true;
           }
-
-          labelMeanWidth += c.width;
-          console.log('overlap count => ', coverlapCount, labels.size(),  labels.size() / coverlapCount);
+          sumWidth += c.width;
         }
     }
 
-      virtualLabels.remove();
-      labelMeanWidth  = labelMeanWidth / this.histogramParams.xLabels;
-      let  displayed = this._xlabelCount  ?? this.histogramParams.xLabels;
-      if(coverlapCount > 0) {
+    if(!this._xlabelMeanWidth) {
+      this._xlabelMeanWidth  = sumWidth / this.histogramParams.xLabels;
+    }
 
-        this._factor = (this.histogramParams.xLabels / (coverlapCount / 2));
-        // console.error(this._xlabelCount,  this._factor, coverlapCount);
-       // displayed = Math.round(this.histogramParams.chartWidth  /  (labelMeanWidth + horizontalOffset));
-        displayed = min([this.histogramParams.xLabels, Math.ceil( this._xlabelCount / coverlapCount  * this._factor)]);
-        this._xlabelCount =displayed;
-       // displayed =  Math.round((((this.histogramParams.chartWidth - (this._xlabelCount * horizontalOffset) )
-        // * (this._xlabelCount) / this._xHistowidth);
-      }
-    console.error('displayed', displayed, coverlapCount);
-      return displayed;
+    virtualLabels.remove();
+    if(!hasOverlap) {
+      return  0;
+    }
+    console.error('has hasOverlap');
+    this._xlabelCount = min([
+        this.histogramParams.xLabels,
+      Math.round(this.histogramParams.chartWidth  /  (this._xlabelMeanWidth + horizontalOffset))]
+    );
+    chartAxes.xLabelsAxis.ticks(this._xlabelCount);
+    chartAxes.xTicksAxis.ticks(this._xlabelCount * 4);
   }
 
   public getDimension(node) {
@@ -390,7 +331,7 @@ export abstract class AbstractHistogram {
     a.right = l.x + l.width + this.histogramParams.overlapXTolerance;
     b.left = r.x - this.histogramParams.overlapXTolerance;
     b.right = r.x + r.width + this.histogramParams.overlapXTolerance;
-    console.log('overlap count => ', a, l);
+    console.error('label size ', a, l);
     return a.left >= b.right || a.right <= b.left;
   }
 

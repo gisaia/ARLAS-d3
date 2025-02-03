@@ -422,14 +422,10 @@ export abstract class AbstractChart extends AbstractHistogram {
             tickFormat(d => tickNumberFormat(d, this.histogramParams.numberFormatChar));
     }
 
-     const overlapCount = this.labelOverlap(this.chartAxes);
-   if(overlapCount !== 0){
-      this.calcNumberOfLabelDisplayed(overlapCount);
+    if(this.chartDimensions.svg) {
+      this.updateNumberOfLabelDisplayedIfOverlap(this.chartAxes);
     }
-    if(this._xlabelCount < this.histogramParams.xLabels) {
-      this.chartAxes.xLabelsAxis.ticks(this._xlabelCount);
-      this.chartAxes.xTicksAxis.ticks(this._xlabelCount * 3);
-    }
+
 }
 
   protected createChartAxes(data: Array<HistogramData>): void {

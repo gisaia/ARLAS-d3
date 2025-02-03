@@ -145,12 +145,11 @@ function displayHistogram(histogram, containerName, data, selectionOverflow = fa
     endvalue: selectionOverflow ? 10 * +data[data.length - 1].key : +data[data.length - 1].key
   });
 }
-console.log(histogramArea)
+
 window.addEventListener('resize', () => {
-  console.log('resize')
   histogramBars.resize(document.getElementById('containerBars'));
   histogramCurve.resize(document.getElementById('containerCurve'));
-    histogramArea.resize(document.getElementById('containerArea'));
+  histogramArea.resize(document.getElementById('containerArea'));
   timeHistogramBars.resize(document.getElementById('containerHistTime'));
 });
 
