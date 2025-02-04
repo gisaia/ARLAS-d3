@@ -107,12 +107,14 @@ export class ChartCurve extends AbstractChart {
                 this.histogramParams.margin.right = 10;
             }
             this.initializeChartDimensions();
+
             const extendedData = this.extendData(data);
             if (chartIdToData.size === 1) {
                 // We add just one Y axis on the left
                 // No normalization
                 this.createChartXAxes(extendedData);
                 this.createChartYLeftAxes(data);
+                this.updateNumberOfLabelDisplayedIfOverlap(this.chartAxes, 0);
                 this.drawChartAxes(this.chartAxes, 0);
                 this.drawYAxis(this.chartAxes, chartIdsToSides, Array.from(chartIds)[0]);
                 this.createClipperContext();
@@ -129,6 +131,7 @@ export class ChartCurve extends AbstractChart {
                     this.createChartYRightAxes(dataArray[1]);
                     this.createChartYLeftAxes(dataArray[0]);
                 }
+                this.updateNumberOfLabelDisplayedIfOverlap(this.chartAxes, 0);
                 this.drawChartAxes(this.chartAxes, 0);
                 const chartIdsArray = Array.from(chartIds);
                 if (!!this.histogramParams.mainChartId && chartIdToData.has(this.histogramParams.mainChartId)) {
@@ -153,6 +156,7 @@ export class ChartCurve extends AbstractChart {
                 // We normalize the data
                 this.createChartXAxes(extendedData);
                 this.createChartNormalizeLeftAxes();
+                this.updateNumberOfLabelDisplayedIfOverlap(this.chartAxes, 0);
                 this.drawChartAxes(this.chartAxes, 0);
                 this.createClipperContext();
                 dataArray.forEach(chartData => {

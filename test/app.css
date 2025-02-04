@@ -16,6 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+body, html {
+  width: 100%;
+}
+
 
  .histogram{
     background: rgba(0,0,255,0);
