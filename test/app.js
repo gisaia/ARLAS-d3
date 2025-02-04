@@ -131,7 +131,6 @@ function displayHistogram(histogram, containerName, data, selectionOverflow = fa
   histogram.histogramParams.multiselectable = true;
   histogram.histogramParams.chartWidth = null;
 
-  console.log(histogram.histogramParams)
   // histogram.histogramParams.selectionType = 'slider';
   histogram.histogramParams.intervalSelectedMap = new Map();
   histogram.histogramParams.histogramContainer = document.getElementById(containerName)

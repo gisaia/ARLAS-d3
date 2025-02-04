@@ -273,42 +273,53 @@ export abstract class AbstractHistogram {
   }
 
   public updateNumberOfLabelDisplayedIfOverlap(chartAxes: ChartAxes | SwimlaneAxes, leftOffset = 0){
-      const horizontalOffset = this.getHorizontalOffset(chartAxes);
+    // Get the offset used when we will draw the labels.
+    const horizontalOffset = this.getHorizontalOffset(chartAxes);
       let sumWidth = 0;
+      // create virtual nodes. Helps to get label's width.
       const virtualLabels = this.chartDimensions.svg.append('g');
       const labels = virtualLabels.append('g')
           .attr('class', 'histogram__labels-axis')
           .attr('transform', 'translate(' + (leftOffset - 1) + ',' + this.chartDimensions.height * this.histogramParams.xAxisPosition + ')')
           .call(chartAxes.xLabelsAxis).selectAll('text');
 
+      // check for all label if there is an overlap.
       let hasOverlap = false;
+      const nodes = labels.nodes();
       for (let i = 0; i < labels.size(); i++) {
         const next = i + 1;
-        if(labels.data()[next]){
-          const c = this.getDimension(labels.nodes()[i]);
-          const n = this.getDimension(labels.nodes()[next]);
-          if(!this.getOverlapFromX(c,n)) {
+        if(nodes[next]){
+          const c = this.getDimension(nodes[i]);
+          const n = this.getDimension(nodes[next]);
+          if(!this.isOverlapXAxis(c,n)) {
             hasOverlap = true;
           }
           sumWidth += c.width;
         }
     }
 
-    if(!this._xlabelMeanWidth) {
-      this._xlabelMeanWidth  = sumWidth / this.histogramParams.xLabels;
-    }
-
+    // remove virtual node. If we do not it ill be displayed
     virtualLabels.remove();
+
+      // calc label mean width once.
+   if(!this._xlabelMeanWidth) {
+      this._xlabelMeanWidth  = Math.round(sumWidth / this.histogramParams.xLabels);
+   }
+
+
     if(!hasOverlap) {
-      return  0;
+       return;
     }
 
+    // get the min value between default label size an
     const labelCount = min([
         this.histogramParams.xLabels,
       Math.floor(this.histogramParams.chartWidth  /  (this._xlabelMeanWidth + horizontalOffset))]
     );
 
+    // update ticks for label and ticks axisis
     chartAxes.xLabelsAxis.ticks(labelCount);
+    // 4 is an arbitrary value to displayed one or 2 ticks between each value.
     chartAxes.xTicksAxis.ticks(labelCount * 4);
   }
 
@@ -320,7 +331,7 @@ export abstract class AbstractHistogram {
     }
   }
 
-  public getOverlapFromX (l, r) {
+  public isOverlapXAxis (l, r) {
     const a  = {left: 0, right: 0};
     const b = {left: 0, right: 0};
     a.left = l.x - this.histogramParams.overlapXTolerance;
