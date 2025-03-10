@@ -67,7 +67,7 @@ export abstract class AbstractHistogram {
   protected minusSign = 1;
 
   protected _xlabelMeanWidth = 0;
-
+  protected _previousLabel;
 
   public constructor() {
     this.brushCornerTooltips = this.createEmptyBrushCornerTooltips();
@@ -80,6 +80,7 @@ export abstract class AbstractHistogram {
     this.histogramParams.bucketRange = undefined;
     this.setHistogramMargins();
     if (this.context) {
+      this._previousLabel = this.xLabelsAxis;
       this.context.remove();
     }
   }
@@ -238,10 +239,7 @@ export abstract class AbstractHistogram {
       .attr('class', 'histogram__ticks-axis')
       .attr('transform', 'translate(' + (leftOffset - 1) + ',' + this.chartDimensions.height * this.histogramParams.xAxisPosition + ')')
       .call(chartAxes.xTicksAxis);
-    this.xLabelsAxis = this.allAxesContext.append('g')
-      .attr('class', 'histogram__labels-axis')
-      .attr('transform', 'translate(' + (leftOffset - 1) + ',' + this.chartDimensions.height * this.histogramParams.xAxisPosition + ')')
-      .call(chartAxes.xLabelsAxis);
+    this.xLabelsAxis =  this.createXLabelAxis(this.allAxesContext,chartAxes.xLabelsAxis, leftOffset );
 
     this.xTicksAxis.selectAll('path').attr('class', 'histogram__axis');
     this.xAxis.selectAll('path').attr('class', 'histogram__axis');
@@ -253,6 +251,13 @@ export abstract class AbstractHistogram {
     if (!this.histogramParams.showXLabels) {
       this.xLabelsAxis.attr('class', 'histogram__labels-axis__hidden');
     }
+  }
+
+  public createXLabelAxis(svgNode: HistogramSVGG, xLabelsAxis, leftOffset: number){
+    return svgNode.append('g')
+        .attr('class', 'histogram__labels-axis')
+        .attr('transform', 'translate(' + (leftOffset - 1) + ',' + this.chartDimensions.height * this.histogramParams.xAxisPosition + ')')
+        .call(xLabelsAxis);
   }
 
   public getHorizontalOffset(chartAxes){
@@ -278,23 +283,26 @@ export abstract class AbstractHistogram {
       let sumWidth = 0;
       // create virtual nodes. Helps to get label's width.
       const virtualLabels = this.chartDimensions.svg.append('g');
-      const labels = virtualLabels.append('g')
-          .attr('class', 'histogram__labels-axis')
-          .attr('transform', 'translate(' + (leftOffset - 1) + ',' + this.chartDimensions.height * this.histogramParams.xAxisPosition + ')')
-          .call(chartAxes.xLabelsAxis).selectAll('text');
+      let labels;
+      if(this._previousLabel){
+        labels = this._previousLabel.selectAll('text');
+      } else {
+        labels = this.createXLabelAxis(virtualLabels,chartAxes.xLabelsAxis, leftOffset ).selectAll('text');
+      }
 
       // check for all label if there is an overlap.
       let hasOverlap = false;
       const nodes = labels.nodes();
+
       for (let i = 0; i < labels.size(); i++) {
         const next = i + 1;
         if(nodes[next]){
-          const c = this.getDimension(nodes[i]);
-          const n = this.getDimension(nodes[next]);
-          if(!this.isOverlapXAxis(c,n)) {
+          const currentNodeDimensions = this.getDimension(nodes[i]);
+          const nextNodeDimensions = this.getDimension(nodes[next]);
+          if(!this.isOverlapXAxis(currentNodeDimensions,nextNodeDimensions)) {
             hasOverlap = true;
           }
-          sumWidth += c.width;
+          sumWidth += currentNodeDimensions.width;
         }
     }
 
@@ -305,7 +313,6 @@ export abstract class AbstractHistogram {
    if(!this._xlabelMeanWidth) {
       this._xlabelMeanWidth  = Math.round(sumWidth / this.histogramParams.xLabels);
    }
-
 
     if(!hasOverlap) {
        return;
@@ -320,7 +327,7 @@ export abstract class AbstractHistogram {
     // update ticks for label and ticks axisis
     chartAxes.xLabelsAxis.ticks(labelCount);
     // 4 is an arbitrary value to displayed one or 2 ticks between each value.
-    chartAxes.xTicksAxis.ticks(labelCount * 4);
+    chartAxes.xTicksAxis.ticks(labelCount * this.histogramParams.tickNumbersOnResize);
   }
 
   public getDimension(node): DOMRect {
