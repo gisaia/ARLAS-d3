@@ -290,7 +290,7 @@ export abstract class AbstractHistogram {
         labels = this.createXLabelAxis(virtualLabels,chartAxes.xLabelsAxis, leftOffset ).selectAll('text');
       }
 
-      // check for all label if there is an overlap.
+      // check for all labels if there is an overlap.
       let hasOverlap = false;
       const nodes = labels.nodes();
 
@@ -306,19 +306,19 @@ export abstract class AbstractHistogram {
         }
     }
 
-    // remove virtual node. If we do not it ill be displayed
+    // remove virtual node. If we do not it will be displayed
     virtualLabels.remove();
-
-      // calc label mean width once.
+    // calc label mean width once.
    if(!this._xlabelMeanWidth) {
       this._xlabelMeanWidth  = Math.round(sumWidth / this.histogramParams.xLabels);
    }
 
     if(!hasOverlap) {
-       return;
+      return;
     }
 
-    // get the min value between default label size an
+    // get the min value between default label size and the max label size allowed. According to the mean width of a label
+    // and the width of the chart
     const labelCount = min([
         this.histogramParams.xLabels,
       Math.floor(this.histogramParams.chartWidth  /  (this._xlabelMeanWidth + horizontalOffset))]
