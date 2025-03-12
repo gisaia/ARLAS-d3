@@ -324,10 +324,14 @@ export abstract class AbstractHistogram {
       Math.floor(this.histogramParams.chartWidth  /  (this._xlabelMeanWidth + horizontalOffset))]
     );
 
-    // update ticks for label and ticks axisis
+    // update ticks for label and ticks axis. If we have a lot of label we resize ticks.
     chartAxes.xLabelsAxis.ticks(labelCount);
-    // 4 is an arbitrary value to displayed one or 2 ticks between each value.
-    chartAxes.xTicksAxis.ticks(labelCount * this.histogramParams.tickNumbersOnResize);
+    if (labelCount > this.histogramParams.xTicks) {
+       chartAxes.xTicksAxis.ticks(labelCount * this.histogramParams.tickNumbersOnResize);
+    } else {
+      chartAxes.xTicksAxis.ticks(this.histogramParams.xTicks);
+    }
+
   }
 
   public getDimension(node): DOMRect {
