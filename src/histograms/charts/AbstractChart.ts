@@ -246,6 +246,9 @@ export abstract class AbstractChart extends AbstractHistogram {
     if (this.isHeightFixed === false && this.plottingCount > 0) {
       this.histogramParams.chartHeight = this.histogramParams.histogramContainer.offsetHeight;
     }
+
+    this._isWidthIncrease = this._previousSize < this.histogramParams.chartWidth;
+    this._previousSize = this.histogramParams.chartWidth;
   }
 
   public redrawSelectedIntervals() {

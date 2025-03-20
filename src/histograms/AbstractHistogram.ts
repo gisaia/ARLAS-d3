@@ -67,7 +67,9 @@ export abstract class AbstractHistogram {
   protected minusSign = 1;
 
   protected _xlabelMeanWidth = 0;
-  protected _previousLabel;
+  protected _previousXLabelTicks = null;
+  protected _previousSize = null;
+  protected _isWidthIncrease = false;
 
   public constructor() {
     this.brushCornerTooltips = this.createEmptyBrushCornerTooltips();
@@ -78,9 +80,12 @@ export abstract class AbstractHistogram {
   public init() {
     /** each time we [re]plot, the bucket range is reset */
     this.histogramParams.bucketRange = undefined;
+    if(!this._previousSize){
+      this._previousSize = this.histogramParams.chartWidth;
+    }
+
     this.setHistogramMargins();
     if (this.context) {
-      this._previousLabel = this.xLabelsAxis;
       this.context.remove();
     }
   }
@@ -240,7 +245,6 @@ export abstract class AbstractHistogram {
       .attr('transform', 'translate(' + (leftOffset - 1) + ',' + this.chartDimensions.height * this.histogramParams.xAxisPosition + ')')
       .call(chartAxes.xTicksAxis);
     this.xLabelsAxis =  this.createXLabelAxis(this.allAxesContext,chartAxes.xLabelsAxis, leftOffset );
-
     this.xTicksAxis.selectAll('path').attr('class', 'histogram__axis');
     this.xAxis.selectAll('path').attr('class', 'histogram__axis');
     this.xTicksAxis.selectAll('line').attr('class', 'histogram__ticks');
@@ -280,58 +284,58 @@ export abstract class AbstractHistogram {
   public updateNumberOfLabelDisplayedIfOverlap(chartAxes: ChartAxes | SwimlaneAxes, leftOffset = 0){
     // Get the offset used when we will draw the labels.
     const horizontalOffset = this.getHorizontalOffset(chartAxes);
-      let sumWidth = 0;
-      // create virtual nodes. Helps to get label's width.
-      const virtualLabels = this.chartDimensions.svg.append('g');
-      let labels;
-      if(this._previousLabel){
-        labels = this._previousLabel.selectAll('text');
-      } else {
-        labels = this.createXLabelAxis(virtualLabels,chartAxes.xLabelsAxis, leftOffset ).selectAll('text');
-      }
+    let sumWidth = 0;
 
-      // check for all labels if there is an overlap.
-      let hasOverlap = false;
-      const nodes = labels.nodes();
-
-      for (let i = 0; i < labels.size(); i++) {
-        const next = i + 1;
-        if(nodes[next]){
-          const currentNodeDimensions = this.getDimension(nodes[i]);
-          const nextNodeDimensions = this.getDimension(nodes[next]);
-          if(!this.isOverlapXAxis(currentNodeDimensions,nextNodeDimensions)) {
-            hasOverlap = true;
-          }
-          sumWidth += currentNodeDimensions.width;
+    //  update with current tick state to avoid create a virtual node with all data.
+    if(this._previousXLabelTicks !== null) {
+      chartAxes.xLabelsAxis.ticks(this._previousXLabelTicks);
+    }
+    // create virtual nodes. Helps to get label's width.
+    const virtualLabels = this.chartDimensions.svg.append('g');
+    const labels = this.createXLabelAxis(virtualLabels,chartAxes.xLabelsAxis, leftOffset ).selectAll('text');
+    // check for all labels if there is an overlap.
+    let hasOverlap = false;
+    const nodes = labels.nodes();
+    for (let i = 0; i < labels.size(); i++) {
+      const next = i + 1;
+      if(nodes[next]){
+        const currentNodeDimensions = this.getDimension(nodes[i]);
+        const nextNodeDimensions = this.getDimension(nodes[next]);
+        if(!this.isOverlapXAxis(currentNodeDimensions,nextNodeDimensions)) {
+          hasOverlap = true;
         }
+        sumWidth += currentNodeDimensions.width;
+      }
     }
 
     // remove virtual node. If we do not it will be displayed
     virtualLabels.remove();
-    // calc label mean width once.
-   if(!this._xlabelMeanWidth) {
-      this._xlabelMeanWidth  = Math.round(sumWidth / this.histogramParams.xLabels);
-   }
+    if(hasOverlap || this._isWidthIncrease) {
+      // calc label mean width once.
+      const currentCount = this._previousXLabelTicks ?? this.histogramParams.xLabels;
+      this._xlabelMeanWidth  = Math.round(sumWidth / currentCount);
 
-    if(!hasOverlap) {
-      return;
+      //  calc number off label  According to the mean width of a label and the width of the chart
+      const labelCount = Math.floor(this.histogramParams.chartWidth  /  (this._xlabelMeanWidth + horizontalOffset));
+      let selectLabelCount: number;
+      if(!this._isWidthIncrease) {
+        // get the min value between default label size and the max label size allowed.
+        selectLabelCount =  min([this.histogramParams.xLabels, labelCount]);
+      } else {
+        // TODO improve when increasing data
+        selectLabelCount =  max([labelCount, this._previousXLabelTicks]);
+      }
+      // value to be used when we create virtual labels
+      this._previousXLabelTicks = selectLabelCount;
+
+      // update ticks for label and ticks axis. If we have a lot of label we resize ticks.
+      chartAxes.xLabelsAxis.ticks(selectLabelCount);
+      if (selectLabelCount > this.histogramParams.xTicks) {
+        chartAxes.xTicksAxis.ticks(selectLabelCount * this.histogramParams.tickNumbersOnResize);
+      } else {
+        chartAxes.xTicksAxis.ticks(this.histogramParams.xTicks);
+      }
     }
-
-    // get the min value between default label size and the max label size allowed. According to the mean width of a label
-    // and the width of the chart
-    const labelCount = min([
-        this.histogramParams.xLabels,
-      Math.floor(this.histogramParams.chartWidth  /  (this._xlabelMeanWidth + horizontalOffset))]
-    );
-
-    // update ticks for label and ticks axis. If we have a lot of label we resize ticks.
-    chartAxes.xLabelsAxis.ticks(labelCount);
-    if (labelCount > this.histogramParams.xTicks) {
-       chartAxes.xTicksAxis.ticks(labelCount * this.histogramParams.tickNumbersOnResize);
-    } else {
-      chartAxes.xTicksAxis.ticks(this.histogramParams.xTicks);
-    }
-
   }
 
   public getDimension(node): DOMRect {
