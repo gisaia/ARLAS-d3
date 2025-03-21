@@ -4,61 +4,75 @@
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v12.0.0-rc.2...v12.0.0)
 
-## [v12.0.0-rc.2](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0-rc.2) (2024-12-18)
+**Breaking changes:**
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v12.0.0-beta.5...v12.0.0-rc.2)
+- upgrade rxjs, typescript, node and common packages with arlas libs for angular 18 migration [\#262](https://github.com/gisaia/ARLAS-d3/issues/262)
+- update node and ts version to match angular 15 [\#261](https://github.com/gisaia/ARLAS-d3/issues/261)
 
-## [v12.0.0-beta.5](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0-beta.5) (2024-12-11)
+**Miscellaneous:**
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v12.0.0-beta.4...v12.0.0-beta.5)
-
-## [v12.0.0-beta.4](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0-beta.4) (2024-12-11)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v12.0.0-beta.3...v12.0.0-beta.4)
-
-## [v12.0.0-beta.3](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0-beta.3) (2024-12-10)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v12.0.0-rc.1...v12.0.0-beta.3)
-
-## [v12.0.0-rc.1](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0-rc.1) (2024-12-02)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v12.0.0-beta.2...v12.0.0-rc.1)
-
-## [v12.0.0-beta.2](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0-beta.2) (2024-11-14)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.2.6...v12.0.0-beta.2)
+- ci: add inputs in release run name [\#263](https://github.com/gisaia/ARLAS-d3/issues/263)
+- Add send message on chat when release [\#245](https://github.com/gisaia/ARLAS-d3/issues/245)
 
 ## [v11.2.6](https://github.com/gisaia/ARLAS-d3/tree/v11.2.6) (2024-10-30)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v12.0.0-beta.1...v11.2.6)
 
-## [v12.0.0-beta.1](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0-beta.1) (2024-10-29)
+**Fixed bugs:**
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.2.6-beta.1...v12.0.0-beta.1)
+- Fix data length for curve charts [\#260](https://github.com/gisaia/ARLAS-d3/issues/260)
 
-## [v11.2.6-beta.1](https://github.com/gisaia/ARLAS-d3/tree/v11.2.6-beta.1) (2024-09-30)
+**Miscellaneous:**
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.2.5...v11.2.6-beta.1)
+- ci: add release action [\#259](https://github.com/gisaia/ARLAS-d3/issues/259)
 
 ## [v11.2.5](https://github.com/gisaia/ARLAS-d3/tree/v11.2.5) (2024-09-22)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.2.4...v11.2.5)
 
+**Fixed bugs:**
+
+- Revert: Prohibit the brush from updating the selected interval when the brush is in use [\#258](https://github.com/gisaia/ARLAS-d3/issues/258)
+- Unshift older/lower extended values to the data domain in x-axis [\#257](https://github.com/gisaia/ARLAS-d3/issues/257)
+
 ## [v11.2.4](https://github.com/gisaia/ARLAS-d3/tree/v11.2.4) (2024-08-30)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.2.3...v11.2.4)
+
+**Miscellaneous:**
+
+- reduce the number of fake buckets added in case of selection beyond data range [\#255](https://github.com/gisaia/ARLAS-d3/issues/255)
+- upgrade node to v16 for build [\#254](https://github.com/gisaia/ARLAS-d3/issues/254)
+- upgrade typedocgen version to 0.0.8 [\#253](https://github.com/gisaia/ARLAS-d3/issues/253)
 
 ## [v11.2.3](https://github.com/gisaia/ARLAS-d3/tree/v11.2.3) (2024-08-23)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.2.2...v11.2.3)
 
+**Fixed bugs:**
+
+- add safeguard against too many buckets added [\#256](https://github.com/gisaia/ARLAS-d3/issues/256)
+
 ## [v11.2.2](https://github.com/gisaia/ARLAS-d3/tree/v11.2.2) (2024-07-09)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.2.1...v11.2.2)
 
+**Fixed bugs:**
+
+- properly draw xAxis when the brush selection is larger than data [\#251](https://github.com/gisaia/ARLAS-d3/issues/251)
+- The brush object of histograms might be undefined at init and should be checked [\#250](https://github.com/gisaia/ARLAS-d3/issues/250)
+
+**Miscellaneous:**
+
+- add license header on each ts file and add a license check [\#252](https://github.com/gisaia/ARLAS-d3/issues/252)
+
 ## [v11.2.1](https://github.com/gisaia/ARLAS-d3/tree/v11.2.1) (2024-07-09)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.2.0...v11.2.1)
+
+**Fixed bugs:**
+
+- Prohibit the brush from updating the selected interval when the brush is in use [\#249](https://github.com/gisaia/ARLAS-d3/issues/249)
 
 ## [v11.2.0](https://github.com/gisaia/ARLAS-d3/tree/v11.2.0) (2024-07-05)
 

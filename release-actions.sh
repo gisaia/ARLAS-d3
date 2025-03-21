@@ -64,7 +64,8 @@ releaseProd(){
       --exclude-labels type:duplicate,type:question,type:wontfix,type:invalid \
       --bug-labels type:bug --enhancement-labels type:enhancement --breaking-labels type:breaking \
       --enhancement-label "**New stuff:**" --issues-label "**Miscellaneous:**" \
-      --exclude-tags v3.1.2 --since-tag v4.0.0
+      --exclude-tags v11.2.6-beta.1,v12.0.0-rc.1,v12.0.0-rc.2,v12.0.0-beta.1,v12.0.0-beta.2,v12.0.0-beta.3,v12.0.0-beta.4,v12.0.0-beta.5 \
+      --since-tag v4.0.0
 
     echo "  -- Remove tag to add generated CHANGELOG"
     git tag -d v"$VERSION"
