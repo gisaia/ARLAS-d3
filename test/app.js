@@ -24,7 +24,7 @@ import { Dimensions, Granularity, Margins, Timeline } from '../dist/index.js'
 const inputCharts = {
   "xTicks": 60,
   "yTicks": 2,
-  "xLabels": 15,
+  "xLabels": 12,
   "yLabels": 2,
   "xUnit": "",
   "yUnit": "",

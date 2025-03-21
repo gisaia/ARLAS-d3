@@ -296,16 +296,22 @@ export abstract class AbstractHistogram {
     // check for all labels if there is an overlap.
     let hasOverlap = false;
     const nodes = labels.nodes();
-    for (let i = 0; i < labels.size(); i++) {
+    const labelsSize = labels.size();
+    // init value when before potential increase charts
+    if(!this._previousXLabelTicks) {
+      this._previousXLabelTicks = labelsSize;
+    }
+    for (let i = 0; i < labelsSize; i++) {
       const next = i + 1;
+      const currentNodeDimensions = this.getDimension(nodes[i]);
       if(nodes[next]){
-        const currentNodeDimensions = this.getDimension(nodes[i]);
         const nextNodeDimensions = this.getDimension(nodes[next]);
-        if(!this.isOverlapXAxis(currentNodeDimensions,nextNodeDimensions)) {
+        if(this.isOverlapXAxis(currentNodeDimensions,nextNodeDimensions)) {
           hasOverlap = true;
         }
-        sumWidth += currentNodeDimensions.width;
       }
+
+      sumWidth += currentNodeDimensions.width;
     }
 
     // remove virtual node. If we do not it will be displayed
@@ -315,14 +321,14 @@ export abstract class AbstractHistogram {
       const currentCount = this._previousXLabelTicks ?? this.histogramParams.xLabels;
       this._xlabelMeanWidth  = Math.round(sumWidth / currentCount);
 
-      //  calc number off label  According to the mean width of a label and the width of the chart
+      //  calc number of labels according to the mean width of a label and the width of the chart
       const labelCount = Math.floor(this.histogramParams.chartWidth  /  (this._xlabelMeanWidth + horizontalOffset));
       let selectLabelCount: number;
       if(!this._isWidthIncrease) {
         // get the min value between default label size and the max label size allowed.
-        selectLabelCount =  min([this.histogramParams.xLabels, labelCount]);
+        selectLabelCount =  min([this.histogramParams.xLabels, labelCount,  this._previousXLabelTicks]);
       } else {
-        // TODO improve when increasing data
+        // check prop value to know when we can restore original state.
         selectLabelCount =  max([labelCount, this._previousXLabelTicks]);
       }
       // value to be used when we create virtual labels
@@ -331,7 +337,7 @@ export abstract class AbstractHistogram {
       // update ticks for label and ticks axis. If we have a lot of label we resize ticks.
       chartAxes.xLabelsAxis.ticks(selectLabelCount);
       if (selectLabelCount > this.histogramParams.xTicks) {
-        chartAxes.xTicksAxis.ticks(selectLabelCount * this.histogramParams.tickNumbersOnResize);
+        chartAxes.xTicksAxis.ticks(selectLabelCount * this.histogramParams.xLabelsToTicksFactor);
       } else {
         chartAxes.xTicksAxis.ticks(this.histogramParams.xTicks);
       }
@@ -349,11 +355,11 @@ export abstract class AbstractHistogram {
   public isOverlapXAxis (l, r) {
     const a  = {left: 0, right: 0};
     const b = {left: 0, right: 0};
-    a.left = l.x - this.histogramParams.overlapXTolerance;
-    a.right = l.x + l.width + this.histogramParams.overlapXTolerance;
-    b.left = r.x - this.histogramParams.overlapXTolerance;
-    b.right = r.x + r.width + this.histogramParams.overlapXTolerance;
-    return a.left >= b.right || a.right <= b.left;
+    a.left = l.x - this.histogramParams.xLabelOverlapPadding;
+    a.right = l.x + l.width + this.histogramParams.xLabelOverlapPadding;
+    b.left = r.x - this.histogramParams.xLabelOverlapPadding;
+    b.right = r.x + r.width + this.histogramParams.xLabelOverlapPadding;
+    return a.right >= b.left || b.left <= a.right;
   }
 
   protected plotBars(data: Array<HistogramData>, axes: ChartAxes | SwimlaneAxes, xDataDomain: ScaleBand<string>, barWeight?: number): void {
