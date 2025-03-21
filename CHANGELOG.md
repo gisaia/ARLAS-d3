@@ -109,6 +109,14 @@
 
 ## [v9.0.0](https://github.com/gisaia/ARLAS-d3/tree/v9.0.0) (2022-02-01)
 
+**New stuff:**
+
+- Enhance granularity of dates units in timeline tooltip [\#176](https://github.com/gisaia/ARLAS-d3/issues/176)
+
+**Miscellaneous:**
+
+- Upgrade typescript & rxjs [\#164](https://github.com/gisaia/ARLAS-d3/issues/164)
+
 ## [v8.0.4](https://github.com/gisaia/ARLAS-d3/tree/v8.0.4) (2021-10-25)
 
 **New stuff:**
@@ -140,6 +148,8 @@
 
 ## [v7.4.1](https://github.com/gisaia/ARLAS-d3/tree/v7.4.1) (2021-08-03)
 
+## [v8.0.0](https://github.com/gisaia/ARLAS-d3/tree/v8.0.0) (2021-07-07)
+
 **Breaking changes:**
 
 - Support multi-lines in one signle graph [\#143](https://github.com/gisaia/ARLAS-d3/issues/143)
@@ -147,11 +157,6 @@
 **New stuff:**
 
 - Support new chart type : curve [\#144](https://github.com/gisaia/ARLAS-d3/issues/144)
-
-## [v8.0.0](https://github.com/gisaia/ARLAS-d3/tree/v8.0.0) (2021-07-07)
-
-**New stuff:**
-
 - \[DONUT\] Add percentage in "donut" widget [\#121](https://github.com/gisaia/ARLAS-d3/issues/121)
 
 **Fixed bugs:**
@@ -198,11 +203,11 @@
 
 **New stuff:**
 
+- Histograms : group ticks values by "K", "M, "B" \(40000 =\> 40K, ....\) [\#62](https://github.com/gisaia/ARLAS-d3/issues/62)
 - \[Donut\] Add 'diameter' input to manually configure it [\#116](https://github.com/gisaia/ARLAS-d3/issues/116)
 - \[Swimlane\] Display ticks and tooltips with space between thousands, millions, ...  [\#110](https://github.com/gisaia/ARLAS-d3/issues/110)
 - \[Donut\] Display donut tooltips with space between thousands, millions, ... [\#109](https://github.com/gisaia/ARLAS-d3/issues/109)
 - \[Histogram\] Display histogram tooltips & ticks with space between thousands, millions, ... [\#108](https://github.com/gisaia/ARLAS-d3/issues/108)
-- Histograms : group ticks values by "K", "M, "B" \(40000 =\> 40K, ....\) [\#62](https://github.com/gisaia/ARLAS-d3/issues/62)
 
 **Fixed bugs:**
 
@@ -260,15 +265,22 @@
 
 **Breaking changes:**
 
+- Refactor tooltips on brush corners [\#267](https://github.com/gisaia/ARLAS-d3/issues/267)
 - Donut: add metricValue to TreeNode interface [\#81](https://github.com/gisaia/ARLAS-d3/issues/81)
 - Refactor the Donut input Data \(DonutArc\) [\#77](https://github.com/gisaia/ARLAS-d3/issues/77)
 - Enhance colors generation for donuts [\#72](https://github.com/gisaia/ARLAS-d3/issues/72)
 - Create a new component : y log axis \(logarithmic gauge\) [\#69](https://github.com/gisaia/ARLAS-d3/issues/69)
+- Refactor tooltips on brush corners [\#70](https://github.com/gisaia/ARLAS-d3/pull/70) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 
 **New stuff:**
 
 - Donuts : Keep unexisting nodes in the selectedArcsList [\#80](https://github.com/gisaia/ARLAS-d3/issues/80)
 - Donut: Remove all similar selected nodes on a same ring. [\#76](https://github.com/gisaia/ARLAS-d3/issues/76)
+- Donut: Add metricValue attibute to TreeNode interface & keep unexisting selected nodes [\#79](https://github.com/gisaia/ARLAS-d3/pull/79) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
+
+**Fixed bugs:**
+
+- Fix version image mkDock [\#266](https://github.com/gisaia/ARLAS-d3/issues/266)
 
 ## [v5.0.0](https://github.com/gisaia/ARLAS-d3/tree/v5.0.0) (2018-11-28)
 
@@ -337,8 +349,8 @@
 **Fixed bugs:**
 
 - HISTOGRAM : extend the x axis for area chart by one bucket unity [\#25](https://github.com/gisaia/ARLAS-d3/issues/25)
-- Feature/\#25 add bucket area [\#37](https://github.com/gisaia/ARLAS-d3/pull/37) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 - Fix second value in tooltip [\#36](https://github.com/gisaia/ARLAS-d3/pull/36) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
+- Feature/\#25 add bucket area [\#37](https://github.com/gisaia/ARLAS-d3/pull/37) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 
 ## [v4.1.0](https://github.com/gisaia/ARLAS-d3/tree/v4.1.0) (2018-07-10)
 
@@ -348,9 +360,9 @@
 - HISTOGRAMS : Add an option to start y axis from min of data  [\#32](https://github.com/gisaia/ARLAS-d3/issues/32)
 - HISTOGRAMS: Add an offset in the top of y axis domain [\#30](https://github.com/gisaia/ARLAS-d3/issues/30)
 - HISTOGRAM: draw y-axis on top of plotted data [\#29](https://github.com/gisaia/ARLAS-d3/issues/29)
+- Translate Y axes so that they're not hidden by histogram [\#31](https://github.com/gisaia/ARLAS-d3/pull/31) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 - Feature/\#32 y axis from zero [\#35](https://github.com/gisaia/ARLAS-d3/pull/35) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 - Histograms : Display only selections containing data [\#34](https://github.com/gisaia/ARLAS-d3/pull/34) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
-- Translate Y axes so that they're not hidden by histogram [\#31](https://github.com/gisaia/ARLAS-d3/pull/31) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 
 ## [v4.0.6](https://github.com/gisaia/ARLAS-d3/tree/v4.0.6) (2018-06-21)
 
