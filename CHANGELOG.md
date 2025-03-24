@@ -2,67 +2,65 @@
 
 ## [v12.0.0](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0) (2025-01-30)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v12.0.0-rc.2...v12.0.0)
+**Breaking changes:**
 
-## [v12.0.0-rc.2](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0-rc.2) (2024-12-18)
+- upgrade rxjs, typescript, node and common packages with arlas libs for angular 18 migration [\#262](https://github.com/gisaia/ARLAS-d3/issues/262)
+- update node and ts version to match angular 15 [\#261](https://github.com/gisaia/ARLAS-d3/issues/261)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v12.0.0-beta.5...v12.0.0-rc.2)
+**Miscellaneous:**
 
-## [v12.0.0-beta.5](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0-beta.5) (2024-12-11)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v12.0.0-beta.4...v12.0.0-beta.5)
-
-## [v12.0.0-beta.4](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0-beta.4) (2024-12-11)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v12.0.0-beta.3...v12.0.0-beta.4)
-
-## [v12.0.0-beta.3](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0-beta.3) (2024-12-10)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v12.0.0-rc.1...v12.0.0-beta.3)
-
-## [v12.0.0-rc.1](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0-rc.1) (2024-12-02)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v12.0.0-beta.2...v12.0.0-rc.1)
-
-## [v12.0.0-beta.2](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0-beta.2) (2024-11-14)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.2.6...v12.0.0-beta.2)
+- ci: add inputs in release run name [\#263](https://github.com/gisaia/ARLAS-d3/issues/263)
+- Add send message on chat when release [\#245](https://github.com/gisaia/ARLAS-d3/issues/245)
 
 ## [v11.2.6](https://github.com/gisaia/ARLAS-d3/tree/v11.2.6) (2024-10-30)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v12.0.0-beta.1...v11.2.6)
+**Fixed bugs:**
 
-## [v12.0.0-beta.1](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0-beta.1) (2024-10-29)
+- Fix data length for curve charts [\#260](https://github.com/gisaia/ARLAS-d3/issues/260)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.2.6-beta.1...v12.0.0-beta.1)
+**Miscellaneous:**
 
-## [v11.2.6-beta.1](https://github.com/gisaia/ARLAS-d3/tree/v11.2.6-beta.1) (2024-09-30)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.2.5...v11.2.6-beta.1)
+- ci: add release action [\#259](https://github.com/gisaia/ARLAS-d3/issues/259)
 
 ## [v11.2.5](https://github.com/gisaia/ARLAS-d3/tree/v11.2.5) (2024-09-22)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.2.4...v11.2.5)
+**Fixed bugs:**
+
+- Revert: Prohibit the brush from updating the selected interval when the brush is in use [\#258](https://github.com/gisaia/ARLAS-d3/issues/258)
+- Unshift older/lower extended values to the data domain in x-axis [\#257](https://github.com/gisaia/ARLAS-d3/issues/257)
 
 ## [v11.2.4](https://github.com/gisaia/ARLAS-d3/tree/v11.2.4) (2024-08-30)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.2.3...v11.2.4)
+**Miscellaneous:**
+
+- reduce the number of fake buckets added in case of selection beyond data range [\#255](https://github.com/gisaia/ARLAS-d3/issues/255)
+- upgrade node to v16 for build [\#254](https://github.com/gisaia/ARLAS-d3/issues/254)
+- upgrade typedocgen version to 0.0.8 [\#253](https://github.com/gisaia/ARLAS-d3/issues/253)
 
 ## [v11.2.3](https://github.com/gisaia/ARLAS-d3/tree/v11.2.3) (2024-08-23)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.2.2...v11.2.3)
+**Fixed bugs:**
+
+- add safeguard against too many buckets added [\#256](https://github.com/gisaia/ARLAS-d3/issues/256)
 
 ## [v11.2.2](https://github.com/gisaia/ARLAS-d3/tree/v11.2.2) (2024-07-09)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.2.1...v11.2.2)
+**Fixed bugs:**
+
+- properly draw xAxis when the brush selection is larger than data [\#251](https://github.com/gisaia/ARLAS-d3/issues/251)
+- The brush object of histograms might be undefined at init and should be checked [\#250](https://github.com/gisaia/ARLAS-d3/issues/250)
+
+**Miscellaneous:**
+
+- add license header on each ts file and add a license check [\#252](https://github.com/gisaia/ARLAS-d3/issues/252)
 
 ## [v11.2.1](https://github.com/gisaia/ARLAS-d3/tree/v11.2.1) (2024-07-09)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.2.0...v11.2.1)
+**Fixed bugs:**
+
+- Prohibit the brush from updating the selected interval when the brush is in use [\#249](https://github.com/gisaia/ARLAS-d3/issues/249)
 
 ## [v11.2.0](https://github.com/gisaia/ARLAS-d3/tree/v11.2.0) (2024-07-05)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.1.1...v11.2.0)
 
 **New stuff:**
 
@@ -74,84 +72,34 @@
 
 ## [v11.1.1](https://github.com/gisaia/ARLAS-d3/tree/v11.1.1) (2024-04-04)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.1.0...v11.1.1)
-
 ## [v11.1.0](https://github.com/gisaia/ARLAS-d3/tree/v11.1.0) (2023-06-01)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.1.0-beta.3...v11.1.0)
-
-## [v11.1.0-beta.3](https://github.com/gisaia/ARLAS-d3/tree/v11.1.0-beta.3) (2023-05-17)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.1.0-beta.2...v11.1.0-beta.3)
-
-## [v11.1.0-beta.2](https://github.com/gisaia/ARLAS-d3/tree/v11.1.0-beta.2) (2023-05-15)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.0.2...v11.1.0-beta.2)
 
 ## [v11.0.2](https://github.com/gisaia/ARLAS-d3/tree/v11.0.2) (2023-04-20)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.0.1...v11.0.2)
-
 ## [v11.0.1](https://github.com/gisaia/ARLAS-d3/tree/v11.0.1) (2023-04-19)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v11.0.0...v11.0.1)
-
 ## [v11.0.0](https://github.com/gisaia/ARLAS-d3/tree/v11.0.0) (2023-04-19)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v10.1.0-beta.1...v11.0.0)
 
 **Fixed bugs:**
 
 - \[Histogram\] Tooltip values above 1000 are NaN [\#213](https://github.com/gisaia/ARLAS-d3/issues/213)
 - \[Histogram\] Negative values of the histogram are NaN [\#212](https://github.com/gisaia/ARLAS-d3/issues/212)
 
-## [v10.1.0-beta.1](https://github.com/gisaia/ARLAS-d3/tree/v10.1.0-beta.1) (2023-04-11)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v10.0.1...v10.1.0-beta.1)
-
 ## [v10.0.1](https://github.com/gisaia/ARLAS-d3/tree/v10.0.1) (2023-02-17)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v10.0.0...v10.0.1)
 
 ## [v10.0.0](https://github.com/gisaia/ARLAS-d3/tree/v10.0.0) (2023-02-01)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v9.2.2...v10.0.0)
-
 ## [v9.2.2](https://github.com/gisaia/ARLAS-d3/tree/v9.2.2) (2022-12-22)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v9.2.1...v9.2.2)
 
 ## [v9.2.1](https://github.com/gisaia/ARLAS-d3/tree/v9.2.1) (2022-11-25)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v9.2.0...v9.2.1)
-
 ## [v9.2.0](https://github.com/gisaia/ARLAS-d3/tree/v9.2.0) (2022-11-25)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v9.2.0-beta.4...v9.2.0)
 
 **Breaking changes:**
 
 - Upgrade to v7.6.1 of D3 [\#45](https://github.com/gisaia/ARLAS-d3/issues/45)
 
-## [v9.2.0-beta.4](https://github.com/gisaia/ARLAS-d3/tree/v9.2.0-beta.4) (2022-11-21)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v9.2.0-beta.3...v9.2.0-beta.4)
-
-## [v9.2.0-beta.3](https://github.com/gisaia/ARLAS-d3/tree/v9.2.0-beta.3) (2022-11-18)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v9.2.0-beta.2...v9.2.0-beta.3)
-
-## [v9.2.0-beta.2](https://github.com/gisaia/ARLAS-d3/tree/v9.2.0-beta.2) (2022-11-18)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v9.2.0-beta.1...v9.2.0-beta.2)
-
-## [v9.2.0-beta.1](https://github.com/gisaia/ARLAS-d3/tree/v9.2.0-beta.1) (2022-11-18)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v9.1.1...v9.2.0-beta.1)
-
 ## [v9.1.1](https://github.com/gisaia/ARLAS-d3/tree/v9.1.1) (2022-09-27)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v9.1.0...v9.1.1)
 
 **Fixed bugs:**
 
@@ -159,35 +107,17 @@
 
 ## [v9.1.0](https://github.com/gisaia/ARLAS-d3/tree/v9.1.0) (2022-07-11)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v9.1.0-beta.1...v9.1.0)
-
-## [v9.1.0-beta.1](https://github.com/gisaia/ARLAS-d3/tree/v9.1.0-beta.1) (2022-07-08)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v9.0.0...v9.1.0-beta.1)
+## [v9.0.0](https://github.com/gisaia/ARLAS-d3/tree/v9.0.0) (2022-02-01)
 
 **New stuff:**
 
 - Enhance granularity of dates units in timeline tooltip [\#176](https://github.com/gisaia/ARLAS-d3/issues/176)
 
-## [v9.0.0](https://github.com/gisaia/ARLAS-d3/tree/v9.0.0) (2022-02-01)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v9.0.0-rc.1...v9.0.0)
-
-## [v9.0.0-rc.1](https://github.com/gisaia/ARLAS-d3/tree/v9.0.0-rc.1) (2022-01-07)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v9.0.0-beta.5...v9.0.0-rc.1)
-
 **Miscellaneous:**
 
 - Upgrade typescript & rxjs [\#164](https://github.com/gisaia/ARLAS-d3/issues/164)
 
-## [v9.0.0-beta.5](https://github.com/gisaia/ARLAS-d3/tree/v9.0.0-beta.5) (2022-01-03)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v8.0.4...v9.0.0-beta.5)
-
 ## [v8.0.4](https://github.com/gisaia/ARLAS-d3/tree/v8.0.4) (2021-10-25)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v8.0.3...v8.0.4)
 
 **New stuff:**
 
@@ -200,27 +130,17 @@
 
 ## [v8.0.3](https://github.com/gisaia/ARLAS-d3/tree/v8.0.3) (2021-09-10)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v8.0.2...v8.0.3)
-
 **Fixed bugs:**
 
 - labels in histograms axis are all shown as 0 [\#156](https://github.com/gisaia/ARLAS-d3/issues/156)
 
 ## [v8.0.2](https://github.com/gisaia/ARLAS-d3/tree/v8.0.2) (2021-08-16)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.4.3...v8.0.2)
-
 ## [v7.4.3](https://github.com/gisaia/ARLAS-d3/tree/v7.4.3) (2021-08-16)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.4.2...v7.4.3)
 
 ## [v7.4.2](https://github.com/gisaia/ARLAS-d3/tree/v7.4.2) (2021-08-16)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v8.0.1...v7.4.2)
-
 ## [v8.0.1](https://github.com/gisaia/ARLAS-d3/tree/v8.0.1) (2021-08-06)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.4.1...v8.0.1)
 
 **Fixed bugs:**
 
@@ -228,7 +148,7 @@
 
 ## [v7.4.1](https://github.com/gisaia/ARLAS-d3/tree/v7.4.1) (2021-08-03)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v8.0.0...v7.4.1)
+## [v8.0.0](https://github.com/gisaia/ARLAS-d3/tree/v8.0.0) (2021-07-07)
 
 **Breaking changes:**
 
@@ -237,13 +157,6 @@
 **New stuff:**
 
 - Support new chart type : curve [\#144](https://github.com/gisaia/ARLAS-d3/issues/144)
-
-## [v8.0.0](https://github.com/gisaia/ARLAS-d3/tree/v8.0.0) (2021-07-07)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.4.0...v8.0.0)
-
-**New stuff:**
-
 - \[DONUT\] Add percentage in "donut" widget [\#121](https://github.com/gisaia/ARLAS-d3/issues/121)
 
 **Fixed bugs:**
@@ -252,23 +165,15 @@
 
 ## [v7.4.0](https://github.com/gisaia/ARLAS-d3/tree/v7.4.0) (2021-04-21)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.3.1...v7.4.0)
-
 **New stuff:**
 
 - Enhance donut tooltip [\#141](https://github.com/gisaia/ARLAS-d3/issues/141)
 
 ## [v7.3.1](https://github.com/gisaia/ARLAS-d3/tree/v7.3.1) (2021-03-26)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.3.0...v7.3.1)
-
 ## [v7.3.0](https://github.com/gisaia/ARLAS-d3/tree/v7.3.0) (2021-03-23)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.2.0...v7.3.0)
-
 ## [v7.2.0](https://github.com/gisaia/ARLAS-d3/tree/v7.2.0) (2021-02-18)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.1.6...v7.2.0)
 
 **New stuff:**
 
@@ -276,27 +181,17 @@
 
 ## [v7.1.6](https://github.com/gisaia/ARLAS-d3/tree/v7.1.6) (2021-02-01)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.1.5...v7.1.6)
-
 **Fixed bugs:**
 
 - Charts that yAxis don't start from 0 render incorrectly [\#131](https://github.com/gisaia/ARLAS-d3/issues/131)
 
 ## [v7.1.5](https://github.com/gisaia/ARLAS-d3/tree/v7.1.5) (2021-01-19)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.1.4...v7.1.5)
-
 ## [v7.1.4](https://github.com/gisaia/ARLAS-d3/tree/v7.1.4) (2021-01-19)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.1.3...v7.1.4)
 
 ## [v7.1.3](https://github.com/gisaia/ARLAS-d3/tree/v7.1.3) (2020-06-08)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.1.2...v7.1.3)
-
 ## [v7.1.2](https://github.com/gisaia/ARLAS-d3/tree/v7.1.2) (2020-06-02)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.1.1...v7.1.2)
 
 **New stuff:**
 
@@ -304,19 +199,15 @@
 
 ## [v7.1.1](https://github.com/gisaia/ARLAS-d3/tree/v7.1.1) (2020-06-01)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.1.0...v7.1.1)
-
 ## [v7.1.0](https://github.com/gisaia/ARLAS-d3/tree/v7.1.0) (2020-05-29)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.0.2...v7.1.0)
 
 **New stuff:**
 
+- Histograms : group ticks values by "K", "M, "B" \(40000 =\> 40K, ....\) [\#62](https://github.com/gisaia/ARLAS-d3/issues/62)
 - \[Donut\] Add 'diameter' input to manually configure it [\#116](https://github.com/gisaia/ARLAS-d3/issues/116)
 - \[Swimlane\] Display ticks and tooltips with space between thousands, millions, ...  [\#110](https://github.com/gisaia/ARLAS-d3/issues/110)
 - \[Donut\] Display donut tooltips with space between thousands, millions, ... [\#109](https://github.com/gisaia/ARLAS-d3/issues/109)
 - \[Histogram\] Display histogram tooltips & ticks with space between thousands, millions, ... [\#108](https://github.com/gisaia/ARLAS-d3/issues/108)
-- Histograms : group ticks values by "K", "M, "B" \(40000 =\> 40K, ....\) [\#62](https://github.com/gisaia/ARLAS-d3/issues/62)
 
 **Fixed bugs:**
 
@@ -324,19 +215,13 @@
 
 ## [v7.0.2](https://github.com/gisaia/ARLAS-d3/tree/v7.0.2) (2020-04-10)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.0.1...v7.0.2)
-
 ## [v7.0.1](https://github.com/gisaia/ARLAS-d3/tree/v7.0.1) (2020-04-10)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v7.0.0...v7.0.1)
 
 **Fixed bugs:**
 
 - \[Histograms\] Fix buckets whose values are 'Infinity' [\#104](https://github.com/gisaia/ARLAS-d3/issues/104)
 
 ## [v7.0.0](https://github.com/gisaia/ARLAS-d3/tree/v7.0.0) (2020-03-12)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v6.1.0...v7.0.0)
 
 **Breaking changes:**
 
@@ -349,15 +234,11 @@
 
 ## [v6.1.0](https://github.com/gisaia/ARLAS-d3/tree/v6.1.0) (2019-11-18)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v6.0.3...v6.1.0)
-
 **New stuff:**
 
 - Upgrade rxjs version to v6.5.3 [\#97](https://github.com/gisaia/ARLAS-d3/issues/97)
 
 ## [v6.0.3](https://github.com/gisaia/ARLAS-d3/tree/v6.0.3) (2019-10-04)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v6.0.2...v6.0.3)
 
 **Fixed bugs:**
 
@@ -365,15 +246,11 @@
 
 ## [v6.0.2](https://github.com/gisaia/ARLAS-d3/tree/v6.0.2) (2019-07-25)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v6.0.1...v6.0.2)
-
 **Fixed bugs:**
 
 - HISTOGRAMS: Remove visibility style from brush [\#88](https://github.com/gisaia/ARLAS-d3/issues/88)
 
 ## [v6.0.1](https://github.com/gisaia/ARLAS-d3/tree/v6.0.1) (2019-04-25)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v6.0.0...v6.0.1)
 
 **New stuff:**
 
@@ -386,43 +263,26 @@
 
 ## [v6.0.0](https://github.com/gisaia/ARLAS-d3/tree/v6.0.0) (2019-02-05)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v6.0.0-beta.1...v6.0.0)
-
 **Breaking changes:**
 
+- Refactor tooltips on brush corners [\#267](https://github.com/gisaia/ARLAS-d3/issues/267)
 - Donut: add metricValue to TreeNode interface [\#81](https://github.com/gisaia/ARLAS-d3/issues/81)
 - Refactor the Donut input Data \(DonutArc\) [\#77](https://github.com/gisaia/ARLAS-d3/issues/77)
 - Enhance colors generation for donuts [\#72](https://github.com/gisaia/ARLAS-d3/issues/72)
 - Create a new component : y log axis \(logarithmic gauge\) [\#69](https://github.com/gisaia/ARLAS-d3/issues/69)
+- Refactor tooltips on brush corners [\#70](https://github.com/gisaia/ARLAS-d3/pull/70) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 
 **New stuff:**
 
 - Donuts : Keep unexisting nodes in the selectedArcsList [\#80](https://github.com/gisaia/ARLAS-d3/issues/80)
 - Donut: Remove all similar selected nodes on a same ring. [\#76](https://github.com/gisaia/ARLAS-d3/issues/76)
-
-## [v6.0.0-beta.1](https://github.com/gisaia/ARLAS-d3/tree/v6.0.0-beta.1) (2019-01-30)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v6.0.0-beta.0...v6.0.0-beta.1)
-
-**New stuff:**
-
 - Donut: Add metricValue attibute to TreeNode interface & keep unexisting selected nodes [\#79](https://github.com/gisaia/ARLAS-d3/pull/79) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
-
-## [v6.0.0-beta.0](https://github.com/gisaia/ARLAS-d3/tree/v6.0.0-beta.0) (2019-01-25)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v5.0.0...v6.0.0-beta.0)
-
-**Breaking changes:**
-
-- Refactor tooltips on brush corners [\#70](https://github.com/gisaia/ARLAS-d3/pull/70) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 
 **Fixed bugs:**
 
-- Fix version image mkDock [\#68](https://github.com/gisaia/ARLAS-d3/pull/68) ([mbarbet](https://github.com/mbarbet))
+- Fix version image mkDock [\#266](https://github.com/gisaia/ARLAS-d3/issues/266)
 
 ## [v5.0.0](https://github.com/gisaia/ARLAS-d3/tree/v5.0.0) (2018-11-28)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.3.1...v5.0.0)
 
 **Breaking changes:**
 
@@ -435,8 +295,6 @@
 
 ## [v4.3.1](https://github.com/gisaia/ARLAS-d3/tree/v4.3.1) (2018-09-25)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.3.0...v4.3.1)
-
 **Fixed bugs:**
 
 - Histograms : date is undefined when there is one bucket represented [\#59](https://github.com/gisaia/ARLAS-d3/issues/59)
@@ -444,8 +302,6 @@
 - Export AbstractChart class  [\#55](https://github.com/gisaia/ARLAS-d3/issues/55)
 
 ## [v4.3.0](https://github.com/gisaia/ARLAS-d3/tree/v4.3.0) (2018-09-14)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.2.4...v4.3.0)
 
 **Breaking changes:**
 
@@ -462,23 +318,15 @@
 
 ## [v4.2.4](https://github.com/gisaia/ARLAS-d3/tree/v4.2.4) (2018-08-09)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.0.8...v4.2.4)
-
 **Fixed bugs:**
 
 - HISTOGRAM/SWIMLANE : dates should be in utc  [\#43](https://github.com/gisaia/ARLAS-d3/issues/43)
 
 ## [v4.0.8](https://github.com/gisaia/ARLAS-d3/tree/v4.0.8) (2018-08-06)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.0.7...v4.0.8)
-
 ## [v4.0.7](https://github.com/gisaia/ARLAS-d3/tree/v4.0.7) (2018-08-06)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.2.3...v4.0.7)
-
 ## [v4.2.3](https://github.com/gisaia/ARLAS-d3/tree/v4.2.3) (2018-08-03)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.2.2...v4.2.3)
 
 **Fixed bugs:**
 
@@ -486,15 +334,11 @@
 
 ## [v4.2.2](https://github.com/gisaia/ARLAS-d3/tree/v4.2.2) (2018-07-23)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.2.1...v4.2.2)
-
 **Fixed bugs:**
 
 - Fix bug : area chart is moved by half recursevly after each data change [\#39](https://github.com/gisaia/ARLAS-d3/pull/39) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 
 ## [v4.2.1](https://github.com/gisaia/ARLAS-d3/tree/v4.2.1) (2018-07-21)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.2.0...v4.2.1)
 
 **Fixed bugs:**
 
@@ -502,17 +346,13 @@
 
 ## [v4.2.0](https://github.com/gisaia/ARLAS-d3/tree/v4.2.0) (2018-07-20)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.1.0...v4.2.0)
-
 **Fixed bugs:**
 
 - HISTOGRAM : extend the x axis for area chart by one bucket unity [\#25](https://github.com/gisaia/ARLAS-d3/issues/25)
-- Feature/\#25 add bucket area [\#37](https://github.com/gisaia/ARLAS-d3/pull/37) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 - Fix second value in tooltip [\#36](https://github.com/gisaia/ARLAS-d3/pull/36) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
+- Feature/\#25 add bucket area [\#37](https://github.com/gisaia/ARLAS-d3/pull/37) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 
 ## [v4.1.0](https://github.com/gisaia/ARLAS-d3/tree/v4.1.0) (2018-07-10)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.0.6...v4.1.0)
 
 **New stuff:**
 
@@ -520,13 +360,11 @@
 - HISTOGRAMS : Add an option to start y axis from min of data  [\#32](https://github.com/gisaia/ARLAS-d3/issues/32)
 - HISTOGRAMS: Add an offset in the top of y axis domain [\#30](https://github.com/gisaia/ARLAS-d3/issues/30)
 - HISTOGRAM: draw y-axis on top of plotted data [\#29](https://github.com/gisaia/ARLAS-d3/issues/29)
+- Translate Y axes so that they're not hidden by histogram [\#31](https://github.com/gisaia/ARLAS-d3/pull/31) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 - Feature/\#32 y axis from zero [\#35](https://github.com/gisaia/ARLAS-d3/pull/35) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 - Histograms : Display only selections containing data [\#34](https://github.com/gisaia/ARLAS-d3/pull/34) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
-- Translate Y axes so that they're not hidden by histogram [\#31](https://github.com/gisaia/ARLAS-d3/pull/31) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 
 ## [v4.0.6](https://github.com/gisaia/ARLAS-d3/tree/v4.0.6) (2018-06-21)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.0.5...v4.0.6)
 
 **Fixed bugs:**
 
@@ -534,8 +372,6 @@
 - Histogram: resize should not be applied before it's first plotted [\#28](https://github.com/gisaia/ARLAS-d3/pull/28) ([MohamedHamouGisaia](https://github.com/MohamedHamouGisaia))
 
 ## [v4.0.5](https://github.com/gisaia/ARLAS-d3/tree/v4.0.5) (2018-06-14)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.0.4...v4.0.5)
 
 **New stuff:**
 
@@ -550,11 +386,7 @@
 
 ## [v4.0.4](https://github.com/gisaia/ARLAS-d3/tree/v4.0.4) (2018-05-30)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.0.3...v4.0.4)
-
 ## [v4.0.3](https://github.com/gisaia/ARLAS-d3/tree/v4.0.3) (2018-05-30)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.0.2...v4.0.3)
 
 **New stuff:**
 
@@ -566,11 +398,7 @@
 
 ## [v4.0.2](https://github.com/gisaia/ARLAS-d3/tree/v4.0.2) (2018-05-22)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.0.1...v4.0.2)
-
 ## [v4.0.1](https://github.com/gisaia/ARLAS-d3/tree/v4.0.1) (2018-05-22)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-d3/compare/v4.0.0...v4.0.1)
 
 
 
