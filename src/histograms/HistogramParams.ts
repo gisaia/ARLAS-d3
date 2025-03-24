@@ -70,6 +70,10 @@ export class HistogramParams {
   public ticksDateFormat: string = null;
   public xAxisPosition: Position = Position.bottom;
   public descriptionPosition: Position = Position.bottom;
+  // Add 2 pixel around each label to detect overlap.
+  public xLabelOverlapPadding  = 2;
+  // 4 is an arbitrary value to displayed one or 2 ticks between each value.
+  public xLabelsToTicksFactor  = 4;
 
   /** Desctiption */
   public chartTitle = '';

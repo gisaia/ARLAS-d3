@@ -24,6 +24,7 @@ import {
 import { HistogramParams } from './HistogramParams';
 import { scaleUtc, scaleLinear, scaleTime, ScaleTime, ScaleLinear, ScaleBand } from 'd3-scale';
 import { min, max } from 'd3-array';
+import { Selection } from 'd3-selection';
 
 export abstract class AbstractHistogram {
 
@@ -65,6 +66,11 @@ export abstract class AbstractHistogram {
   protected plottingCount = 0;
   protected minusSign = 1;
 
+  protected _xlabelMeanWidth = 0;
+  protected _previousXLabelTicks = null;
+  protected _previousSize = null;
+  protected _isWidthIncrease = false;
+
   public constructor() {
     this.brushCornerTooltips = this.createEmptyBrushCornerTooltips();
   }
@@ -74,6 +80,10 @@ export abstract class AbstractHistogram {
   public init() {
     /** each time we [re]plot, the bucket range is reset */
     this.histogramParams.bucketRange = undefined;
+    if(!this._previousSize){
+      this._previousSize = this.histogramParams.chartWidth;
+    }
+
     this.setHistogramMargins();
     if (this.context) {
       this.context.remove();
@@ -225,20 +235,7 @@ export abstract class AbstractHistogram {
     // leftOffset is the width of Y labels, so x axes are translated by leftOffset
     // Y axis is translated to the left of 1px so that the chart doesn't hide it
     // Therefore, we substruct 1px (leftOffset - 1) so that the first tick of xAxis will coincide with y axis
-    let horizontalOffset = this.chartDimensions.height;
-    if (isChartAxes(chartAxes)) {
-      if (!this.histogramParams.yAxisFromZero) {
-        const minMax = chartAxes.yDomain.domain();
-        if (minMax[0] >= 0) {
-          horizontalOffset = chartAxes.yDomain(minMax[0]);
-        } else {
-          horizontalOffset = chartAxes.yDomain(minMax[1]);
-        }
-      } else {
-        horizontalOffset = chartAxes.yDomain(0);
-
-      }
-    }
+    const horizontalOffset = this.getHorizontalOffset(chartAxes);
     this.xAxis = this.allAxesContext.append('g')
       .attr('class', 'histogram__only-axis')
       .attr('transform', 'translate(' + (leftOffset - 1) + ',' + horizontalOffset + ')')
@@ -247,10 +244,7 @@ export abstract class AbstractHistogram {
       .attr('class', 'histogram__ticks-axis')
       .attr('transform', 'translate(' + (leftOffset - 1) + ',' + this.chartDimensions.height * this.histogramParams.xAxisPosition + ')')
       .call(chartAxes.xTicksAxis);
-    this.xLabelsAxis = this.allAxesContext.append('g')
-      .attr('class', 'histogram__labels-axis')
-      .attr('transform', 'translate(' + (leftOffset - 1) + ',' + this.chartDimensions.height * this.histogramParams.xAxisPosition + ')')
-      .call(chartAxes.xLabelsAxis);
+    this.xLabelsAxis =  this.createXLabelAxis(this.allAxesContext,chartAxes.xLabelsAxis, leftOffset );
     this.xTicksAxis.selectAll('path').attr('class', 'histogram__axis');
     this.xAxis.selectAll('path').attr('class', 'histogram__axis');
     this.xTicksAxis.selectAll('line').attr('class', 'histogram__ticks');
@@ -261,6 +255,111 @@ export abstract class AbstractHistogram {
     if (!this.histogramParams.showXLabels) {
       this.xLabelsAxis.attr('class', 'histogram__labels-axis__hidden');
     }
+  }
+
+  public createXLabelAxis(svgNode: HistogramSVGG, xLabelsAxis, leftOffset: number){
+    return svgNode.append('g')
+        .attr('class', 'histogram__labels-axis')
+        .attr('transform', 'translate(' + (leftOffset - 1) + ',' + this.chartDimensions.height * this.histogramParams.xAxisPosition + ')')
+        .call(xLabelsAxis);
+  }
+
+  public getHorizontalOffset(chartAxes){
+    let h = this.chartDimensions.height;
+    if (isChartAxes(chartAxes)) {
+      if (!this.histogramParams.yAxisFromZero) {
+        const minMax = chartAxes.yDomain.domain();
+        if (minMax[0] >= 0) {
+          h = chartAxes.yDomain(minMax[0]);
+        } else {
+          h = chartAxes.yDomain(minMax[1]);
+        }
+      } else {
+        h = chartAxes.yDomain(0);
+      }
+    }
+    return h;
+  }
+
+  public updateNumberOfLabelDisplayedIfOverlap(chartAxes: ChartAxes | SwimlaneAxes, leftOffset = 0){
+    // Get the offset used when we will draw the labels.
+    const horizontalOffset = this.getHorizontalOffset(chartAxes);
+    let sumWidth = 0;
+
+    //  update with current tick state to avoid create a virtual node with all data.
+    if(this._previousXLabelTicks !== null) {
+      chartAxes.xLabelsAxis.ticks(this._previousXLabelTicks);
+    }
+    // create virtual nodes. Helps to get label's width.
+    const virtualLabels = this.chartDimensions.svg.append('g');
+    const labels = this.createXLabelAxis(virtualLabels,chartAxes.xLabelsAxis, leftOffset ).selectAll('text');
+    // check for all labels if there is an overlap.
+    let hasOverlap = false;
+    const nodes = labels.nodes();
+    const labelsSize = labels.size();
+    // init value when before potential increase charts
+    if(!this._previousXLabelTicks) {
+      this._previousXLabelTicks = labelsSize;
+    }
+    for (let i = 0; i < labelsSize; i++) {
+      const next = i + 1;
+      const currentNodeDimensions = this.getDimension(nodes[i]);
+      if(nodes[next]){
+        const nextNodeDimensions = this.getDimension(nodes[next]);
+        if(this.isOverlapXAxis(currentNodeDimensions,nextNodeDimensions)) {
+          hasOverlap = true;
+        }
+      }
+
+      sumWidth += currentNodeDimensions.width;
+    }
+
+    // remove virtual node. If we do not it will be displayed
+    virtualLabels.remove();
+    if(hasOverlap || this._isWidthIncrease) {
+      // calc label mean width once.
+      const currentCount = this._previousXLabelTicks ?? this.histogramParams.xLabels;
+      this._xlabelMeanWidth  = Math.round(sumWidth / currentCount);
+
+      //  calc number of labels according to the mean width of a label and the width of the chart
+      const labelCount = Math.floor(this.histogramParams.chartWidth  /  (this._xlabelMeanWidth + horizontalOffset));
+      let selectLabelCount: number;
+      if(!this._isWidthIncrease) {
+        // get the min value between default label size and the max label size allowed.
+        selectLabelCount =  min([this.histogramParams.xLabels, labelCount,  this._previousXLabelTicks]);
+      } else {
+        // check prop value to know when we can restore original state.
+        selectLabelCount =  max([labelCount, this._previousXLabelTicks]);
+      }
+      // value to be used when we create virtual labels
+      this._previousXLabelTicks = selectLabelCount;
+
+      // update ticks for label and ticks axis. If we have a lot of label we resize ticks.
+      chartAxes.xLabelsAxis.ticks(selectLabelCount);
+      if (selectLabelCount > this.histogramParams.xTicks) {
+        chartAxes.xTicksAxis.ticks(selectLabelCount * this.histogramParams.xLabelsToTicksFactor);
+      } else {
+        chartAxes.xTicksAxis.ticks(this.histogramParams.xTicks);
+      }
+    }
+  }
+
+  public getDimension(node): DOMRect {
+    if (typeof node.getBoundingClientRect === 'function') {
+      return node.getBoundingClientRect();
+    } else if (node instanceof SVGGraphicsElement) { // check if node is svg element
+      return node.getBBox();
+    }
+  }
+
+  public isOverlapXAxis (l, r) {
+    const a  = {left: 0, right: 0};
+    const b = {left: 0, right: 0};
+    a.left = l.x - this.histogramParams.xLabelOverlapPadding;
+    a.right = l.x + l.width + this.histogramParams.xLabelOverlapPadding;
+    b.left = r.x - this.histogramParams.xLabelOverlapPadding;
+    b.right = r.x + r.width + this.histogramParams.xLabelOverlapPadding;
+    return a.right >= b.left || b.left <= a.right;
   }
 
   protected plotBars(data: Array<HistogramData>, axes: ChartAxes | SwimlaneAxes, xDataDomain: ScaleBand<string>, barWeight?: number): void {
