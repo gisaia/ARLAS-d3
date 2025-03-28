@@ -25,6 +25,7 @@ import { HistogramParams } from './HistogramParams';
 import { scaleUtc, scaleLinear, scaleTime, ScaleTime, ScaleLinear, ScaleBand } from 'd3-scale';
 import { min, max } from 'd3-array';
 import { Selection } from 'd3-selection';
+import { BucketsVirtualContext } from './buckets/buckets';
 
 export abstract class AbstractHistogram {
 
@@ -34,6 +35,7 @@ export abstract class AbstractHistogram {
   /** Contexts */
   protected context: HistogramSVGG;
   protected barsContext: HistogramSVGG;
+  protected bucketsContext: BucketsVirtualContext;
   protected noDatabarsContext: HistogramSVGG;
   protected tooltipCursorContext: HistogramSVGG;
   protected allAxesContext: HistogramSVGG;
@@ -58,9 +60,6 @@ export abstract class AbstractHistogram {
   protected xTicksAxis;
   protected xLabelsAxis;
   protected xAxis;
-
-
-  protected hoveredBucketKey: Date | number;
 
   protected yDimension = 1;
   protected plottingCount = 0;

@@ -62,8 +62,8 @@ for (const [key, value] of Object.entries(inputCharts)) {
 
 const defaultHistogramData = [
   { value: 400, key: 0, chartId: '1' },
-  { value: 123, key: 1000.56, chartId: '1' },
-  { value: 333, key: 2000.53259065, chartId: '1' },
+  { value: 123, key: 1000, chartId: '1' },
+  { value: 333, key: 2000, chartId: '1' },
   { value: 400, key: 3000, chartId: '1' },
   { value: 400, key: 4000, chartId: '1' },
   { value: 212, key: 5000, chartId: '1' },
@@ -78,8 +78,6 @@ const defaultHistogramData = [
   { value: 120, key: 14000, chartId: '1' },
   { value: 123, key: 15000, chartId: '1' },
   { value: 123, key: 16000, chartId: '1' },
-
-
   { value: 212 + 200, key: 5000, chartId: '2' },
   { value: 111 + 250, key: 6000, chartId: '2' },
   { value: 400 + 200, key: 7000, chartId: '2' },
@@ -117,13 +115,13 @@ for (let i=0; i<10; i++) {
 }
 
 const histogramBars = new ChartBars();
-displayHistogram(histogramBars, 'containerBars', defaultHistogramData);
+// displayHistogram(histogramBars, 'containerBars', defaultHistogramData);
 const histogramCurve = new ChartCurve();
 displayHistogram(histogramCurve, 'containerCurve', defaultHistogramData, true);
 const histogramArea = new ChartArea();
 displayHistogram(histogramArea, 'containerArea', defaultHistogramData);
 const timeHistogramBars = new ChartBars();
-displayHistogram(timeHistogramBars, 'containerHistTime', timeHistogramData, false, DataType.time)
+// displayHistogram(timeHistogramBars, 'containerHistTime', timeHistogramData, false, DataType.time)
 
 function displayHistogram(histogram, containerName, data, selectionOverflow = false, dataType = DataType.numeric) {
   histogram.histogramParams = {...histogramParams};

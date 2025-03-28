@@ -55,7 +55,6 @@ export interface HistogramData {
 export interface HistogramTooltip {
   title?: string;
   dataType?: string;
-  xValue?: number | string | Date;
   xStartValue?:  number | string | Date;
   xEndValue?:  number | string | Date;
   xRange?: { value: number; unit?: string;};

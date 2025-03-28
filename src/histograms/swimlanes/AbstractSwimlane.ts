@@ -321,8 +321,6 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
       .on('mousemove', (event) => {
         let i = 0;
         this.aBucketIsEncountred = false;
-        const previousHoveredBucketKey = this.hoveredBucketKey;
-        this.hoveredBucketKey = null;
         swimlaneMapData.forEach((swimlane, key) => {
           this.setTooltipPositionForSwimlane(event, swimlane, key, i, swimStats, representation, <ContainerElement>this.context.node());
           i++;
@@ -330,10 +328,6 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
         if (!this.aBucketIsEncountred) {
           this.histogramParams.swimlaneXTooltip.isShown = false;
           this.verticalTooltipLine.style('display', 'none');
-        } else {
-          if (this.hoveredBucketKey !== previousHoveredBucketKey && this.hoveredBucketKey !== null) {
-            this.histogramParams.hoveredBucketEvent.next(this.hoveredBucketKey);
-          }
         }
       })
       .on('mouseout', () => {
@@ -378,7 +372,6 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
         this.histogramParams.swimlaneXTooltip = tooltip;
         this.histogramParams.swimlaneTooltipsMap.set(key, tooltip);
         this.aBucketIsEncountred = true;
-        this.hoveredBucketKey = data[i].key;
         break;
       } else {
         const hiddenTooltip: Tooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
