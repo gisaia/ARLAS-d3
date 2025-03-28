@@ -41,7 +41,7 @@ export class Bucket {
     /** Calculated state. */
     private hovered = false;
     private context: HistogramSVGG;
-    /** This context is virtual. Buckets are not plot on the histogram. */
+    /** This context is virtual. Buckets are not plotted on the histogram. */
     private virtual = true;
 
     public constructor(data: HistogramData, histogramParams: HistogramParams, rootContext: HistogramSVGG,
@@ -90,7 +90,7 @@ export class Bucket {
 
     /**
      * Leaves the bucket and notifies the hoveredBucket event that the bucket has been left :'(.
-     * However, this notification is sent once. If the bucket is already left, no more notifications are sent.
+     * However, this notification is sent once. If the bucket has been already left, no more notifications are sent.
      */
     public leave() {
         if (this.hovered) {
@@ -114,7 +114,7 @@ export class Bucket {
     }
 
     /**
-     * Notifies that the bucekt has been left.
+     * Notifies that the bucket has been left.
      */
     public notifyLeave() {
         this.histogramParams.hoveredBucketEvent.next(undefined);
@@ -127,9 +127,9 @@ export class Bucket {
 }
 
 /**
- * A Virtual context (in D3 jargon), where no svg elements are drawn. It is used to declare all the buckets that compose
+ * A Virtual context (in D3 lingo), where no svg elements are drawn. It is used to declare all the buckets that compose
  * the histogram.
- * The main objective of this context is to detect which bucket is hovered and notify the histogram.
+ * The main objective of this context is to detect which bucket is hovered and to notify the histogram.
  */
 export class BucketsVirtualContext {
     private buckets: Bucket[] = [];

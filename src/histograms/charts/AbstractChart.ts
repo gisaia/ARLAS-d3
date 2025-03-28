@@ -906,7 +906,7 @@ export abstract class AbstractChart extends AbstractHistogram {
 
     const bucketSize = this.getDataInterval(data);
     // The charts have a maximum number of buckets that can be plotted
-    // To avoid errors, we intentionally not plot it
+    // To avoid errors, we intentionally not plotted it
     if ((+this.selectionInterval.endvalue - +this.selectionInterval.startvalue) / bucketSize > (this.MAX_BUCKET_NUMBER - data.length)) {
       return data;
     }
