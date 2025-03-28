@@ -48,6 +48,7 @@ import { SelectionType } from '../HistogramParams';
 import { Brush } from '../brushes/brush';
 import { RectangleBrush } from '../brushes/rectangle-brush';
 import { SliderBrush } from '../brushes/slider-brush';
+import { Bucket, BucketsVirtualContext } from '../../histograms/buckets/buckets';
 
 
 export abstract class AbstractChart extends AbstractHistogram {
@@ -88,7 +89,8 @@ export abstract class AbstractChart extends AbstractHistogram {
       this.updateNumberOfLabelDisplayedIfOverlap(this.chartAxes, 0);
       this.drawChartAxes(this.chartAxes, 0);
       this.plotChart(data);
-      this.showTooltips(data);
+      this.handleBucketsInteractions(data, extendedData);
+
       if (this.histogramParams.isHistogramSelectable) {
         this.addSelectionBrush(this.histogramParams.selectionType, this.chartAxes, 0);
       }
@@ -99,6 +101,51 @@ export abstract class AbstractChart extends AbstractHistogram {
       this.histogramParams.dataLength = 0;
       this.histogramParams.displaySvg = 'none';
     }
+  }
+
+  /**
+   * - Shows a tooltip on hover of a dataBucket.
+   * - Emits a hoveredBucketEvent on hover of one of the allBuckets.
+   * @param dataBuckets Buckets provided by data that are plot on the histogram.
+   * @param allBuckets Buckets composed of data buckets and buckets beyond the data domain (that include the selection range).
+   * @param chartIsToSides (Optional) Sides of the y axis in case of multi-charts representation.
+   */
+  protected handleBucketsInteractions(dataBuckets: HistogramData[],
+    allBuckets: HistogramData[], chartIsToSides?: Map<string, string>): void {
+    this.bucketsContext = new BucketsVirtualContext();
+    allBuckets.forEach(d => {
+      const bucket = new Bucket(d, this.histogramParams, this.context, this.chartDimensions, this.chartAxes);
+      this.bucketsContext.append(bucket);
+      /** Plot the bucket for dev purpuses. It helps debug. */
+      // bucket.plot();
+    });
+    this.context
+      .on('mousemove', (event) => {
+        this.onHoverBucket(allBuckets, event);
+        this.setTooltipPositions(dataBuckets, event, chartIsToSides);
+      })
+      .on('mouseout', (event) => {
+        this.onLeaveBucket(allBuckets, event);
+        this.histogramParams.tooltip.isShown = false;
+      });
+  }
+
+
+
+  private onHoverBucket(data: Array<HistogramData>, event: MouseEvent) {
+    const xy = pointer(event);
+    const xDomainValue = +this.chartAxes.xDomain.invert(xy[0]);
+    const dataInterval = this.histogramParams.bucketRange;
+    const hoveredBuckets = data.filter(b => +b.key <= xDomainValue && +b.key > xDomainValue - dataInterval);
+    this.bucketsContext.interact(hoveredBuckets.map(d => +d.key));
+  }
+
+  private onLeaveBucket(data: Array<HistogramData>, event: MouseEvent) {
+    const xy = pointer(event);
+    const xDomainValue = +this.chartAxes.xDomain.invert(xy[0]);
+    const dataInterval = this.histogramParams.bucketRange;
+    const leftBuckets = data.filter(b => +b.key <= xDomainValue && +b.key > xDomainValue - dataInterval);
+    this.bucketsContext.leaveAll(data.map(d => +d.key));
   }
 
   /**
@@ -178,7 +225,7 @@ export abstract class AbstractChart extends AbstractHistogram {
     const parsedSelectedValues = HistogramUtils.parseSelectedValues(selectedInputValues, this.histogramParams.dataType);
     // Has the selection changed ?
     if (parsedSelectedValues.startvalue !== this.selectionInterval.startvalue
-        || parsedSelectedValues.endvalue !== this.selectionInterval.endvalue) {
+      || parsedSelectedValues.endvalue !== this.selectionInterval.endvalue) {
       // Set the new selection
       this.selectionInterval.startvalue = parsedSelectedValues.startvalue;
       this.selectionInterval.endvalue = parsedSelectedValues.endvalue;
@@ -195,7 +242,7 @@ export abstract class AbstractChart extends AbstractHistogram {
           // Also check if there are no data beyond selection, then replot
           // There for when the axis are resized due to selection being [0,0] when first plotting
           if (this.hasSelectionExceededData
-              || HistogramUtils.isDataDomainWithinSelection(selectedInputValues, data, this.histogramParams.intervalSelectedMap)) {
+            || HistogramUtils.isDataDomainWithinSelection(selectedInputValues, data, this.histogramParams.intervalSelectedMap)) {
             this.hasSelectionExceededData = false;
             this.plot(this.histogramParams.histogramData);
           }
@@ -389,13 +436,13 @@ export abstract class AbstractChart extends AbstractHistogram {
     const xDomain = this.getXDomainScale(0, this.chartDimensions.width);
     // The xDomain extent includes data domain and selected values
     const xDomainExtent = this.getXDomainExtent(data, this.selectionInterval.startvalue,
-        this.selectionInterval.endvalue);
+      this.selectionInterval.endvalue);
     xDomain.domain(xDomainExtent);
 
     this.chartAxes = {
-        xDomain, xDataDomain: undefined, yDomain: undefined, xTicksAxis: undefined,
-        yTicksAxis: undefined, stepWidth: undefined, xLabelsAxis: undefined,
-        yLabelsAxis: undefined, xAxis: undefined, yAxis: undefined
+      xDomain, xDataDomain: undefined, yDomain: undefined, xTicksAxis: undefined,
+      yTicksAxis: undefined, stepWidth: undefined, xLabelsAxis: undefined,
+      yLabelsAxis: undefined, xAxis: undefined, yAxis: undefined
     };
 
     this.chartAxes.stepWidth = 0;
@@ -409,23 +456,33 @@ export abstract class AbstractChart extends AbstractHistogram {
     this.chartAxes.xTicksAxis = axisBottom(this.chartAxes.xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 4);
     const labelPadding = (this.histogramParams.xAxisPosition === Position.bottom) ? 9 : -15;
     this.chartAxes.xLabelsAxis = axisBottom(this.chartAxes.xDomain).tickSize(0)
-        .tickPadding(labelPadding).ticks(this.histogramParams.xLabels);
+      .tickPadding(labelPadding).ticks(this.histogramParams.xLabels);
 
     this.applyFormatOnXticks(data);
     if (this.histogramParams.dataType === DataType.time) {
-        if (this.histogramParams.ticksDateFormat) {
-            if (this.histogramParams.useUtc) {
-                this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(utcFormat(this.histogramParams.ticksDateFormat));
-            } else {
-                this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(timeFormat(this.histogramParams.ticksDateFormat));
-            }
+      if (this.histogramParams.ticksDateFormat) {
+        if (this.histogramParams.useUtc) {
+          this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(utcFormat(this.histogramParams.ticksDateFormat));
+        } else {
+          this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.tickFormat(timeFormat(this.histogramParams.ticksDateFormat));
         }
+      }
     } else {
-        /** apply space between thousands, millions */
-        this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.
-            tickFormat(d => tickNumberFormat(d, this.histogramParams.numberFormatChar));
+      /** apply space between thousands, millions */
+      this.chartAxes.xLabelsAxis = this.chartAxes.xLabelsAxis.
+        tickFormat(d => tickNumberFormat(d, this.histogramParams.numberFormatChar));
     }
-}
+    this.chartAxes.stepWidth = 0;
+    if (data.length > 1) {
+      this.chartAxes.stepWidth = this.chartAxes.xDomain(data[1].key) - this.chartAxes.xDomain(data[0].key);
+    } else {
+      if (data[0].key === this.selectionInterval.startvalue && data[0].key === this.selectionInterval.endvalue) {
+        this.chartAxes.stepWidth = this.chartAxes.xDomain(data[0].key) / (this.histogramParams.barWeight * 10);
+      } else {
+        this.chartAxes.stepWidth = this.chartAxes.xDomain(<number>data[0].key + this.dataInterval) - this.chartAxes.xDomain(data[0].key);
+      }
+    }
+  }
 
   protected createChartAxes(data: Array<HistogramData>): void {
     this.createChartXAxes(data);
@@ -542,23 +599,6 @@ export abstract class AbstractChart extends AbstractHistogram {
     }
   }
 
-  protected showTooltips(data: Array<HistogramData>, chartIsToSides?: Map<string, string>): void {
-    if (this.histogramParams.dataUnit !== '') {
-      this.histogramParams.dataUnit = '(' + this.histogramParams.dataUnit + ')';
-    }
-    this.context
-      .on('mousemove', (event) => {
-        const previousHoveredBucketKey = this.hoveredBucketKey;
-        this.hoveredBucketKey = null;
-        this.setTooltipPositions(data, event, chartIsToSides);
-        if (this.hoveredBucketKey !== previousHoveredBucketKey && this.hoveredBucketKey !== null) {
-          this.histogramParams.hoveredBucketEvent.next(this.hoveredBucketKey);
-        }
-      })
-      .on('mouseout', () => this.histogramParams.tooltip.isShown = false);
-  }
-
-
   /**
    * Draws a indicator behind the hovered bucket of the histogram. This has as objective to highlight it on the histogram
    * @param data
@@ -581,9 +621,8 @@ export abstract class AbstractChart extends AbstractHistogram {
         if (!!hb.chartId && !!this.histogramParams.colorGenerator) {
           color = this.histogramParams.colorGenerator.getColor(hb.chartId);
         }
-
         x = HistogramUtils.toString(hb.key, this.histogramParams, dataInterval);
-        const calculatedEndValue = dataInterval +(+hb.key);
+        const calculatedEndValue = dataInterval + (+hb.key);
         xStartValue = x;
         xEndValue = HistogramUtils.toString(calculatedEndValue, this.histogramParams, dataInterval);
         ys.push({
@@ -599,7 +638,6 @@ export abstract class AbstractChart extends AbstractHistogram {
     if (hoveredBuckets.length > 0) {
       this.histogramParams.tooltipEvent.next(
         {
-          xValue: x,
           xStartValue: xStartValue,
           xEndValue: xEndValue,
           xRange: this.histogramParams.bucketInterval,
@@ -615,7 +653,6 @@ export abstract class AbstractChart extends AbstractHistogram {
       this.clearTooltipCursor();
       this.histogramParams.tooltipEvent.next(
         {
-          xValue: x,
           y: ys,
           shown: false,
           xPosition: xy[0] + this.chartDimensions.margin.left,
@@ -869,7 +906,7 @@ export abstract class AbstractChart extends AbstractHistogram {
 
     const bucketSize = this.getDataInterval(data);
     // The charts have a maximum number of buckets that can be plotted
-    // To avoid errors, we intentionally not plot it
+    // To avoid errors, we intentionally not plotted it
     if ((+this.selectionInterval.endvalue - +this.selectionInterval.startvalue) / bucketSize > (this.MAX_BUCKET_NUMBER - data.length)) {
       return data;
     }

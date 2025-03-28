@@ -28,6 +28,7 @@ import {
 } from './utils/HistogramUtils';
 import { Subject } from 'rxjs';
 import { ColorGenerator } from '../utils/color-generator';
+import { XBucket } from './buckets/buckets';
 
 export class HistogramParams {
 
@@ -115,7 +116,7 @@ export class HistogramParams {
   // ########################## Outputs ##########################
 
   public valuesListChangedEvent: Subject<SelectedOutputValues[]> = new Subject<SelectedOutputValues[]>();
-  public hoveredBucketEvent: Subject<Date | number> = new Subject<Date | number>();
+  public hoveredBucketEvent: Subject<XBucket> = new Subject<XBucket>();
   public selectedSwimlanesEvent = new Subject<Set<string>>();
   public tooltipEvent: Subject<HistogramTooltip> = new Subject();
   public tooltipsEvent: Subject<HistogramTooltip[]> = new Subject();

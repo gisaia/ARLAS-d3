@@ -118,6 +118,7 @@ export class ChartCurve extends AbstractChart {
                 this.drawChartAxes(this.chartAxes, 0);
                 this.drawYAxis(this.chartAxes, chartIdsToSides, Array.from(chartIds)[0]);
                 this.createClipperContext();
+
                 dataArray.map(d => this.plotChart(d));
             } else if (chartIdToData.size === 2) {
                 // We add on Y axis on right
@@ -143,6 +144,7 @@ export class ChartCurve extends AbstractChart {
                 }
 
                 this.createClipperContext();
+
                 if (!!this.histogramParams.mainChartId && chartIdToData.has(this.histogramParams.mainChartId)) {
                     this.plotChart(dataArray[0], this.chartAxes.yDomainRight);
                     this.plotChart(dataArray[1], this.chartAxes.yDomain);
@@ -159,6 +161,7 @@ export class ChartCurve extends AbstractChart {
                 this.updateNumberOfLabelDisplayedIfOverlap(this.chartAxes, 0);
                 this.drawChartAxes(this.chartAxes, 0);
                 this.createClipperContext();
+
                 dataArray.forEach(chartData => {
                     const minimum = min(chartData.map(d => d.value));
                     const maximum = max(chartData.map(d => d.value));
@@ -175,7 +178,8 @@ export class ChartCurve extends AbstractChart {
                 });
                 dataArray.map(d => this.plotChart(d, this.chartAxes.yDomain, true));
             }
-            this.showTooltips(data, chartIdsToSides);
+            this.handleBucketsInteractions(data, extendedData, chartIdsToSides);
+
             if (this.histogramParams.isHistogramSelectable) {
                 this.addSelectionBrush(this.histogramParams.selectionType, this.chartAxes, 0);
             }

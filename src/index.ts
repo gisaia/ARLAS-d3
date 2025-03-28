@@ -53,3 +53,4 @@ export { Granularity } from './calendar-timeline/lib/enumerations/granularity.en
 export { TimelineData, TimelineTooltip } from './calendar-timeline/lib/interfaces/timeline.data';
 export { Bucket } from './calendar-timeline/lib/interfaces/bucket';
 export { Timeline, AxesCollection, BucketsCollection } from './calendar-timeline/timeline';
+export { XBucket, BucketsVirtualContext, Bucket as HistogramBucket } from './histograms/buckets/buckets';
