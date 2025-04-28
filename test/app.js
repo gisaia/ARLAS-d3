@@ -92,18 +92,18 @@ const defaultHistogramData = [
   { value: 156 + 250, key: 16000, chartId: '2' },
 
 
-  { value: 212 + 340, key: 5000, chartId: '3' },
-  { value: 111 + 300, key: 6000, chartId: '3' },
-  { value: 400 + 340, key: 7000, chartId: '3' },
-  { value: 400 + 300, key: 8000, chartId: '3' },
-  { value: 120 + 340, key: 9000, chartId: '3' },
-  { value: 120 + 300, key: 10000, chartId: '3' },
-  { value: 123 + 340, key: 11000, chartId: '3' },
-  { value: 100 + 300, key: 12000, chartId: '3' },
-  { value: 222 + 340, key: 13000, chartId: '3' },
-  { value: 120 + 300, key: 14000, chartId: '3' },
-  { value: 156 + 340, key: 15000, chartId: '3' },
-  { value: 156 + 300, key: 16000, chartId: '3' },
+  { value: 212 + 340, key: 25500, chartId: '3' },
+  { value: 111 + 300, key: 26500, chartId: '3' },
+  { value: 400 + 340, key: 27500, chartId: '3' },
+  { value: 400 + 300, key: 28500, chartId: '3' },
+  { value: 120 + 340, key: 29500, chartId: '3' },
+  { value: 120 + 300, key: 30500, chartId: '3' },
+  { value: 123 + 340, key: 31500, chartId: '3' },
+  { value: 100 + 300, key: 32500, chartId: '3' },
+  { value: 222 + 340, key: 33500, chartId: '3' },
+  { value: 120 + 300, key: 34500, chartId: '3' },
+  { value: 156 + 340, key: 35500, chartId: '3' },
+  { value: 156 + 300, key: 36500, chartId: '3' },
 ];
 
 const startDate = 1616180400000;
@@ -120,8 +120,8 @@ const histogramCurve = new ChartCurve();
 displayHistogram(histogramCurve, 'containerCurve', defaultHistogramData, true);
 const histogramArea = new ChartArea();
 displayHistogram(histogramArea, 'containerArea', defaultHistogramData);
-const timeHistogramBars = new ChartBars();
-// displayHistogram(timeHistogramBars, 'containerHistTime', timeHistogramData, false, DataType.time)
+const timeHistogramBars = new ChartCurve();
+displayHistogram(timeHistogramBars, 'containerHistTime', timeHistogramData, false, DataType.time)
 
 function displayHistogram(histogram, containerName, data, selectionOverflow = false, dataType = DataType.numeric) {
   histogram.histogramParams = {...histogramParams};

@@ -30,7 +30,7 @@ export class SwimlaneCircles extends AbstractSwimlane {
     this.barsContext = this.context.append('g')
       .attr('class', 'histogram__swimlane').selectAll('dot').data(data).enter().append('circle')
       .attr('r', (d) => this.getBucketRadius(d, swimStats, swimRepresentation))
-      .attr('cx', (d) => this.histogramParams.swimLaneLabelsWidth + this.swimlaneAxes.xDataDomainArray[indexOfLane]((+d.key).toString()) +
+      .attr('cx', (d) => this.histogramParams.swimLaneLabelsWidth + this.swimlaneAxes.xDomain((+d.key)) +
         this.swimlaneAxes.stepWidth * this.histogramParams.barWeight / 2)
       .attr('cy', (d) => this.histogramParams.swimlaneHeight * (indexOfLane + 1) - this.histogramParams.swimlaneHeight / 2)
       .attr('class', 'histogram__swimlane--circle')

@@ -18,10 +18,10 @@
  */
 
 
-import { SelectionType } from '../HistogramParams';
-import { HistogramData, HistogramUtils, ChartAxes, DataType, Position } from '../utils/HistogramUtils';
-import { AbstractChart } from './AbstractChart';
 import { axisBottom } from 'd3-axis';
+import { SelectionType } from '../HistogramParams';
+import { ChartAxes, HistogramData, HistogramUtils, Position } from '../utils/HistogramUtils';
+import { AbstractChart } from './AbstractChart';
 
 export class ChartOneDimension extends AbstractChart {
 
@@ -34,7 +34,7 @@ export class ChartOneDimension extends AbstractChart {
   }
 
   protected plotChart(data: Array<HistogramData>): void {
-    this.plotBars(data, this.chartAxes, this.chartAxes.xDataDomain);
+    this.plotBars(data, this.chartAxes);
     this.barsContext
       .attr('height', (d) => this.chartDimensions.height)
       .style('fill', (d) => HistogramUtils.getColor(d.value, this.histogramParams.paletteColors).toHexString())
@@ -60,20 +60,10 @@ export class ChartOneDimension extends AbstractChart {
       this.chartAxes.stepWidth = this.chartDimensions.width;
     }
 
-    const ticksPeriod = Math.max(1, Math.round(data.length / this.histogramParams.xTicks));
-    const labelsPeriod = Math.max(1, Math.round(data.length / this.histogramParams.xLabels));
     const labelPadding = (this.histogramParams.xAxisPosition === Position.bottom) ? 9 : -15;
-    if (this.histogramParams.dataType === DataType.numeric) {
-      this.chartAxes.xTicksAxis = axisBottom(this.chartAxes.xDomain).tickValues(this.chartAxes.xDataDomain.domain()
-        .filter((d, i) => !(i % ticksPeriod)).map(d => Number(d))).tickSize(this.minusSign * 4);
-      this.chartAxes.xLabelsAxis = axisBottom(this.chartAxes.xDomain).tickSize(0).tickPadding(labelPadding)
-      .tickValues(this.chartAxes.xDataDomain.domain()
-        .filter((d, i) => !(i % labelsPeriod)).map(d => Number(d)));
-    } else {
-      this.chartAxes.xTicksAxis = axisBottom(this.chartAxes.xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 4);
-      this.chartAxes.xLabelsAxis = axisBottom(this.chartAxes.xDomain).tickSize(0)
+    this.chartAxes.xTicksAxis = axisBottom(this.chartAxes.xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 4);
+    this.chartAxes.xLabelsAxis = axisBottom(this.chartAxes.xDomain).tickSize(0)
       .tickPadding(labelPadding).ticks(this.histogramParams.xLabels);
-    }
     this.chartAxes.xAxis = axisBottom(this.chartAxes.xDomain).tickSize(0);
   }
 

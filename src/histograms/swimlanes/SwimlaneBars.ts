@@ -37,7 +37,7 @@ export class SwimlaneBars extends AbstractSwimlane {
     const swimMode = this.histogramParams.swimlaneMode;
     const swimHeight = this.histogramParams.swimlaneHeight * 0.9;
     const swimOptions = this.histogramParams.swimlaneOptions;
-    this.plotBars(laneData, this.swimlaneAxes, this.swimlaneAxes.xDataDomainArray[indexOfLane], this.swimlaneBarsWeight);
+    this.plotBars(laneData, this.swimlaneAxes, this.swimlaneBarsWeight);
     this.barsContext
       .attr('rx', this.histogramParams.swimlaneBorderRadius)
       .attr('ry', this.histogramParams.swimlaneBorderRadius)
@@ -118,9 +118,9 @@ export class SwimlaneBars extends AbstractSwimlane {
       .attr('stroke-width', (opt && opt.level_tick && opt.level_tick.color) ? opt.level_tick.color : TICK_WIDTH)
       .attr('stroke', (opt && opt.level_tick && opt.level_tick.color) ? opt.level_tick.color : TICK_COLOR)
       .attr('opacity', (opt && opt.level_tick && opt.level_tick.opacity) ? opt.level_tick.opacity : TICK_OPACITY)
-      .attr('x1', (d) => this.histogramParams.swimLaneLabelsWidth + this.swimlaneAxes.xDataDomainArray[index]((+d.key).toString()))
+      .attr('x1', (d) => this.histogramParams.swimLaneLabelsWidth + this.swimlaneAxes.xDomain((+d.key)))
       .attr('y1', (d) => this.getLevelTickHeight(d, swimStats, swimRepresentation, SwimlaneMode.variableHeight, swimHeight, index))
-      .attr('x2', (d) => this.histogramParams.swimLaneLabelsWidth + this.swimlaneAxes.xDataDomainArray[index]((+d.key).toString()) +
+      .attr('x2', (d) => this.histogramParams.swimLaneLabelsWidth + this.swimlaneAxes.xDomain((+d.key)) +
         this.swimlaneAxes.stepWidth * this.histogramParams.barWeight)
       .attr('y2', (d) => this.getLevelTickHeight(d, swimStats, swimRepresentation, SwimlaneMode.variableHeight, swimHeight, index));
   }
