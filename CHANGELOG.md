@@ -1,5 +1,17 @@
 # Change Log
 
+## [v12.1.0](https://github.com/gisaia/ARLAS-d3/tree/v12.1.0) (2025-04-28)
+
+**Breaking changes:**
+
+- \[HistogramParams\] `tooltipEvent` does not emit xValue attribute anymore \(as it is never used\) [\#278](https://github.com/gisaia/ARLAS-d3/issues/278)
+- \[HistogramParams\] `hoveredBucketEvent` emits the buckets start and end values instead of the start value only [\#276](https://github.com/gisaia/ARLAS-d3/issues/276)
+
+**New stuff:**
+
+- Labels on x-axes should handle the histogram size and resize [\#264](https://github.com/gisaia/ARLAS-d3/issues/264)
+- Add new histogram parameters to customize labels display management on histogram resize [\#248](https://github.com/gisaia/ARLAS-d3/issues/248)
+
 ## [v12.0.0](https://github.com/gisaia/ARLAS-d3/tree/v12.0.0) (2025-01-30)
 
 **Breaking changes:**
