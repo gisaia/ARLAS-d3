@@ -177,7 +177,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     });
   }
 
-  protected applyHoverStyleOnSwimlaneLabels(labelRectContext: {name: string; context: HistogramSVGRect; }): void {
+  protected applyHoverStyleOnSwimlaneLabels(labelRectContext: { name: string; context: HistogramSVGRect; }): void {
     if (this.histogramParams.selectedSwimlanes.size === 0) {
       labelRectContext.context.attr('class', 'swimlane-label-container-neutral');
     } else {
@@ -259,27 +259,10 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     xDomain.domain(xDomainExtent);
     // xDataDomain includes data domain only
     const xDataDomainArray: Array<ScaleBand<string>> = [];
-    let xTicksAxis: Axis<AxisDomain>;
-    let xLabelsAxis: Axis<AxisDomain>;
-    let stepWidth: number;
-    // Compute the range (in pixels) of xDataDomain where data will be plotted
-    const ticksPeriod = Math.max(1, Math.round(this.dataDomain.length / this.histogramParams.xTicks));
-    const labelsPeriod = Math.max(1, Math.round(this.dataDomain.length / this.histogramParams.xLabels));
-    const startAllDataRange = xDomain(this.dataDomain[0].key);
-    const endAllDataRange = xDomain(+this.dataDomain[this.dataDomain.length - 1].key + this.dataInterval);
-
-    const xAllDataDomain = scaleBand().range([startAllDataRange, endAllDataRange]).paddingInner(0);
-    xAllDataDomain.domain(this.dataDomain.map((d) => (d.key).toString()));
     const labelPadding = (this.histogramParams.xAxisPosition === Position.bottom) ? 9 : -15;
-    if (this.histogramParams.dataType === DataType.numeric) {
-      xTicksAxis = axisBottom(xDomain).tickPadding(5).tickValues(xAllDataDomain.domain()
-        .filter((d, i) => !(i % ticksPeriod)).map(d => Number(d))).tickSize(this.minusSign * 4);
-      xLabelsAxis = axisBottom(xDomain).tickSize(0).tickPadding(labelPadding).tickValues(xAllDataDomain.domain()
-        .filter((d, i) => !(i % labelsPeriod)).map(d => Number(d)));
-    } else {
-      xTicksAxis = axisBottom(xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 4);
-      xLabelsAxis = axisBottom(xDomain).tickSize(0).tickPadding(labelPadding).ticks(this.histogramParams.xLabels);
-    }
+    const xTicksAxis: Axis<AxisDomain> = axisBottom(xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 4);;
+    const xLabelsAxis: Axis<AxisDomain> = axisBottom(xDomain).tickSize(0).tickPadding(labelPadding).ticks(this.histogramParams.xLabels);
+    let stepWidth: number;
     const xAxis = axisBottom(xDomain).tickSize(0);
 
     data.forEach(swimlane => {
@@ -290,7 +273,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
       xDataDomain.domain(swimlane.map((d) => (+d.key).toString()));
       xDataDomainArray.push(xDataDomain);
     });
-    this.swimlaneAxes = { xDomain, xDataDomainArray, xTicksAxis, stepWidth, xLabelsAxis, xAxis };
+    this.swimlaneAxes = { xDomain, xTicksAxis, stepWidth, xLabelsAxis, xAxis };
   }
 
   protected drawChartAxes(swimlaneAxes: SwimlaneAxes) {

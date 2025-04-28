@@ -17,13 +17,22 @@
  * under the License.
  */
 
-import {
-  ChartDimensions, ChartAxes, SwimlaneAxes, SelectedOutputValues, HistogramUtils,
-  DataType, HistogramData, Position, BrushCornerTooltips, SwimlaneData, isChartAxes, HistogramSVGG
-} from './utils/HistogramUtils';
+import { max, min } from 'd3-array';
+import { scaleLinear, ScaleLinear, scaleTime, ScaleTime, scaleUtc } from 'd3-scale';
 import { HistogramParams } from './HistogramParams';
-import { scaleUtc, scaleLinear, scaleTime, ScaleTime, ScaleLinear, ScaleBand } from 'd3-scale';
-import { min, max } from 'd3-array';
+import {
+  BrushCornerTooltips,
+  ChartAxes,
+  ChartDimensions,
+  DataType, HistogramData,
+  HistogramSVGG,
+  HistogramUtils,
+  isChartAxes,
+  Position,
+  SelectedOutputValues,
+  SwimlaneAxes,
+  SwimlaneData
+} from './utils/HistogramUtils';
 
 export abstract class AbstractHistogram {
 
@@ -263,18 +272,18 @@ export abstract class AbstractHistogram {
     }
   }
 
-  protected plotBars(data: Array<HistogramData>, axes: ChartAxes | SwimlaneAxes, xDataDomain: ScaleBand<string>, barWeight?: number): void {
+  protected plotBars(data: Array<HistogramData>, axes: ChartAxes | SwimlaneAxes, barWeight?: number): void {
     const barWidth = barWeight ? axes.stepWidth * barWeight : axes.stepWidth * this.histogramParams.barWeight;
     this.barsContext = this.context.append('g').attr('class', 'histogram__bars').selectAll('.bar')
       .data(data.filter(d => this.isValueValid(d)))
       .enter().append('rect')
-      .attr('x', (d: HistogramData) => xDataDomain((+d.key).toString()))
+      .attr('x', (d: HistogramData) => axes.xDomain((+d.key)))
       .attr('width', barWidth);
 
     this.noDatabarsContext = this.context.append('g').attr('class', 'histogram__bars').selectAll('.bar')
       .data(data.filter(d => !this.isValueValid(d)))
       .enter().append('rect')
-      .attr('x', (d: HistogramData) => xDataDomain((+d.key).toString()))
+      .attr('x', (d: HistogramData) => axes.xDomain((+d.key)))
       .attr('width', axes.stepWidth);
   }
 
