@@ -17,7 +17,18 @@
  * under the License.
  */
 
+import { max, min } from 'd3-array';
+import { axisBottom, axisLeft } from 'd3-axis';
+import { D3BrushEvent } from 'd3-brush';
+import { format } from 'd3-format';
+import { scaleLinear } from 'd3-scale';
+import { pointer, select } from 'd3-selection';
+import { timeFormat, utcFormat } from 'd3-time-format';
 import { AbstractHistogram } from '../AbstractHistogram';
+import { SelectionType } from '../HistogramParams';
+import { Brush } from '../brushes/brush';
+import { RectangleBrush } from '../brushes/rectangle-brush';
+import { SliderBrush } from '../brushes/slider-brush';
 import {
   ChartAxes,
   CURRENTLY_SELECTED_BARS,
@@ -37,17 +48,6 @@ import {
   tickNumberFormat,
   UNSELECTED_BARS
 } from '../utils/HistogramUtils';
-import { pointer, select } from 'd3-selection';
-import { scaleBand, scaleLinear } from 'd3-scale';
-import { max, min } from 'd3-array';
-import { axisBottom, axisLeft } from 'd3-axis';
-import { format } from 'd3-format';
-import { D3BrushEvent } from 'd3-brush';
-import { timeFormat, utcFormat } from 'd3-time-format';
-import { SelectionType } from '../HistogramParams';
-import { Brush } from '../brushes/brush';
-import { RectangleBrush } from '../brushes/rectangle-brush';
-import { SliderBrush } from '../brushes/slider-brush';
 
 
 export abstract class AbstractChart extends AbstractHistogram {
@@ -388,18 +388,11 @@ export abstract class AbstractChart extends AbstractHistogram {
     xDomain.domain(xDomainExtent);
 
     this.chartAxes = {
-        xDomain, xDataDomain: undefined, yDomain: undefined, xTicksAxis: undefined,
-        yTicksAxis: undefined, stepWidth: undefined, xLabelsAxis: undefined,
-        yLabelsAxis: undefined, xAxis: undefined, yAxis: undefined
+      xDomain, yDomain: undefined, xTicksAxis: undefined,
+      yTicksAxis: undefined, stepWidth: undefined, xLabelsAxis: undefined,
+      yLabelsAxis: undefined, xAxis: undefined, yAxis: undefined
     };
-
     this.chartAxes.stepWidth = 0;
-    const startRange = this.chartAxes.xDomain(data[0].key);
-    const endRange = this.chartAxes.xDomain(+data[data.length - 1].key + this.dataInterval);
-    this.chartAxes.xDataDomain = scaleBand()
-      .range([startRange, endRange])
-      .paddingInner(0);
-    this.chartAxes.xDataDomain.domain(data.map((d) => (+d.key).toString()));
     this.chartAxes.xAxis = axisBottom(this.chartAxes.xDomain).tickSize(0);
     this.chartAxes.xTicksAxis = axisBottom(this.chartAxes.xDomain).ticks(this.histogramParams.xTicks).tickSize(this.minusSign * 4);
     const labelPadding = (this.histogramParams.xAxisPosition === Position.bottom) ? 9 : -15;
