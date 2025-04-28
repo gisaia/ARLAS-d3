@@ -226,8 +226,8 @@ export class ChartCurve extends AbstractChart {
         this.tooltipCursorContext.selectAll('.bar')
             .data(data.filter(d => this.isValueValid(d)))
             .enter().append('line')
-            .attr('x1', (d) => axes.xDataDomain((+d.key).toString()))
-            .attr('x2', (d) => axes.xDataDomain((+d.key).toString()))
+            .attr('x1', (d) => axes.xDomain(+d.key))
+            .attr('x2', (d) => axes.xDomain(+d.key))
             .attr('y1', 1)
             .attr('y2', () => this.chartDimensions.height)
             .attr('class', 'histogram__tooltip_cursor_line');
@@ -235,7 +235,7 @@ export class ChartCurve extends AbstractChart {
             .selectAll('dot').data(data.filter(d => this.isValueValid(d)))
             .enter().append('circle')
             .attr('r', () => 3)
-            .attr('cx', (d) => axes.xDataDomain((+d.key).toString()))
+            .attr('cx', (d) => axes.xDomain(+d.key))
             .attr('cy', (d) => {
                 if (chartIsToSides.size === 2 && chartIsToSides.get(d.chartId) === 'right') {
                     return axes.yDomainRight(d.value);
@@ -366,7 +366,7 @@ export class ChartCurve extends AbstractChart {
             const curveType: CurveFactory = (this.histogramParams.isSmoothedCurve) ? curveMonotoneX : curveLinear;
             const a = line<HistogramData>()
                 .curve(curveType)
-                .x(d => this.chartAxes.xDataDomain((+d.key).toString()))
+                .x(d => this.chartAxes.xDomain(+d.key))
                 .y(retrieveData);
             discontinuedData[0].forEach(part => {
                 this.context.append('g').attr('class', 'histogram__curve-data')
@@ -406,7 +406,7 @@ export class ChartCurve extends AbstractChart {
                 .attr('class', 'histogram__curve-data')
                 .selectAll('dot').data(data).enter().append('circle')
                 .attr('r', chartId === this.histogramParams.mainChartId ? 2 : 4)
-                .attr('cx', (d) => this.chartAxes.xDataDomain((+d.key).toString()))
+                .attr('cx', (d) => this.chartAxes.xDomain(+d.key))
                 .attr('cy', retrieveData)
                 .attr('class', 'histogram__chart--unselected--curve')
                 .style('opacity', 1);
@@ -414,7 +414,7 @@ export class ChartCurve extends AbstractChart {
                 .attr('class', 'histogram__curve-data').attr('clip-path', urlFixedSelection)
                 .selectAll('dot').data(data).enter().append('circle')
                 .attr('r', chartId === this.histogramParams.mainChartId ? 2 : 4)
-                .attr('cx', (d) => this.chartAxes.xDataDomain((+d.key).toString()))
+                .attr('cx', (d) => this.chartAxes.xDomain(+d.key))
                 .attr('cy', retrieveData)
                 .attr('class', 'histogram__chart--unselected--curve')
                 .style('fill', this.histogramParams.colorGenerator.getColor(chartId))
@@ -424,7 +424,7 @@ export class ChartCurve extends AbstractChart {
                 .attr('class', 'histogram__curve-data').attr('clip-path', urlCurrentSelection)
                 .selectAll('dot').data(data).enter().append('circle')
                 .attr('r', chartId === this.histogramParams.mainChartId ? 2 : 4)
-                .attr('cx', (d) => this.chartAxes.xDataDomain((+d.key).toString()))
+                .attr('cx', (d) => this.chartAxes.xDomain(+d.key))
                 .attr('cy', retrieveData)
                 .attr('class', 'histogram__chart--unselected--curve')
                 .style('fill', this.histogramParams.colorGenerator.getColor(chartId))

@@ -80,7 +80,7 @@ export class ChartArea extends AbstractChart {
     const curveType: CurveFactory = (this.histogramParams.isSmoothedCurve) ? curveMonotoneX : curveLinear;
     const a = area<HistogramData>()
       .curve(curveType)
-      .x(d => this.chartAxes.xDataDomain((+d.key).toString()))
+      .x(d => this.chartAxes.xDomain(+d.key))
       .y0(areaYPositon)
       .y1(d => this.chartAxes.yDomain(d.value));
 
@@ -221,8 +221,8 @@ export class ChartArea extends AbstractChart {
     this.tooltipCursorContext.selectAll('.bar')
       .data(data.filter(d => this.isValueValid(d)))
       .enter().append('line')
-      .attr('x1', (d) => axes.xDataDomain((+d.key).toString()))
-      .attr('x2', (d) => axes.xDataDomain((+d.key).toString()))
+      .attr('x1', (d) => axes.xDomain(+d.key))
+      .attr('x2', (d) => axes.xDomain(+d.key))
       .attr('y1', 1)
       .attr('y2', () => this.chartDimensions.height)
       .attr('class', 'histogram__tooltip_cursor_line');
@@ -230,7 +230,7 @@ export class ChartArea extends AbstractChart {
       .data(data.filter(d => this.isValueValid(d)))
       .enter().append('circle')
       .attr('r', () => 3)
-      .attr('cx', (d) => axes.xDataDomain((+d.key).toString()))
+      .attr('cx', (d) => axes.xDomain(+d.key))
       .attr('cy', (d) => axes.yDomain(d.value))
       .attr('class', 'histogram__area_circle')
       .style('opacity', '0.8');

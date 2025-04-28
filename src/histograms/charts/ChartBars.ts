@@ -17,15 +17,17 @@
  * under the License.
  */
 
-import {
-  HistogramData, ChartAxes, DataType, Position, tickNumberFormat,
-  getBarOptions, UNSELECTED_BARS, UNSELECTED_BARS_ZONE, SELECTED_BARS_ZONE, HistogramSVGG,
-} from '../utils/HistogramUtils';
-import { AbstractChart } from './AbstractChart';
-import { ScaleBand } from 'd3-scale';
-import { axisBottom } from 'd3-axis';
 import { max, min } from 'd3-array';
 import { SelectionType } from '../HistogramParams';
+import {
+  ChartAxes,
+  getBarOptions,
+  HistogramData,
+  HistogramSVGG,
+  SELECTED_BARS_ZONE,
+  UNSELECTED_BARS, UNSELECTED_BARS_ZONE
+} from '../utils/HistogramUtils';
+import { AbstractChart } from './AbstractChart';
 
 export class ChartBars extends AbstractChart {
 
@@ -46,13 +48,13 @@ export class ChartBars extends AbstractChart {
 
   /** Plots headbands on the top of each bar. A headband is small rectangle (that forms a band)
    * on top of each bar. Those headbands are added for styling purposes */
-  protected plotHeadBand(data: Array<HistogramData>, axes: ChartAxes, xDataDomain: ScaleBand<string>, barWeight?: number) {
+  protected plotHeadBand(data: Array<HistogramData>, axes: ChartAxes, barWeight?: number) {
     const barWidth = barWeight ? axes.stepWidth * barWeight : axes.stepWidth * this.histogramParams.barWeight;
     this.headBandsContext = this.context.append('g').attr('class', 'bars_head_bands').selectAll('.bar')
       .data(data.filter(d => this.isValueValid(d)))
       .enter().append('rect')
       .attr('class', 'head_band')
-      .attr('x', (d: HistogramData) => xDataDomain((+d.key).toString()))
+      .attr('x', (d: HistogramData) => axes.xDomain(+d.key))
       .attr('width', barWidth)
       .attr('y', (d: HistogramData) =>  {
         if (d.value > 0) {
@@ -104,7 +106,7 @@ export class ChartBars extends AbstractChart {
 
   protected plotChart(data: Array<HistogramData>): void {
     this.plotBackground();
-    this.plotBars(data, this.chartAxes, this.chartAxes.xDataDomain);
+    this.plotBars(data, this.chartAxes);
     // todo stripes
     const minimum = min(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MAX_VALUE);
     const maximum = max(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MIN_VALUE);
@@ -162,12 +164,12 @@ export class ChartBars extends AbstractChart {
         .data(data.filter(d => this.isValueValid(d)))
         .enter().append('rect')
         .attr('class', UNSELECTED_BARS)
-        .attr('x', (d: HistogramData) => this.chartAxes.xDataDomain((+d.key).toString()))
+        .attr('x', (d: HistogramData) => this.chartAxes.xDomain(+d.key))
         .attr('width', this.chartAxes.stepWidth * this.histogramParams.barWeight)
         .attr('y', (d: HistogramData) => 0.9 * this.chartDimensions.height)
         .attr('height', (d: HistogramData) => 0.1 * this.chartDimensions.height);
     }
-    this.plotHeadBand(data, this.chartAxes, this.chartAxes.xDataDomain);
+    this.plotHeadBand(data, this.chartAxes);
   }
 
   protected createChartAxes(data: Array<HistogramData>): void {
@@ -220,7 +222,7 @@ export class ChartBars extends AbstractChart {
     this.tooltipCursorContext.selectAll('.bar')
       .data(data.filter(d => this.isValueValid(d)))
       .enter().append('rect')
-      .attr('x', (d) => axes.xDataDomain((+d.key).toString()))
+      .attr('x', (d) => axes.xDomain(+d.key))
       .attr('width', barWidth)
       .attr('y', 0)
       .attr('height', barsHeight)

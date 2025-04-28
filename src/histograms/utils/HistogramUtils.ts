@@ -18,14 +18,14 @@
  * under the License.
  */
 
-import tinycolor from 'tinycolor2';
-import * as moment from 'moment';
-import { Selection, BaseType } from 'd3-selection';
-import { timeFormat, utcFormat } from 'd3-time-format';
 import { Axis, AxisDomain } from 'd3-axis';
-import { ScaleBand, ScaleLinear, ScaleTime } from 'd3-scale';
 import { format } from 'd3-format';
-import { HistogramParams, Style, BarOptions } from '../HistogramParams';
+import { ScaleLinear, ScaleTime } from 'd3-scale';
+import { BaseType, Selection } from 'd3-selection';
+import { timeFormat, utcFormat } from 'd3-time-format';
+import * as moment from 'moment';
+import tinycolor from 'tinycolor2';
+import { BarOptions, HistogramParams, Style } from '../HistogramParams';
 
 
 export const NAN_COLOR = '#d8d8d8';
@@ -123,7 +123,6 @@ export interface ChartDimensions {
 
 export interface ChartAxes {
   xDomain: ScaleTime<number, number> | ScaleLinear<number, number>;
-  xDataDomain: ScaleBand<string>;
   yDomain: ScaleLinear<number, number>;
   yDomainRight?: ScaleLinear<number, number>;
   xTicksAxis: Axis<AxisDomain>;
@@ -141,7 +140,6 @@ export interface ChartAxes {
 
 export interface SwimlaneAxes {
   xDomain: ScaleTime<number, number> | ScaleLinear<number, number>;
-  xDataDomainArray: Array<ScaleBand<string>>;
   xTicksAxis: Axis<AxisDomain>;
   xLabelsAxis: Axis<AxisDomain>;
   stepWidth: number;
