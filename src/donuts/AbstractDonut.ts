@@ -25,6 +25,8 @@ import { select, pointer, BaseType, Selection } from 'd3-selection';
 import { hierarchy, partition, HierarchyNode } from 'd3-hierarchy';
 import { interpolate } from 'd3-interpolate';
 
+export const NO_VALUE = 'No value';
+
 export abstract class AbstractDonut {
   public donutParams: DonutParams;
   public donutDimensions: DonutDimensions;
@@ -107,6 +109,20 @@ export abstract class AbstractDonut {
    * @description Transforms input data to d3 nodes
    */
   protected structureDataToNodes(): void {
+    const sumSize = this.donutParams.donutData.children.map(c => c.size).reduce((val, acc) => acc + val, 0);
+    if (this.donutParams.donutData.size && sumSize < this.donutParams.donutData.size) {
+      const fieldName = this.donutParams.donutData.children[0]?.fieldName;
+      this.donutParams.donutData.children.push({
+        id: fieldName + NO_VALUE.replace(' ', ''),
+        fieldName: fieldName,
+        fieldValue: NO_VALUE,
+        size: this.donutParams.donutData.size - sumSize,
+        metricValue: this.donutParams.donutData.size - sumSize,
+        isOther: true,
+        children: [],
+        color: '#ffffff'
+      });
+    }
     const root: HierarchyNode<TreeNode> = hierarchy(this.donutParams.donutData)
       .sum(d => {
         if (d.size !== undefined && d.size !== null) {
@@ -278,7 +294,8 @@ export abstract class AbstractDonut {
       if (donutOpacity > 1) {
         donutOpacity = this.donutParams.opacity / 100;
       }
-      this.donutContext.selectAll('path').style('opacity', donutOpacity).style('stroke-width', '0px');
+      this.donutContext.selectAll('path').style('opacity', donutOpacity).style('stroke-width', '0.5px');
+
       this.donutParams.donutNodes.forEach(node => {
         if (node.isSelected) {
           const nodeAncestors = node.ancestors().reverse();
@@ -290,8 +307,19 @@ export abstract class AbstractDonut {
         }
       });
     } else {
-      this.donutContext.selectAll('path').style('opacity', 1).style('stroke-width', '0px');
+      this.donutContext.selectAll('path').style('opacity', 1).style('stroke-width', '0.5px');
     }
+    this.styleNoValueNode();
+  }
+
+  /**
+   * @description Styles the 'No value' node
+   */
+  private styleNoValueNode() {
+    this.donutContext.selectAll<SVGElement, DonutNode>('path')
+      .filter((n) => n.data.fieldValue === NO_VALUE)
+      .style('stroke-dasharray', ('10,3'))
+      .style('stroke', '#000000');
   }
 
   /**
