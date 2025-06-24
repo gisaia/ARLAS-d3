@@ -368,20 +368,7 @@ export class HistogramUtils {
     } else {
       const roundedValue = this.roundValue(value, histogramParams, dateInterval);
       if (roundedValue instanceof Date) {
-        if (dateInterval !== undefined && dateInterval !== null && dateInterval > 0) {
-          if (histogramParams.useUtc) {
-            return utcFormat(this.getFormatFromDateInterval(dateInterval))(roundedValue);
-          } else {
-            return timeFormat(this.getFormatFromDateInterval(dateInterval))(roundedValue);
-          }
-        } else {
-          const formatDate = '%d/%m/%Y %H:%M';
-          if (histogramParams.useUtc) {
-            return utcFormat(formatDate)(roundedValue);
-          } else {
-            return timeFormat(formatDate)(roundedValue);
-          }
-        }
+        return HistogramUtils.toString(roundedValue, histogramParams, dateInterval);
       } else {
         return formatNumber(roundedValue, histogramParams.numberFormatChar);
       }
