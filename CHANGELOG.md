@@ -1,5 +1,7 @@
 # Change Log
 
+## [v12.0.2](https://github.com/gisaia/ARLAS-d3/tree/v12.0.2) (2025-06-24)
+
 ## [v12.0.1](https://github.com/gisaia/ARLAS-d3/tree/v12.0.1) (2025-04-28)
 
 ## [v12.1.0](https://github.com/gisaia/ARLAS-d3/tree/v12.1.0) (2025-04-28)
