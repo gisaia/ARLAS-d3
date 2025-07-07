@@ -115,6 +115,10 @@ export class DonutUtils {
 
   public static getNodeColor(d: DonutNode, donutNodeColorizer: ColorGenerator,
     keysToColors: Array<[string, string]>, colorsSaturationWeight: number): string {
+    if (d.data.color) {
+      return d.data.color;
+    }
+
     if (d.depth > 0) {
       if (donutNodeColorizer) {
         return donutNodeColorizer.getColor(d.data.fieldValue, keysToColors, colorsSaturationWeight);

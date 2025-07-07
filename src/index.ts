@@ -32,7 +32,7 @@ export {
   Position, SwimlaneMode, HistogramUtils, SwimlaneOptions, SwimlaneRepresentation, HistogramTooltip
 } from './histograms/utils/HistogramUtils';
 export { TreeNode, SimpleNode, DonutNode, DonutDimensions, DonutUtils, DonutTooltip, ARLASDonutTooltip } from './donuts/utils/DonutUtils';
-export { AbstractDonut } from './donuts/AbstractDonut';
+export { AbstractDonut, NO_VALUE } from './donuts/AbstractDonut';
 export { OneSelectionDonut } from './donuts/OneSelectionDonut';
 export { MultiSelectionDonut } from './donuts/MultiSelectionDonut';
 export { DonutParams } from './donuts/DonutParams';
