@@ -318,7 +318,8 @@ export abstract class AbstractDonut {
   private styleNoValueNode() {
     this.donutContext.selectAll<SVGElement, DonutNode>('path')
       .filter((n) => n.data.fieldValue === NO_VALUE)
-      .style('stroke-dasharray', ('10,3'))
+      .style('stroke-width', '0.25px')
+      .style('stroke-dasharray', ('10,5'))
       .style('stroke', '#000000');
   }
 
