@@ -63,6 +63,7 @@ export interface DonutNode extends HierarchyRectangularNode<TreeNode> {
 }
 
 export interface ARLASDonutTooltip {
+  title?: string;
   isShown?: boolean;
   isRightSide?: boolean;
   xPosition?: number;
