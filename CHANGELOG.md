@@ -1,6 +1,16 @@
 # Change Log
 
-## [v12.1.1](https://github.com/gisaia/ARLAS-d3/tree/v12.1.1) (2025-08-28)
+## [v12.2.0](https://github.com/gisaia/ARLAS-d3/tree/v12.2.0) (2025-09-08)
+
+**New stuff:**
+
+- \[Curve charts\] 2 successive valid buckets must be linked with a dashed line when they are separated by 1 or several invalid buckets [\#292](https://github.com/gisaia/ARLAS-d3/issues/292)
+
+## [v12.1.1](https://github.com/gisaia/ARLAS-d3/tree/v12.1.1) (2025-08-29)
+
+**New stuff:**
+
+- Add a title to the donut tooltip [\#291](https://github.com/gisaia/ARLAS-d3/issues/291)
 
 **Fixed bugs:**
 
