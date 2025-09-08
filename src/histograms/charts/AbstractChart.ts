@@ -603,7 +603,7 @@ export abstract class AbstractChart extends AbstractHistogram {
     const xy = pointer(event);
     const xDomainValue = +this.chartAxes.xDomain.invert(xy[0]);
     const dataInterval = this.histogramParams.bucketRange;
-    const hoveredBuckets = data.filter(b => +b.key <= xDomainValue && +b.key > xDomainValue - dataInterval);
+    const hoveredBuckets = data.filter(b => +b.key <= xDomainValue && +b.key > xDomainValue - dataInterval && HistogramUtils.isValueValid(b));
     const ys = [];
     let x;
     let xEndValue;
