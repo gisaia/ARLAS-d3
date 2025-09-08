@@ -16,15 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { curveLinear, CurveFactory, line, curveMonotoneX } from 'd3-shape';
-import { min, max } from 'd3-array';
+import { max, min } from 'd3-array';
+import { CurveFactory, curveLinear, curveMonotoneX, line, Line } from 'd3-shape';
 
+import { axisLeft, axisRight } from 'd3-axis';
+import { format } from 'd3-format';
+import { ScaleLinear, scaleLinear } from 'd3-scale';
+import { SelectionType } from '../HistogramParams';
 import { ChartAxes, HistogramData, HistogramUtils, tickNumberFormat } from '../utils/HistogramUtils';
 import { AbstractChart } from './AbstractChart';
-import { axisLeft, axisRight } from 'd3-axis';
-import { ScaleLinear, scaleLinear } from 'd3-scale';
-import { format } from 'd3-format';
-import { SelectionType } from '../HistogramParams';
 
 
 
@@ -35,7 +35,7 @@ export class ChartCurve extends AbstractChart {
         super.resize(histogramContainer);
         this.plot(this.histogramParams.histogramData);
         if (this.histogramParams.multiselectable) {
-          this.resizeSelectedIntervals(this.chartAxes);
+            this.resizeSelectedIntervals(this.chartAxes);
         }
     }
 
@@ -350,6 +350,56 @@ export class ChartCurve extends AbstractChart {
     }
 
 
+    /**
+     * Draws a curve linking the data array buckets.
+     * @param chartId Identifier of the chart.
+     * @param data Histogram bucket array. Buckets must be validated before.
+     * @param line D3 line generator to plot the curves
+     * @param dashed Whether the curves shall be dashed or solid
+     * @param fixedSelectionClipPath Clip path applied to the fixed selections.
+     * @param currentSelectionClipPath Clip path applied to the current selections.
+     */
+    private plotCurves(chartId: string, data: HistogramData[], line: Line<HistogramData>, dashed = false,
+        fixedSelectionClipPath: string, currentSelectionClipPath: string) {
+        const validData = data.filter(b => this.isValueValid(b));
+        this.context.append('g').attr('class', 'histogram__curve-data')
+            .append('path')
+            .datum(validData)
+            .attr('class', 'histogram__chart--unselected--curve')
+            .style('opacity', 1)
+            .attr('d', line)
+            .attr('stroke-dasharray', dashed ? '4 4' : null);
+        const fixedSelectionCurve = this.context.append('g').attr('class', 'histogram__curve-data')
+            .attr('clip-path', fixedSelectionClipPath)
+            .append('path')
+            .datum(validData)
+            .attr('class', 'histogram__chart--fixed-selected--curve')
+            .style('opacity', 1)
+            .attr('d', line)
+            .attr('stroke-dasharray', dashed ? '4 4' : null);
+        const currentSelectionCurve = this.context.append('g').attr('class', 'histogram__curve-data')
+            .attr('clip-path', currentSelectionClipPath)
+            .append('path')
+            .datum(validData)
+            .attr('class', 'histogram__chart--current-selected--curve')
+            .style('opacity', 1)
+            .attr('d', line)
+            .attr('stroke-dasharray', dashed ? '4 4' : null);
+
+        if (!!chartId && !!this.histogramParams.colorGenerator && !!this.histogramParams.colorGenerator.getColor(chartId)) {
+            fixedSelectionCurve.attr('stroke', this.histogramParams.colorGenerator.getColor(chartId))
+                .attr('stroke-width', chartId === this.histogramParams.mainChartId ? '2.3px' : '1.1px')
+                .attr('class', 'histogram__chart--fixed-selected--curve--without_color');
+            currentSelectionCurve.attr('stroke', this.histogramParams.colorGenerator.getColor(chartId))
+                .attr('stroke-width', chartId === this.histogramParams.mainChartId ? '2.3px' : '1.1px')
+                .attr('class', 'histogram__chart--current-selected--curve--without_color');
+        } else {
+            fixedSelectionCurve.attr('class', 'histogram__chart--fixed-selected--curve');
+            currentSelectionCurve.attr('class', 'histogram__chart--current-selected--curve');
+        }
+    }
+
+
     protected plotChart(data: Array<HistogramData>, domain?: ScaleLinear<number, number>, normalize?: boolean): void {
         const chartId = data[0].chartId;
         if (!domain) {
@@ -368,39 +418,24 @@ export class ChartCurve extends AbstractChart {
                 .curve(curveType)
                 .x(d => this.chartAxes.xDomain(+d.key))
                 .y(retrieveData);
+            const validData = data.filter(b => this.isValueValid(b));
+            /** Plots dashed curve linking valid buckets only */
+            this.plotCurves(chartId, validData, a, /** dashed */ true, urlFixedSelection, urlCurrentSelection);
+
+            this.context.append('g')
+                .attr('class', 'histogram__curve-data')
+                .selectAll('dot').data(validData).enter().append('circle')
+                .attr('r', 1.1)
+                .attr('cx', (d) => this.chartAxes.xDomain(+d.key))
+                .attr('cy', retrieveData)
+                .attr('class', 'histogram__chart--unselected--curve')
+                .style('opacity', 1);
+
             discontinuedData[0].forEach(part => {
-                this.context.append('g').attr('class', 'histogram__curve-data')
-                    .append('path')
-                    .datum(part)
-                    .attr('class', 'histogram__chart--unselected--curve')
-                    .style('opacity', 1)
-                    .attr('d', a);
-                const fixedSelectionCurve = this.context.append('g').attr('class', 'histogram__curve-data')
-                    .attr('clip-path', urlFixedSelection)
-                    .append('path')
-                    .datum(part)
-                    .attr('class', 'histogram__chart--fixed-selected--curve')
-                    .style('opacity', 1)
-                    .attr('d', a);
-                const currentSelectionCurve = this.context.append('g').attr('class', 'histogram__curve-data')
-                    .attr('clip-path', urlCurrentSelection)
-                    .append('path')
-                    .datum(part)
-                    .attr('class', 'histogram__chart--current-selected--curve')
-                    .style('opacity', 1)
-                    .attr('d', a);
-                if (!!chartId && !!this.histogramParams.colorGenerator && !!this.histogramParams.colorGenerator.getColor(chartId)) {
-                    fixedSelectionCurve.attr('stroke', this.histogramParams.colorGenerator.getColor(chartId))
-                        .attr('stroke-width', chartId === this.histogramParams.mainChartId ? '2.3px' : '1.1px')
-                        .attr('class', 'histogram__chart--fixed-selected--curve--without_color');
-                    currentSelectionCurve.attr('stroke', this.histogramParams.colorGenerator.getColor(chartId))
-                        .attr('stroke-width', chartId === this.histogramParams.mainChartId ? '2.3px' : '1.1px')
-                        .attr('class', 'histogram__chart--current-selected--curve--without_color');
-                } else {
-                    fixedSelectionCurve.attr('class', 'histogram__chart--fixed-selected--curve');
-                    currentSelectionCurve.attr('class', 'histogram__chart--current-selected--curve');
-                }
+                /** Plots solid curve linking valid buckets only */
+                this.plotCurves(chartId, part, a, /** dashed */ false, urlFixedSelection, urlCurrentSelection);
             });
+
         } else if (!!data && data.length === 1) {
             this.context.append('g')
                 .attr('class', 'histogram__curve-data')
@@ -408,27 +443,7 @@ export class ChartCurve extends AbstractChart {
                 .attr('r', chartId === this.histogramParams.mainChartId ? 2 : 4)
                 .attr('cx', (d) => this.chartAxes.xDomain(+d.key))
                 .attr('cy', retrieveData)
-                .attr('class', 'histogram__chart--unselected--curve')
-                .style('opacity', 1);
-            const fixedSelectionCurve = this.context.append('g')
-                .attr('class', 'histogram__curve-data').attr('clip-path', urlFixedSelection)
-                .selectAll('dot').data(data).enter().append('circle')
-                .attr('r', chartId === this.histogramParams.mainChartId ? 2 : 4)
-                .attr('cx', (d) => this.chartAxes.xDomain(+d.key))
-                .attr('cy', retrieveData)
-                .attr('class', 'histogram__chart--unselected--curve')
-                .style('fill', this.histogramParams.colorGenerator.getColor(chartId))
-                .style('stroke', this.histogramParams.colorGenerator.getColor(chartId))
-                .style('opacity', 1);
-            const currentSelectionCurve = this.context.append('g')
-                .attr('class', 'histogram__curve-data').attr('clip-path', urlCurrentSelection)
-                .selectAll('dot').data(data).enter().append('circle')
-                .attr('r', chartId === this.histogramParams.mainChartId ? 2 : 4)
-                .attr('cx', (d) => this.chartAxes.xDomain(+d.key))
-                .attr('cy', retrieveData)
-                .attr('class', 'histogram__chart--unselected--curve')
-                .style('fill', this.histogramParams.colorGenerator.getColor(chartId))
-                .style('stroke', this.histogramParams.colorGenerator.getColor(chartId))
+                .attr('class', 'histogram__chart--curve')
                 .style('opacity', 1);
         }
         this.addStrippedPattern('no-data-stripes', this.NO_DATA_STRIPES_PATTERN, this.NO_DATA_STRIPES_SIZE, 'histogram__no-data-stripes');
