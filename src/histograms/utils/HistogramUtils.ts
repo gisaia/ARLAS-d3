@@ -45,6 +45,11 @@ export interface MarginModel {
   left: number;
 }
 
+export interface BucketInterval {
+  value: number;
+  unit?: string;
+}
+
 export interface HistogramData {
   key: Date | number;
   value: number;
@@ -58,11 +63,7 @@ export interface HistogramTooltip {
   xStartValue?:  number | string | Date;
   xEndValue?:  number | string | Date;
   xRange?: { value: number; unit?: string;};
-  y?: {
-    value: number | string;
-    chartId?: string;
-    color?: string;
-  }[];
+  y?: HistogramTooltipYValue[];
   max?: number;
   min?: number;
   xUnit?: string;
@@ -73,6 +74,17 @@ export interface HistogramTooltip {
   xPosition?: number;
   yPosition?: number;
   chartWidth?: number;
+}
+
+/**
+ * Structure used to represent the y-value of a histogram tooltip
+ */
+export interface HistogramTooltipYValue {
+  value: number | string;
+  chartId?: string;
+  color?: string;
+  /** Additional info (percentage for swimlanes) */
+  additionalInfo?: string;
 }
 
 export interface BrushCornerTooltips {

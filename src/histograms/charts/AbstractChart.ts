@@ -120,12 +120,12 @@ export abstract class AbstractChart extends AbstractHistogram {
       // bucket.plot();
     });
     this.context
-      .on('mousemove', (event) => {
+      .on('mousemove', (event: MouseEvent) => {
         this.onHoverBucket(allBuckets, event);
         this.setTooltipPositions(dataBuckets, event, chartIsToSides);
       })
-      .on('mouseout', (event) => {
-        this.onLeaveBucket(allBuckets, event);
+      .on('mouseout', () => {
+        this.onLeaveBucket(allBuckets);
         this.histogramParams.tooltip.isShown = false;
       });
   }
@@ -140,11 +140,7 @@ export abstract class AbstractChart extends AbstractHistogram {
     this.bucketsContext.interact(hoveredBuckets.map(d => +d.key));
   }
 
-  private onLeaveBucket(data: Array<HistogramData>, event: MouseEvent) {
-    const xy = pointer(event);
-    const xDomainValue = +this.chartAxes.xDomain.invert(xy[0]);
-    const dataInterval = this.histogramParams.bucketRange;
-    const leftBuckets = data.filter(b => +b.key <= xDomainValue && +b.key > xDomainValue - dataInterval);
+  private onLeaveBucket(data: Array<HistogramData>) {
     this.bucketsContext.leaveAll(data.map(d => +d.key));
   }
 
@@ -628,32 +624,8 @@ export abstract class AbstractChart extends AbstractHistogram {
         this.drawTooltipCursor(hoveredBuckets, this.chartAxes, chartIsToSides);
       }
     });
-    if (hoveredBuckets.length > 0) {
-      this.histogramParams.tooltipEvent.next(
-        {
-          xStartValue: xStartValue,
-          xEndValue: xEndValue,
-          xRange: this.histogramParams.bucketInterval,
-          dataType: (this.histogramParams.dataType === DataType.time ? 'time' : 'numeric'),
-          y: ys,
-          shown: true,
-          xPosition: xy[0] + this.chartDimensions.margin.left,
-          yPosition: xy[1],
-          chartWidth: this.chartDimensions.width + this.chartDimensions.margin.left + this.chartDimensions.margin.right
-        }
-      );
-    } else {
-      this.clearTooltipCursor();
-      this.histogramParams.tooltipEvent.next(
-        {
-          y: ys,
-          shown: false,
-          xPosition: xy[0] + this.chartDimensions.margin.left,
-          yPosition: xy[1],
-          chartWidth: this.chartDimensions.width + this.chartDimensions.margin.left + this.chartDimensions.margin.right
-        }
-      );
-    }
+
+    this.emitTooltip(hoveredBuckets.length > 0, xy, xStartValue, xEndValue, ys);
   }
 
   protected getIntervalMiddlePositon(chartAxes: ChartAxes, startvalue: number, endvalue: number): number {
@@ -702,81 +674,6 @@ export abstract class AbstractChart extends AbstractHistogram {
 
   protected getDataInterval(data: Array<HistogramData>): number {
     return this.getHistogramDataInterval(data);
-  }
-
-  protected getbucketInterval(bucketInterval: number, dataType: DataType): {
-    value: number;
-    unit?: string;
-  } {
-    if (dataType === DataType.time) {
-      const D_2_MS = 86400000;
-      const M_2_MS = 30 * D_2_MS;
-      const Y_2_MS = 12 * M_2_MS;
-      const H_2_MS = 3600000;
-      const timestampToInterval = new Map<number, { value: number; unit: string; }>();
-      /** seconds */
-      timestampToInterval.set(1000, { value: 1, unit: 'second' });
-      timestampToInterval.set(2000, { value: 2, unit: 'seconds' });
-      timestampToInterval.set(5000, { value: 5, unit: 'seconds' });
-      timestampToInterval.set(10000, { value: 10, unit: 'seconds' });
-      timestampToInterval.set(30000, { value: 30, unit: 'seconds' });
-      /** minutes */
-      timestampToInterval.set(60000, { value: 1, unit: 'minute' });
-      timestampToInterval.set(120000, { value: 2, unit: 'minutes' });
-      timestampToInterval.set(300000, { value: 5, unit: 'minutes' });
-      timestampToInterval.set(600000, { value: 10, unit: 'minutes' });
-      timestampToInterval.set(900000, { value: 15, unit: 'minutes' });
-      timestampToInterval.set(1800000, { value: 30, unit: 'minutes' });
-      /** hours */
-      timestampToInterval.set(H_2_MS, { value: 1, unit: 'hour' });
-      timestampToInterval.set(2 * H_2_MS, { value: 2, unit: 'hours' });
-      timestampToInterval.set(3 * H_2_MS, { value: 3, unit: 'hours' });
-      timestampToInterval.set(6 * H_2_MS, { value: 6, unit: 'hours' });
-      timestampToInterval.set(12 * H_2_MS, { value: 12, unit: 'hours' });
-      /** days */
-      timestampToInterval.set(D_2_MS, { value: 1, unit: 'day' });
-      timestampToInterval.set(2 * D_2_MS, { value: 2, unit: 'days' });
-      timestampToInterval.set(7 * D_2_MS, { value: 1, unit: 'week' });
-      timestampToInterval.set(10 * D_2_MS, { value: 10, unit: 'days' });
-      timestampToInterval.set(14 * D_2_MS, { value: 2, unit: 'weeks' });
-      timestampToInterval.set(15 * D_2_MS, { value: 15, unit: 'days' });
-      /** months */
-      timestampToInterval.set(M_2_MS, { value: 30, unit: 'days (~ 1 month)' });
-      timestampToInterval.set(2 * M_2_MS, { value: 60, unit: 'days (~ 2 months)' });
-      timestampToInterval.set(3 * M_2_MS, { value: 90, unit: 'days (~ 3 months)' });
-      timestampToInterval.set(4 * M_2_MS, { value: 120, unit: 'days (~ 4 months)' });
-      timestampToInterval.set(6 * M_2_MS, { value: 180, unit: 'days (~ 6 months)' });
-      /** years 1, 2, 5, 10*/
-      timestampToInterval.set(Y_2_MS, { value: 365, unit: 'days (~ 1 year)' });
-      timestampToInterval.set(2 * Y_2_MS, { value: 730, unit: 'days (~ 2 years)' });
-      timestampToInterval.set(5 * Y_2_MS, { value: 1825, unit: 'days (~ 5 years)' });
-      timestampToInterval.set(10 * Y_2_MS, { value: 3650, unit: 'days (~ 10 years)' });
-      const allIntervals = Array.from(timestampToInterval.keys()).map(i => +i).sort((a, b) => a - b);
-      let value = allIntervals[0];
-      for (let i = 0; i < allIntervals.length; i++) {
-        if (i < allIntervals.length - 1) {
-          const current = allIntervals[i];
-          const next = allIntervals[i + 1];
-          if (bucketInterval >= current && bucketInterval < next) {
-            const leftDistance = Math.abs(bucketInterval - current);
-            const rightDistance = Math.abs(bucketInterval - next);
-            if (leftDistance < rightDistance) {
-              value = current;
-            } else {
-              value = next;
-            }
-            break;
-          }
-        } else {
-          value = allIntervals[i];
-        }
-      }
-      return timestampToInterval.get(value);
-    } else {
-      const histogramParams = Object.assign({}, this.histogramParams);
-      histogramParams.numberFormatChar = '';
-      return { value: +HistogramUtils.toString(bucketInterval, histogramParams, bucketInterval) };
-    }
   }
 
   protected getAxes() {

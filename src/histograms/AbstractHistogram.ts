@@ -23,10 +23,12 @@ import { BucketsVirtualContext } from './buckets/buckets';
 import { HistogramParams } from './HistogramParams';
 import {
   BrushCornerTooltips,
+  BucketInterval,
   ChartAxes,
   ChartDimensions,
   DataType, HistogramData,
   HistogramSVGG,
+  HistogramTooltipYValue,
   HistogramUtils,
   isChartAxes,
   Position,
@@ -415,6 +417,107 @@ export abstract class AbstractHistogram {
       interval = 0;
     }
     return interval;
+  }
+
+  protected getbucketInterval(bucketInterval: number, dataType: DataType): BucketInterval {
+    if (dataType === DataType.time) {
+      const D_2_MS = 86400000;
+      const M_2_MS = 30 * D_2_MS;
+      const Y_2_MS = 12 * M_2_MS;
+      const H_2_MS = 3600000;
+      const timestampToInterval = new Map<number, { value: number; unit: string; }>();
+      /** seconds */
+      timestampToInterval.set(1000, { value: 1, unit: 'second' });
+      timestampToInterval.set(2000, { value: 2, unit: 'seconds' });
+      timestampToInterval.set(5000, { value: 5, unit: 'seconds' });
+      timestampToInterval.set(10000, { value: 10, unit: 'seconds' });
+      timestampToInterval.set(30000, { value: 30, unit: 'seconds' });
+      /** minutes */
+      timestampToInterval.set(60000, { value: 1, unit: 'minute' });
+      timestampToInterval.set(120000, { value: 2, unit: 'minutes' });
+      timestampToInterval.set(300000, { value: 5, unit: 'minutes' });
+      timestampToInterval.set(600000, { value: 10, unit: 'minutes' });
+      timestampToInterval.set(900000, { value: 15, unit: 'minutes' });
+      timestampToInterval.set(1800000, { value: 30, unit: 'minutes' });
+      /** hours */
+      timestampToInterval.set(H_2_MS, { value: 1, unit: 'hour' });
+      timestampToInterval.set(2 * H_2_MS, { value: 2, unit: 'hours' });
+      timestampToInterval.set(3 * H_2_MS, { value: 3, unit: 'hours' });
+      timestampToInterval.set(6 * H_2_MS, { value: 6, unit: 'hours' });
+      timestampToInterval.set(12 * H_2_MS, { value: 12, unit: 'hours' });
+      /** days */
+      timestampToInterval.set(D_2_MS, { value: 1, unit: 'day' });
+      timestampToInterval.set(2 * D_2_MS, { value: 2, unit: 'days' });
+      timestampToInterval.set(7 * D_2_MS, { value: 1, unit: 'week' });
+      timestampToInterval.set(10 * D_2_MS, { value: 10, unit: 'days' });
+      timestampToInterval.set(14 * D_2_MS, { value: 2, unit: 'weeks' });
+      timestampToInterval.set(15 * D_2_MS, { value: 15, unit: 'days' });
+      /** months */
+      timestampToInterval.set(M_2_MS, { value: 30, unit: 'days (~ 1 month)' });
+      timestampToInterval.set(2 * M_2_MS, { value: 60, unit: 'days (~ 2 months)' });
+      timestampToInterval.set(3 * M_2_MS, { value: 90, unit: 'days (~ 3 months)' });
+      timestampToInterval.set(4 * M_2_MS, { value: 120, unit: 'days (~ 4 months)' });
+      timestampToInterval.set(6 * M_2_MS, { value: 180, unit: 'days (~ 6 months)' });
+      /** years 1, 2, 5, 10*/
+      timestampToInterval.set(Y_2_MS, { value: 365, unit: 'days (~ 1 year)' });
+      timestampToInterval.set(2 * Y_2_MS, { value: 730, unit: 'days (~ 2 years)' });
+      timestampToInterval.set(5 * Y_2_MS, { value: 1825, unit: 'days (~ 5 years)' });
+      timestampToInterval.set(10 * Y_2_MS, { value: 3650, unit: 'days (~ 10 years)' });
+      const allIntervals = Array.from(timestampToInterval.keys()).map(i => +i).sort((a, b) => a - b);
+      let value = allIntervals[0];
+      for (let i = 0; i < allIntervals.length; i++) {
+        if (i < allIntervals.length - 1) {
+          const current = allIntervals[i];
+          const next = allIntervals[i + 1];
+          if (bucketInterval >= current && bucketInterval < next) {
+            const leftDistance = Math.abs(bucketInterval - current);
+            const rightDistance = Math.abs(bucketInterval - next);
+            if (leftDistance < rightDistance) {
+              value = current;
+            } else {
+              value = next;
+            }
+            break;
+          }
+        } else {
+          value = allIntervals[i];
+        }
+      }
+      return timestampToInterval.get(value);
+    } else {
+      const histogramParams = Object.assign({}, this.histogramParams);
+      histogramParams.numberFormatChar = '';
+      return { value: +HistogramUtils.toString(bucketInterval, histogramParams, bucketInterval) };
+    }
+  }
+
+  protected emitTooltip(display: boolean, xy: [number, number], xStartValue: string, xEndValue: string, ys: HistogramTooltipYValue[]) {
+    if (display) {
+      this.histogramParams.tooltipEvent.next(
+        {
+          xStartValue: xStartValue,
+          xEndValue: xEndValue,
+          xRange: this.histogramParams.bucketInterval,
+          dataType: (this.histogramParams.dataType === DataType.time ? 'time' : 'numeric'),
+          y: ys,
+          shown: true,
+          xPosition: xy[0] + this.chartDimensions.margin.left,
+          yPosition: xy[1],
+          chartWidth: this.chartDimensions.width + this.chartDimensions.margin.left + this.chartDimensions.margin.right
+        }
+      );
+    } else {
+      this.clearTooltipCursor();
+      this.histogramParams.tooltipEvent.next(
+        {
+          y: ys,
+          shown: false,
+          xPosition: xy[0] + this.chartDimensions.margin.left,
+          yPosition: xy[1],
+          chartWidth: this.chartDimensions.width + this.chartDimensions.margin.left + this.chartDimensions.margin.right
+        }
+      );
+    }
   }
 
   protected abstract setDataInterval(data: Array<HistogramData> | Map<string, Array<HistogramData>>): void;

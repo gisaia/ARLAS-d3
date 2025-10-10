@@ -24,7 +24,8 @@ import {
   HistogramData,
   SwimlaneRepresentation,
   SwimlaneOptions,
-  HistogramTooltip
+  HistogramTooltip,
+  BucketInterval
 } from './utils/HistogramUtils';
 import { Subject } from 'rxjs';
 import { ColorGenerator } from '../utils/color-generator';
@@ -46,10 +47,7 @@ export class HistogramParams {
   public chartType: ChartType = ChartType.area;
   public moveDataByHalfInterval = false;
   public bucketRange: number;
-  public bucketInterval: {
-    value: number;
-    unit?: string;
-  };
+  public bucketInterval: BucketInterval;
 
   /** Dimensions */
   public chartWidth: number = null;
@@ -115,11 +113,10 @@ export class HistogramParams {
 
   // ########################## Outputs ##########################
 
-  public valuesListChangedEvent: Subject<SelectedOutputValues[]> = new Subject<SelectedOutputValues[]>();
-  public hoveredBucketEvent: Subject<XBucket> = new Subject<XBucket>();
+  public valuesListChangedEvent = new Subject<SelectedOutputValues[]>();
+  public hoveredBucketEvent = new Subject<XBucket>();
   public selectedSwimlanesEvent = new Subject<Set<string>>();
-  public tooltipEvent: Subject<HistogramTooltip> = new Subject();
-  public tooltipsEvent: Subject<HistogramTooltip[]> = new Subject();
+  public tooltipEvent = new Subject<HistogramTooltip>();
 
   // ########################## Parameter binded with HTML ##########################
 
@@ -137,13 +134,10 @@ export class HistogramParams {
   public endValue: string = null;
   public showTitle = true;
 
-  public intervalSelectedMap: Map<string, { values: SelectedOutputValues; x_position: number; }>
-    = new Map<string, { values: SelectedOutputValues; x_position: number; }>();
+  public intervalSelectedMap = new Map<string, { values: SelectedOutputValues; x_position: number; }>();
   public selectionListIntervalId: string[] = [];
 
   public swimlaneDataDomain: Array<{ key: number; value: number; }>;
-  public swimlaneXTooltip: Tooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
-  public swimlaneTooltipsMap = new Map<string, Tooltip>();
 
   // ######################### Parameters set in the component ########################
   public hasDataChanged = false;
