@@ -371,6 +371,9 @@ swimlane.selectionInterval = {
 swimlane.histogramParams.swimlaneData = defaultSwimlaneData;
 swimlane.plot(defaultSwimlaneData);
 swimlane.resize(document.getElementById('containerSwimlane'));
+swimlane.histogramParams.tooltipEvent.subscribe(tooltip => {
+  console.log(tooltip);
+});
 
 /** Donut */
 

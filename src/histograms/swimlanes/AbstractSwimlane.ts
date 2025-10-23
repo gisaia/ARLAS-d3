@@ -362,7 +362,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
 
     hoveredBuckets.forEach(hb => {
       if (HistogramUtils.isValueValid(hb)) {
-        let color: string, additionalInfo: string;
+        let color: string, swimlaneBucketPercentage: string;
         if (!!hb.chartId && !!this.histogramParams.colorGenerator) {
           color = this.histogramParams.colorGenerator.getColor(hb.chartId);
         }
@@ -374,14 +374,14 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
         if (representation === SwimlaneRepresentation.column) {
           const sum = swimlaneStats.columnStats.get(+hb.key).sum;
           const percentage = (sum > 0) ? 100 * Math.round(hb.value / sum * 1000) / 1000 : 0;
-          additionalInfo = ' - ' + percentage + '%';
+          swimlaneBucketPercentage = ' - ' + percentage + '%';
         }
 
         ys.push({
           value: formatNumber(hb.value, this.histogramParams.numberFormatChar),
           chartId: hb.chartId,
           color,
-          additionalInfo
+          swimlaneBucketPercentage
         });
       }
     });

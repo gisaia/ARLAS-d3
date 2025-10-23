@@ -83,8 +83,8 @@ export interface HistogramTooltipYValue {
   value: number | string;
   chartId?: string;
   color?: string;
-  /** Additional info (percentage for swimlanes) */
-  additionalInfo?: string;
+  /** When normalizing per column, indicates the percentage that the value represents */
+  swimlaneBucketPercentage?: string;
 }
 
 export interface BrushCornerTooltips {
