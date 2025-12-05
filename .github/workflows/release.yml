@@ -19,6 +19,9 @@ on:
         description: Iteration of the release (needed for beta and rc)
         required: false
 
+permissions:
+  id-token: write
+  contents: write
 
 jobs:
   release:
@@ -38,7 +41,6 @@ jobs:
       env:
         # secrets are defined here : https://github.com/organizations/gisaia/settings/secrets/actions
         NPM_EMAIL: ${{ secrets.NPM_EMAIL }}
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
         GITHUB_CHANGELOG_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GOOGLE_CHAT_RELEASE_CHANEL: ${{ secrets.GOOGLE_CHAT_RELEASE_CHANEL }}
       run: |
