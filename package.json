@@ -41,7 +41,7 @@
     "d3-time-format": "^4.1.0",
     "d3-transition": "^3.0.1",
     "moment": "^2.29.4",
-    "patch-package": "^6.4.7",
+    "patch-package": "^8.0.1",
     "rxjs": "^7.4.0",
     "tinycolor2": "~1.6.0"
   },
