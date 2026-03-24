@@ -26,10 +26,12 @@
         "src/index.ts"
     ],
     "include": [
-        "src/**/*"
+        "src/**/*",
+        "eslint.config.mjs"
     ],
     "exclude": [
         "node_modules",
-        "dist"
+        "dist",
+        "eslint.config.mjs"
     ]
 }

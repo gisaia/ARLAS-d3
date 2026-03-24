@@ -1,6 +1,6 @@
 {
   "name": "arlas-d3",
-  "version": "12.3.0-dev0",
+  "version": "12.4.0-dev0",
   "description": "D3 components library for ARLAS Web App",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -46,19 +46,23 @@
     "tinycolor2": "~1.6.0"
   },
   "devDependencies": {
-    "@types/node": "^18.19.1",
-    "@typescript-eslint/eslint-plugin": "^7.2.0",
-    "@typescript-eslint/parser": "^7.2.0",
-    "eslint": "^8.57.0",
+    "@stylistic/eslint-plugin": "^5.6.1",
+    "@types/node": "^24.10.1",
+    "@typescript-eslint/eslint-plugin": "^8.48.1",
+    "@typescript-eslint/parser": "^8.48.1",
+    "eslint": "^9.39.1",
+    "globals": "^16.5.0",
     "license-check-and-add": "^4.0.5",
-    "node": "^18.19.1",
-    "typescript": "~5.4.0"
+    "node": "^24.10.1",
+    "typescript": "~5.8.0"
   },
   "bugs": {
     "url": "https://github.com/gisaia/ARLAS-d3/issues"
   },
   "homepage": "https://github.com/gisaia/ARLAS-d3",
   "overrides": {
-    "cross-spawn": "~7.0.5"
+    "license-check-and-add": {
+      "globby": "^11.0.0"
+    }
   }
 }
