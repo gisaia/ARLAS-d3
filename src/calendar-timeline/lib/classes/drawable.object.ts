@@ -27,12 +27,11 @@ export class DrawableObject {
     protected context: Selection<SVGGElement, TimelineData, BaseType, TimelineData>;
     protected dimensions: Dimensions;
 
-    private name: string;
+    private readonly name: string;
 
     public constructor(context: Selection<SVGGElement, TimelineData, BaseType, TimelineData>, name: string) {
         this.context = context;
         this.name = name;
-        /** Listen to events */
     }
 
     public plot() {
@@ -43,13 +42,13 @@ export class DrawableObject {
     }
 
     public remove() {
-        if (!!this.element) {
+        if (this.element) {
             this.element.remove();
             this.element = null;
         }
     }
 
-    public setDimensions(dimensions: Dimensions): DrawableObject {
+    public setDimensions(dimensions: Dimensions): this {
         if (!dimensions.equals(this.dimensions)) {
             // todo : redraw
         }

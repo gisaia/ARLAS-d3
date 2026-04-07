@@ -18,16 +18,16 @@
  */
 
 import { BrushBehavior, BrushSelection, brushX } from 'd3-brush';
-import { HistogramData, HistogramSVGG } from 'histograms/utils/HistogramUtils';
+import { HistogramData, HistogramSVGG } from '../utils/HistogramUtils';
 import { Brush } from './brush';
 
 export class SliderBrush extends Brush {
 
     public handleRadius: number;
     public lineContext: HistogramSVGG;
-    private strokeWidth = 1.5;
+    private readonly strokeWidth = 1.5;
 
-    public setHandleRadius(handleRadius): SliderBrush {
+    public setHandleRadius(handleRadius): this {
         this.handleRadius = handleRadius;
         return this;
     }
@@ -58,7 +58,7 @@ export class SliderBrush extends Brush {
         return this.extent;
     }
 
-    public move([start, end]: number[]): Brush {
+    public move([start, end]: number[]): this {
         return super.move([start, end]);
     }
 

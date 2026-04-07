@@ -30,17 +30,17 @@ export class Dimensions {
         this.margins = new Margins();
     }
 
-    public setWidth(width: number): Dimensions {
+    public setWidth(width: number): this {
         this.width = width;
         return this;
     }
 
-    public setHeight(height: number): Dimensions {
+    public setHeight(height: number): this {
         this.height = height;
         return this;
     }
 
-    public setMargins(margins: Margins): Dimensions {
+    public setMargins(margins: Margins): this {
         this.margins = margins;
         return this;
     }

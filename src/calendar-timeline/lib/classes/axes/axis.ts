@@ -44,7 +44,7 @@ export class Axis extends DrawableObject {
         this.textFontSize = 12;
     }
 
-    public setRange(d: Dimensions): Axis {
+    public setRange(d: Dimensions): this {
         this.domain = this.domain.range([0, d.width]);
         return this;
     }
@@ -53,7 +53,7 @@ export class Axis extends DrawableObject {
      * Set the dates of the axis bounds
      * @param dates start and end dates
      */
-    public setBoundDates(dates: Date[]): Axis {
+    public setBoundDates(dates: Date[]): this {
         this.domain = this.domain.domain(dates);
         return this;
     }
@@ -73,12 +73,12 @@ export class Axis extends DrawableObject {
         return this;
     }
 
-    public setAxisYOffset(axisYOffset: number): Axis {
+    public setAxisYOffset(axisYOffset: number): this {
         this.axisYOffset = axisYOffset;
         return this;
     }
 
-    public setTextFontSize(textFontSize: number): Axis {
+    public setTextFontSize(textFontSize: number): this {
         this.textFontSize = textFontSize;
         return this;
     }
@@ -103,7 +103,7 @@ export class Axis extends DrawableObject {
     }
 
     public getIntervalWidth(d: Date): number {
-        return NaN;
+        return Number.NaN;
     }
 
     public getPosition(d: Date): number {

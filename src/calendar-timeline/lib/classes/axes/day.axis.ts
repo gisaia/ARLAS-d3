@@ -20,7 +20,7 @@ import { Axis } from './axis';
 import { timeDay } from 'd3-time';
 
 export class DayAxis extends Axis {
-    private DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
+    private readonly DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
 
     public constructor(context) {
         super(context, DayAxis.name.toString());
@@ -39,7 +39,7 @@ export class DayAxis extends Axis {
         return this;
     }
 
-    public setBoundDates(dates: Date[]): Axis {
+    public setBoundDates(dates: Date[]): this {
         super.setBoundDates(dates);
         const itw = this.domain(this.DAY_IN_MILLISECONDS) - this.domain(0);
         this.setTickInterval(timeDay).setTickIntervalWidth(itw);

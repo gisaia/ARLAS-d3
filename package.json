@@ -6,7 +6,7 @@
   "typings": "dist/index.d.ts",
   "scripts": {
     "build-dev": "tsc -p tsconfig.json --watch && cp -r src/styles dist/ && cp -r patches dist/",
-    "build-release": "tsc -p tsconfig.json && cp -r src/styles dist/ && cp -r patches dist/",
+    "build-release": "tsc -p tsconfig.json && tsc-alias && cp -r src/styles dist/ && cp -r patches dist/",
     "lint": "eslint . --ext .ts",
     "postinstall": "patch-package",
     "license-check": "license-check-and-add check -f license-check-and-add.json"
@@ -54,6 +54,7 @@
     "license-check-and-add": "^4.0.5",
     "node": "^24.10.1",
     "patch-package": "^6.4.7",
+    "tsc-alias": "^1.8.16",
     "typescript": "~5.9.3"
   },
   "bugs": {

@@ -18,7 +18,7 @@
  */
 
 import { BrushBehavior, BrushSelection, brushX } from 'd3-brush';
-import { HistogramData } from 'histograms/utils/HistogramUtils';
+import { HistogramData } from '../utils/HistogramUtils';
 import { Brush } from './brush';
 
 export class RectangleBrush extends Brush {
@@ -26,7 +26,7 @@ export class RectangleBrush extends Brush {
     public handleHeight: number;
     public handleWidth = 2.5;
 
-    public setHandleHeight(handleHeightWeight): RectangleBrush {
+    public setHandleHeight(handleHeightWeight: number): this {
         if (handleHeightWeight <= 1 && handleHeightWeight > 0) {
             this.handleHeight = this.dimensions.height * handleHeightWeight;
         } else {
