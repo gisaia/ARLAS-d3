@@ -30,6 +30,7 @@ import {
   HistogramUtils,
   isChartAxes,
   Position,
+  positionToNumber,
   SelectedOutputValues,
   SwimlaneAxes,
   SwimlaneData
@@ -231,8 +232,9 @@ export abstract class AbstractHistogram {
   protected clearTooltipCursor(): void { }
 
   protected drawChartAxes(chartAxes: ChartAxes | SwimlaneAxes, leftOffset: number): void {
-    const marginTopBottom = this.chartDimensions.margin.top * this.histogramParams.xAxisPosition +
-      this.chartDimensions.margin.bottom * (1 - this.histogramParams.xAxisPosition);
+    const xAxisPosition = positionToNumber(this.histogramParams.xAxisPosition);
+    const marginTopBottom = this.chartDimensions.margin.top * xAxisPosition +
+      this.chartDimensions.margin.bottom * (1 - xAxisPosition);
     this.context = this.chartDimensions.svg.append('g')
       .attr('class', 'context')
       .attr('transform', 'translate(' + this.chartDimensions.margin.left + ',' + marginTopBottom + ')');
@@ -249,7 +251,7 @@ export abstract class AbstractHistogram {
       .call(chartAxes.xAxis);
     this.xTicksAxis = this.allAxesContext.append('g')
       .attr('class', 'histogram__ticks-axis')
-      .attr('transform', 'translate(' + (leftOffset - 1) + ',' + this.chartDimensions.height * this.histogramParams.xAxisPosition + ')')
+      .attr('transform', 'translate(' + (leftOffset - 1) + ',' + this.chartDimensions.height * xAxisPosition + ')')
       .call(chartAxes.xTicksAxis);
     this.xLabelsAxis =  this.createXLabelAxis(this.allAxesContext,chartAxes.xLabelsAxis, leftOffset );
     this.xTicksAxis.selectAll('path').attr('class', 'histogram__axis');
@@ -264,10 +266,11 @@ export abstract class AbstractHistogram {
     }
   }
 
-  public createXLabelAxis(svgNode: HistogramSVGG, xLabelsAxis, leftOffset: number){
+  public createXLabelAxis(svgNode: HistogramSVGG, xLabelsAxis, leftOffset: number) {
+    const xAxisPosition = positionToNumber(this.histogramParams.xAxisPosition);
     return svgNode.append('g')
         .attr('class', 'histogram__labels-axis')
-        .attr('transform', 'translate(' + (leftOffset - 1) + ',' + this.chartDimensions.height * this.histogramParams.xAxisPosition + ')')
+        .attr('transform', 'translate(' + (leftOffset - 1) + ',' + this.chartDimensions.height * xAxisPosition + ')')
         .call(xLabelsAxis);
   }
 

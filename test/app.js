@@ -115,7 +115,7 @@ for (let i=0; i<10; i++) {
 }
 
 const histogramBars = new ChartBars();
-// displayHistogram(histogramBars, 'containerBars', defaultHistogramData);
+displayHistogram(histogramBars, 'containerBars', defaultHistogramData);
 const histogramCurve = new ChartCurve();
 displayHistogram(histogramCurve, 'containerCurve', defaultHistogramData, true);
 const histogramArea = new ChartArea();
