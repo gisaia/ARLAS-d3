@@ -23,7 +23,7 @@ import { NumberValue } from 'd3-scale';
 import { Dimensions } from '../dimensions/dimensions';
 
 export class YearIndicatorAxis extends Axis {
-    private YEAR_IN_MILLISECONDS = 365 * 24 * 60 * 60 * 1000;
+    private readonly YEAR_IN_MILLISECONDS = 365 * 24 * 60 * 60 * 1000;
 
     public constructor(context) {
         super(context, YearIndicatorAxis.name.toString());
@@ -130,7 +130,7 @@ export class YearIndicatorAxis extends Axis {
         return this.domain(nextYear) - this.domain(d);
     }
 
-    public setBoundDates(dates: Date[]): Axis {
+    public setBoundDates(dates: Date[]): this {
         super.setBoundDates(dates);
 
         const itw = this.domain(this.YEAR_IN_MILLISECONDS) - this.domain(0);

@@ -22,17 +22,17 @@ export class Margins {
     public left = 0;
     public right = 0;
 
-    public setTop(top: number): Margins {
+    public setTop(top: number): this {
         this.top = top;
         return this;
     }
 
-    public setBottom(bottom: number): Margins {
+    public setBottom(bottom: number): this {
         this.bottom = bottom;
         return this;
     }
 
-    public setLeft(left: number): Margins {
+    public setLeft(left: number): this {
         this.left = left;
         return this;
     }
@@ -45,7 +45,7 @@ export class Margins {
             && m.right === this.right;
     }
 
-    public setRight(right: number): Margins {
+    public setRight(right: number): this {
         this.right = right;
         return this;
     }

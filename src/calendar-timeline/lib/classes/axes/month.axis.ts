@@ -21,7 +21,7 @@ import { timeMonth } from 'd3-time';
 import { NumberValue } from 'd3-scale';
 
 export class MonthAxis extends Axis {
-    private MONTH_IN_MILLISECONDS = 30 * 24 * 60 * 60 * 1000;
+    private readonly MONTH_IN_MILLISECONDS = 30 * 24 * 60 * 60 * 1000;
 
     public constructor(context) {
         super(context, MonthAxis.name.toString());
@@ -59,7 +59,7 @@ export class MonthAxis extends Axis {
     }
 
 
-    public setBoundDates(dates: Date[]): Axis {
+    public setBoundDates(dates: Date[]): this {
         super.setBoundDates(dates);
         const itw = this.domain(this.MONTH_IN_MILLISECONDS) - this.domain(0);
         this.setTickIntervalWidth(itw);

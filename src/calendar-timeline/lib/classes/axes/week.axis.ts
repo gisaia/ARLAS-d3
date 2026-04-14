@@ -20,8 +20,6 @@ import { Axis } from './axis';
 import { timeWeek } from 'd3-time';
 
 export class WeekAxis extends Axis {
-    private WEEK_IN_MILLISECONDS = 7 * 24 * 60 * 60 * 1000;
-
     public constructor(context) {
         super(context, WeekAxis.name.toString());
         this.setTickSize(45);
@@ -35,9 +33,7 @@ export class WeekAxis extends Axis {
 
     }
 
-
-
-    public setBoundDates(dates: Date[]): Axis {
+    public setBoundDates(dates: Date[]): this {
         super.setBoundDates(dates);
         this.setTickInterval(timeWeek);
         return this;

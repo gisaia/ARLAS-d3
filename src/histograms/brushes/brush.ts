@@ -44,7 +44,7 @@ export abstract class Brush {
     public abstract getExtent(): BrushBehavior<HistogramData>;
 
 
-    public plot(): Brush {
+    public plot(): this {
         this.brushContext = this.context.append('g')
             .attr('class', this.getCssName())
             .style('pointer-events', 'visible')
@@ -56,7 +56,7 @@ export abstract class Brush {
         return this;
     }
 
-    public move([start, end]: number[]): Brush {
+    public move([start, end]: number[]): this {
         if (this.checkSelectionNotNaN([start, end])) {
             this.brushContext.call(this.extent.move, [start, end]);
         }
@@ -92,9 +92,9 @@ export abstract class Brush {
 
     private checkIfNaN(v: number | [number, number]): boolean {
         if (typeof v === 'number') {
-            return isNaN(v);
+            return Number.isNaN(v);
         } else {
-            return isNaN(v[0]) || isNaN(v[1]);
+            return Number.isNaN(v[0]) || Number.isNaN(v[1]);
         }
     }
 }

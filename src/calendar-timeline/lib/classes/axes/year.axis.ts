@@ -20,7 +20,7 @@ import { Axis } from './axis';
 import { timeYear } from 'd3-time';
 
 export class YearAxis extends Axis {
-    private YEAR_IN_MILLISECONDS = 365 * 24 * 60 * 60 * 1000;
+    private readonly YEAR_IN_MILLISECONDS = 365 * 24 * 60 * 60 * 1000;
 
     public constructor(context) {
         super(context, YearAxis.name.toString());
@@ -44,7 +44,7 @@ export class YearAxis extends Axis {
         return this.domain(nextYear) - this.domain(d);
     }
 
-    public setBoundDates(dates: Date[]): Axis {
+    public setBoundDates(dates: Date[]): this {
         super.setBoundDates(dates);
         const itw = this.domain(this.YEAR_IN_MILLISECONDS) - this.domain(0);
         this.setTickInterval(timeYear).setTickIntervalWidth(itw);

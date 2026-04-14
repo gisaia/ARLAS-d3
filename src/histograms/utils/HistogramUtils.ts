@@ -524,22 +524,35 @@ export function roundToNearestMultiple(i, multiple) {
 }
 
 export enum SwimlaneMode {
-  variableHeight, fixedHeight, circles
+  variableHeight = 'variableHeight',
+  fixedHeight = 'fixedHeight',
+  circles = 'circles'
 }
 
 export enum SwimlaneRepresentation {
-  column, global
+  column = 'column',
+  global = 'global'
 }
 export enum DataType {
-  numeric, time
+  numeric = 'numeric',
+  time = 'time'
 }
 
 export enum ChartType {
-  area, bars, oneDimension, swimlane, curve
+  area = 'area',
+  bars = 'bars',
+  oneDimension = 'oneDimension',
+  swimlane = 'swimlane',
+  curve = 'curve'
 }
 
 export enum Position {
-  top, bottom
+  top = 'top',
+  bottom = 'bottom'
+}
+
+export function positionToNumber(position: Position) {
+  return position === Position.top ? 0 : 1;
 }
 
 export function formatNumber(x, formatChar = ' ', roundPrecision?: number): string {

@@ -22,7 +22,7 @@ import { Season } from '../season';
 
 
 export class SeasonAxis extends Axis {
-    private SEASON_IN_MILLISECONDS = 365 * 24 * 60 * 60 * 1000 / 4;
+    private readonly SEASON_IN_MILLISECONDS = 365 * 24 * 60 * 60 * 1000 / 4;
 
     public constructor(context) {
         super(context, SeasonAxis.name.toString());
@@ -47,7 +47,7 @@ export class SeasonAxis extends Axis {
         return this.domain(nextSeason) - this.domain(d);
     }
 
-    public setBoundDates(dates: Date[]): Axis {
+    public setBoundDates(dates: Date[]): this {
         super.setBoundDates(dates);
         const itw = this.domain(this.SEASON_IN_MILLISECONDS) - this.domain(0);
 
