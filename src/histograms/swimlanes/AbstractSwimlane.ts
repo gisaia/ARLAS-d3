@@ -19,25 +19,13 @@
 
 import { Axis, AxisDomain, axisBottom } from 'd3-axis';
 import { ScaleBand, scaleBand } from 'd3-scale';
-import { BaseType, ContainerElement, Selection, pointer, select } from 'd3-selection';
+import { BaseType, Selection, pointer, select } from 'd3-selection';
 import { AbstractHistogram, } from '../AbstractHistogram';
+import { Bucket, BucketsVirtualContext } from '../buckets/buckets';
 import {
-  DataType,
-  FULLY_SELECTED_BARS,
-  HistogramData,
-  HistogramSVGG, HistogramSVGRect,
-  HistogramUtils,
-  LaneStats,
-  NAN_COLOR,
-  Position,
-  SwimlaneAxes,
-  SwimlaneData,
-  SwimlaneOptions,
-  SwimlaneRepresentation,
-  SwimlaneStats,
-  Tooltip,
-  UNSELECTED_BARS,
-  formatNumber
+  DataType, FULLY_SELECTED_BARS, HistogramData, HistogramSVGG, HistogramSVGRect,
+  HistogramTooltipYValue, HistogramUtils, LaneStats, NAN_COLOR, Position, SwimlaneAxes,
+  SwimlaneData, SwimlaneOptions, SwimlaneRepresentation, SwimlaneStats, UNSELECTED_BARS, formatNumber
 } from '../utils/HistogramUtils';
 
 export abstract class AbstractSwimlane extends AbstractHistogram {
@@ -49,7 +37,6 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
   protected swimlaneContextList = new Array<{ name: string; context: HistogramSVGG; }>();
   protected verticalTooltipLine: Selection<SVGLineElement, HistogramData, BaseType, HistogramData>;
   protected labelsContext: HistogramSVGG;
-  protected aBucketIsEncountred = false;
   protected swimlaneBarsWeight: number;
   protected labelsContextList = new Array<{ name: string; context: Selection<SVGTextElement, HistogramData, BaseType, HistogramData>; }>();
   protected labelsRectContextList = new Array<{ name: string; context: HistogramSVGRect; }>();
@@ -61,6 +48,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
       swimlanesMapData = HistogramUtils.parseSwimlaneDataKey(inputData.lanes, this.histogramParams.dataType);
       this.setSwimlaneMinMaxBorders(inputData.stats);
       this.histogramParams.bucketRange = this.getDataInterval(inputData.lanes);
+      this.histogramParams.bucketInterval = this.getbucketInterval(this.histogramParams.bucketRange, this.histogramParams.dataType);
       this.initializeDescriptionValues(this.swimlaneIntervalBorders[0], this.swimlaneIntervalBorders[1], this.histogramParams.bucketRange);
       this.initializeChartDimensions();
       this.createSwimlaneAxes(swimlanesMapData);
@@ -305,90 +293,113 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
 
   protected showTooltipsForSwimlane(swimlaneMapData: Map<string, Array<HistogramData>>, swimStats: SwimlaneStats,
     representation: SwimlaneRepresentation): void {
-    this.histogramParams.swimlaneXTooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
     this.verticalTooltipLine = this.context.append('g').append('line').attr('class', 'histogram__swimlane--vertical-tooltip-line')
       .attr('x1', 0)
       .attr('y1', 0)
       .attr('x2', 0)
       .attr('y2', this.chartDimensions.height)
       .style('display', 'none');
-    this.chartDimensions.svg.select('.context')
-      .on('mousemove', (event) => {
-        let i = 0;
-        this.aBucketIsEncountred = false;
-        swimlaneMapData.forEach((swimlane, key) => {
-          this.setTooltipPositionForSwimlane(event, swimlane, key, i, swimStats, representation, <ContainerElement>this.context.node());
-          i++;
-        });
-        if (!this.aBucketIsEncountred) {
-          this.histogramParams.swimlaneXTooltip.isShown = false;
-          this.verticalTooltipLine.style('display', 'none');
-        }
+
+    const flatData = Array.from(swimlaneMapData.entries())
+      .map(swimData => swimData[1].map(hd => {
+          hd.chartId = swimData[0];
+          return hd;
+        })).flat();
+
+    this.bucketsContext = new BucketsVirtualContext();
+    flatData.forEach(d => {
+      const bucket = new Bucket(d, this.histogramParams, this.context, this.chartDimensions, this.swimlaneAxes);
+      this.bucketsContext.append(bucket);
+      /** Plot the bucket for dev purpuses. It helps debug. */
+      // bucket.plot();
+    });
+
+    this.context
+      .on('mousemove', (event: MouseEvent) => {
+        const hoveredBuckets = this.onHoverBucket(flatData, event);
+        this.setTooltipPosition(hoveredBuckets, event, swimStats, representation);
       })
       .on('mouseout', () => {
-        this.histogramParams.swimlaneTooltipsMap.forEach((tooltipPositon, key) => {
-          const hiddenTooltip: Tooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
-          this.histogramParams.swimlaneXTooltip.isShown = false;
-          this.histogramParams.swimlaneTooltipsMap.set(key, hiddenTooltip);
-        });
-        this.verticalTooltipLine.style('display', 'none');
+        this.onLeaveBucket(flatData);
+        this.histogramParams.tooltip.isShown = false;
       });
   }
 
-  protected setTooltipPositionForSwimlane(event, data: Array<HistogramData>, key: string, indexOfKey: number, swimStats: SwimlaneStats,
-    representation: SwimlaneRepresentation, container: ContainerElement): void {
+  /**
+   * Emits and returns the hovered buckets based on mouse event
+   */
+  protected onHoverBucket(data: HistogramData[], event: MouseEvent): HistogramData[] {
     const xy = pointer(event);
-    let dx, dy, startPosition, endPosition, middlePosition;
-    const tooltip: Tooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
-    for (const element of data) {
-      startPosition = this.histogramParams.swimLaneLabelsWidth + this.swimlaneAxes.xDomain(element.key);
-      endPosition = startPosition + this.swimlaneAxes.stepWidth * this.histogramParams.barWeight;
-      middlePosition = startPosition + this.swimlaneAxes.stepWidth * this.histogramParams.barWeight / 2;
+
+    let middlePosition: number;
+
+    const hoveredBuckets = data.filter(b => {
+      const startPosition = this.histogramParams.swimLaneLabelsWidth + this.swimlaneAxes.xDomain(+b.key);
+      const endPosition = startPosition + this.swimlaneAxes.stepWidth * this.histogramParams.barWeight;
 
       if (xy[0] >= startPosition && xy[0] < endPosition) {
-        this.verticalTooltipLine.style('display', 'block').attr('transform', 'translate(' + middlePosition + ',' + '0)');
-        tooltip.isShown = true;
-        dx = this.setTooltipXposition(xy[0], tooltip);
-        dy = this.setTooltipYposition(xy[1]);
-        tooltip.xPosition = (xy[0] + dx);
-        tooltip.yPosition = this.histogramParams.swimlaneHeight * (indexOfKey + 0.2);
-        tooltip.xContent = HistogramUtils.toString(element.key, this.histogramParams, this.dataInterval);
-        if (HistogramUtils.isValueValid(element)) {
-          tooltip.yContent = formatNumber(element.value, this.histogramParams.numberFormatChar);
-          if (representation === SwimlaneRepresentation.column) {
-            const sum = swimStats.columnStats.get(+element.key).sum;
-            const percentage = (sum > 0) ? 100 * Math.round(element.value / sum * 1000) / 1000 : 0;
-            tooltip.yAdditonalInfo = ' - ' + percentage + '%';
-          }
-        } else {
-          tooltip.yContent = undefined;
-          tooltip.yAdditonalInfo = undefined;
-        }
-        this.histogramParams.swimlaneXTooltip = tooltip;
-        this.histogramParams.swimlaneTooltipsMap.set(key, tooltip);
-        this.aBucketIsEncountred = true;
-        break;
-      } else {
-        const hiddenTooltip: Tooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
-        this.histogramParams.swimlaneTooltipsMap.set(key, hiddenTooltip);
+        middlePosition = startPosition + this.swimlaneAxes.stepWidth * this.histogramParams.barWeight / 2;
+        return true;
       }
+      return false;
+    });
+
+    if (middlePosition !== undefined) {
+     this.drawTooltipCursor(middlePosition);
     }
+
+    this.bucketsContext.interact(hoveredBuckets.map(d => +d.key));
+
+    return hoveredBuckets;
   }
 
-  protected setTooltipXposition(xPosition: number, tooltip: Tooltip): number {
-    let dx;
-    if (xPosition > (this.chartDimensions.width - this.histogramParams.swimLaneLabelsWidth) / 2) {
-      tooltip.isRightSide = true;
-      dx = (this.chartDimensions.width) - 2 * xPosition + 25;
-    } else {
-      tooltip.isRightSide = false;
-      dx = 70;
-    }
-    return dx;
+  protected setTooltipPosition(hoveredBuckets: HistogramData[], event: MouseEvent,
+      swimlaneStats: SwimlaneStats, representation: SwimlaneRepresentation) {
+    const xy = pointer(event);
+    const dataInterval = this.histogramParams.bucketRange;
+    const ys = new Array<HistogramTooltipYValue>();
+    let xEndValue: string, xStartValue: string;
+
+    hoveredBuckets.forEach(hb => {
+      if (HistogramUtils.isValueValid(hb)) {
+        let color: string, swimlaneBucketPercentage: string;
+        if (!!hb.chartId && !!this.histogramParams.colorGenerator) {
+          color = this.histogramParams.colorGenerator.getColor(hb.chartId);
+        }
+        const x = HistogramUtils.toString(hb.key, this.histogramParams, dataInterval);
+        const calculatedEndValue = dataInterval + (+hb.key);
+        xStartValue = x;
+        xEndValue = HistogramUtils.toString(calculatedEndValue, this.histogramParams, dataInterval);
+
+        if (representation === SwimlaneRepresentation.column) {
+          const sum = swimlaneStats.columnStats.get(+hb.key).sum;
+          const percentage = (sum > 0) ? 100 * Math.round(hb.value / sum * 1000) / 1000 : 0;
+          swimlaneBucketPercentage = ' - ' + percentage + '%';
+        }
+
+        ys.push({
+          value: formatNumber(hb.value, this.histogramParams.numberFormatChar),
+          chartId: hb.chartId,
+          color,
+          swimlaneBucketPercentage
+        });
+      }
+    });
+
+    this.emitTooltip(hoveredBuckets.length > 0, xy, xStartValue, xEndValue, ys);
   }
 
-  protected setTooltipYposition(yPosition: number): number {
-    return 0;
+  private onLeaveBucket(data: Array<HistogramData>) {
+    this.bucketsContext.leaveAll(data.map(d => +d.key));
+    this.clearTooltipCursor();
+  }
+
+  protected clearTooltipCursor(): void {
+    this.verticalTooltipLine.style('display', 'none');
+  }
+
+  protected drawTooltipCursor(position: number) {
+    this.verticalTooltipLine.style('display', 'block').attr('transform', 'translate(' + position + ',' + '0)');
   }
 
   /**

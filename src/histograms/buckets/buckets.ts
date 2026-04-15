@@ -18,7 +18,7 @@
  */
 
 import { HistogramParams } from '../../histograms/HistogramParams';
-import { ChartAxes, ChartDimensions, HistogramData, HistogramSVGG } from '../utils/HistogramUtils';
+import { ChartAxes, ChartDimensions, HistogramData, HistogramSVGG, SwimlaneAxes } from '../utils/HistogramUtils';
 
 export interface XBucket {
     start: number;
@@ -36,7 +36,7 @@ export class Bucket {
     private histogramParams: HistogramParams;
     private rootContext: HistogramSVGG;
     private dimensions: ChartDimensions;
-    private axes: ChartAxes;
+    private axes: ChartAxes | SwimlaneAxes;
 
     /** Calculated state. */
     private hovered = false;
@@ -45,7 +45,7 @@ export class Bucket {
     private virtual = true;
 
     public constructor(data: HistogramData, histogramParams: HistogramParams, rootContext: HistogramSVGG,
-        dimensions: ChartDimensions, axes: ChartAxes) {
+        dimensions: ChartDimensions, axes: ChartAxes | SwimlaneAxes) {
         this.data = data;
         this.histogramParams = histogramParams;
         this.rootContext = rootContext;
