@@ -93,7 +93,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
       const span = (max - min) / 10;
       for (let i = 0; i <= 10; i++) {
         const colorValue = min + span * i;
-        let color;
+        let color: string;
         if (colorValue === 0 && this.histogramParams.swimlaneOptions?.zeros_color) {
           color = this.histogramParams.swimlaneOptions.zeros_color;
           legend.push({ key: colorValue, color: color });
@@ -104,7 +104,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
           color = HistogramUtils.getColor(i / 100, this.histogramParams.paletteColors).toHexString();
           legend.push({ key: ' ', color: '#fff' }, { key: '>0', color: color });
         } else {
-          const key = (i % 5 === 0) ? HistogramUtils.numToString(colorValue) : ' ';
+          const key = (i % 5 === 0) ? HistogramUtils.numberToShortValue(colorValue, 2) : ' ';
           legend.push({ key, color });
         }
       }

@@ -460,29 +460,28 @@ export class HistogramUtils {
     }
   }
 
-  public static numToString(value: number): string {
-    let newValue = value.toString();
-    if (value >= 1000) {
-      const suffixes = ['', 'k', 'M', 'b', 't'];
-      const suffixNum = Math.floor(('' + value).length / 4);
-      let shortValue: number;
-      for (let precision = 3; precision >= 1; precision--) {
-        shortValue = shortValue = Math.round(parseFloat((suffixNum !== 0 ? (value / Math.pow(1000, suffixNum)) : value)
-          .toPrecision(precision)));
-        const dotLessShortValue = (shortValue + '').replace(/[^a-zA-Z]+/g, '');
-        if (dotLessShortValue.length <= 2) {
-          break;
-        }
+  public static numberToShortValue(number: number, p?: number): string {
+    if (Math.abs(number) < 1000) {
+      if (Math.round(number) === number) {
+        return number.toFixed(0);
       }
-      let shortNum = shortValue.toString();
-      if (shortValue % 1 !== 0) {
-        shortNum = shortValue.toFixed(1);
-      }
-      newValue = shortNum + suffixes[suffixNum];
-      return newValue;
-    } else {
-      return formatNumber(value);
+      return number.toFixed(p);
     }
+
+    // what tier? (determines SI symbol)
+    const suffixes = ['', 'k', 'M', 'b', 't'];
+    const suffixNum = Math.trunc(Math.log10(Math.abs(number)) / 3);
+
+    if (suffixNum === 0) {
+      return number.toString();
+    }
+    // get suffix and determine scale
+    const suffix = suffixes[suffixNum];
+    const scale = Math.pow(10, suffixNum * 3);
+    // scale the number
+    const scaled = number / scale;
+    // format number and add suffix
+    return scaled.toFixed(p) + ' ' + suffix;
   }
 
   public static splitData(data: Array<HistogramData>): [Array<Array<HistogramData>>, Array<Array<HistogramData>>] {
