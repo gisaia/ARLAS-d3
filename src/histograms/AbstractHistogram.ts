@@ -17,8 +17,9 @@
  * under the License.
  */
 
-import { max, min } from 'd3-array';
+import { Axis, AxisDomain } from 'd3-axis';
 import { scaleLinear, ScaleLinear, scaleTime, ScaleTime, scaleUtc } from 'd3-scale';
+import { BaseType, Selection } from 'd3-selection';
 import { BucketsVirtualContext } from './buckets/buckets';
 import { HistogramParams } from './HistogramParams';
 import {
@@ -26,7 +27,9 @@ import {
   BucketInterval,
   ChartAxes,
   ChartDimensions,
-  DataType, HistogramData,
+  DataType,
+  HistogramBarSVG,
+  HistogramData,
   HistogramSVGG,
   HistogramTooltipYValue,
   HistogramUtils,
@@ -38,6 +41,8 @@ import {
   SwimlaneData
 } from './utils/HistogramUtils';
 
+export type HistogramAxis = Selection<SVGGElement, HistogramData, BaseType, HistogramData>;
+
 export abstract class AbstractHistogram {
 
   public histogramParams: HistogramParams;
@@ -45,9 +50,9 @@ export abstract class AbstractHistogram {
 
   /** Contexts */
   protected context: HistogramSVGG;
-  protected barsContext: HistogramSVGG;
+  protected barsContext: HistogramBarSVG;
   protected bucketsContext: BucketsVirtualContext;
-  protected noDatabarsContext: HistogramSVGG;
+  protected noDatabarsContext: HistogramBarSVG;
   protected tooltipCursorContext: HistogramSVGG;
   protected allAxesContext: HistogramSVGG;
 
@@ -57,28 +62,28 @@ export abstract class AbstractHistogram {
   protected isHeightFixed = false;
 
   /** Data */
-  protected dataDomain: Array<HistogramData>;
+  protected dataDomain: Array<HistogramData> = [];
   protected dataInterval: number;
 
   /** Brush selection */
   protected selectionInterval: SelectedOutputValues = { startvalue: null, endvalue: null };
 
-  protected hasSelectionExceededData = null;
+  protected hasSelectionExceededData = false;
   protected selectedBars = new Set<number>();
   protected fromSetInterval = false;
 
   /** Axes && ticks */
-  protected xTicksAxis;
-  protected xLabelsAxis;
-  protected xAxis;
+  protected xTicksAxis: HistogramAxis;
+  protected xLabelsAxis: HistogramAxis;
+  protected xAxis: HistogramAxis;
 
   protected yDimension = 1;
   protected plottingCount = 0;
   protected minusSign = 1;
 
   protected _xlabelMeanWidth = 0;
-  protected _previousXLabelTicks = null;
-  protected _previousSize = null;
+  protected _previousXLabelTicks?: number;
+  protected _previousSize?: number;
   protected _isWidthIncrease = false;
 
   public constructor() {
@@ -105,7 +110,7 @@ export abstract class AbstractHistogram {
   /**
    * initialize a new BrushCornerTooltips object
    */
-  public setHTMLElementsOfBrushCornerTooltips(rightHTMLElement: HTMLElement, leftHTMLElement): void {
+  public setHTMLElementsOfBrushCornerTooltips(rightHTMLElement: HTMLElement, leftHTMLElement: HTMLElement): void {
     if (!this.brushCornerTooltips) {
       this.brushCornerTooltips = this.createEmptyBrushCornerTooltips();
     }
@@ -177,13 +182,13 @@ export abstract class AbstractHistogram {
     return [minBorder, maxBorder];
   }
 
-  protected getFollowingLastBucket(data): HistogramData {
+  protected getFollowingLastBucket(data: HistogramData[]): HistogramData {
     const dataInterval = this.getDataInterval(data);
     const followingLastBucketKey = +data[data.length - 1].key + dataInterval;
 
     let value = 0;
-    const minimum = min(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MAX_VALUE);
-    const maximum = max(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MIN_VALUE);
+    const minimum = Math.min(...data.map(d => this.isValueValid(d) ? d.value : Number.MAX_VALUE));
+    const maximum = Math.max(...data.map(d => this.isValueValid(d) ? d.value : Number.MIN_VALUE));
     if (!this.histogramParams.yAxisFromZero) {
       if (minimum >= 0) {
         value = minimum;
@@ -219,11 +224,11 @@ export abstract class AbstractHistogram {
     dataKeyUnionSelectedValues.push(selectedStartValue);
     dataKeyUnionSelectedValues.push(selectedEndValue);
     if (this.histogramParams.dataType === DataType.time) {
-      xDomainExtent.push(new Date(min(dataKeyUnionSelectedValues, (d: Date) => +d) - this.dataInterval / 5));
-      xDomainExtent.push(new Date(max(dataKeyUnionSelectedValues, (d: Date) => +d)));
+      xDomainExtent.push(new Date(Math.min(...dataKeyUnionSelectedValues.map(d => +d)) - this.dataInterval / 5));
+      xDomainExtent.push(new Date(Math.max(...dataKeyUnionSelectedValues.map(d => +d))));
     } else {
-      xDomainExtent.push(min(dataKeyUnionSelectedValues, (d: number) => d) * 1 - this.dataInterval / 5 * this.yDimension);
-      xDomainExtent.push(max(dataKeyUnionSelectedValues, (d: number) => d) * 1);
+      xDomainExtent.push(Math.min(...dataKeyUnionSelectedValues.map(d => +d)) * 1 - this.dataInterval / 5 * this.yDimension);
+      xDomainExtent.push(Math.max(...dataKeyUnionSelectedValues.map(d => +d)) * 1);
     }
     return xDomainExtent;
   }
@@ -268,7 +273,7 @@ export abstract class AbstractHistogram {
     }
   }
 
-  public createXLabelAxis(svgNode: HistogramSVGG, xLabelsAxis, leftOffset: number) {
+  public createXLabelAxis(svgNode: HistogramSVGG, xLabelsAxis: Axis<AxisDomain>, leftOffset: number) {
     const xAxisPosition = positionToNumber(this.histogramParams.xAxisPosition);
     return svgNode.append('g')
         .attr('class', 'histogram__labels-axis')
@@ -276,7 +281,7 @@ export abstract class AbstractHistogram {
         .call(xLabelsAxis);
   }
 
-  public getHorizontalOffset(chartAxes){
+  public getHorizontalOffset(chartAxes: ChartAxes | SwimlaneAxes) {
     let h = this.chartDimensions.height;
     if (isChartAxes(chartAxes)) {
       if (!this.histogramParams.yAxisFromZero) {
@@ -304,7 +309,7 @@ export abstract class AbstractHistogram {
     }
     // create virtual nodes. Helps to get label's width.
     const virtualLabels = this.chartDimensions.svg.append('g');
-    const labels = this.createXLabelAxis(virtualLabels,chartAxes.xLabelsAxis, leftOffset ).selectAll('text');
+    const labels = this.createXLabelAxis(virtualLabels, chartAxes.xLabelsAxis, leftOffset ).selectAll('text');
     // check for all labels if there is an overlap.
     let hasOverlap = false;
     const nodes = labels.nodes();
@@ -318,7 +323,7 @@ export abstract class AbstractHistogram {
       const currentNodeDimensions = this.getDimension(nodes[i]);
       if(nodes[next]){
         const nextNodeDimensions = this.getDimension(nodes[next]);
-        if(this.isOverlapXAxis(currentNodeDimensions,nextNodeDimensions)) {
+        if(this.isOverlapXAxis(currentNodeDimensions, nextNodeDimensions)) {
           hasOverlap = true;
         }
       }
@@ -336,12 +341,12 @@ export abstract class AbstractHistogram {
       //  calc number of labels according to the mean width of a label and the width of the chart
       const labelCount = Math.floor(this.histogramParams.chartWidth  /  (this._xlabelMeanWidth + horizontalOffset));
       let selectLabelCount: number;
-      if(!this._isWidthIncrease) {
+      if (!this._isWidthIncrease) {
         // get the min value between default label size and the max label size allowed.
-        selectLabelCount =  min([this.histogramParams.xLabels, labelCount,  this._previousXLabelTicks]);
+        selectLabelCount = Math.min(this.histogramParams.xLabels, labelCount,  this._previousXLabelTicks);
       } else {
         // check prop value to know when we can restore original state.
-        selectLabelCount =  max([labelCount, this._previousXLabelTicks]);
+        selectLabelCount = Math.max(labelCount, this._previousXLabelTicks);
       }
       // value to be used when we create virtual labels
       this._previousXLabelTicks = selectLabelCount;
@@ -356,15 +361,21 @@ export abstract class AbstractHistogram {
     }
   }
 
-  public getDimension(node): DOMRect {
-    if (typeof node.getBoundingClientRect === 'function') {
-      return node.getBoundingClientRect();
+  public getDimension(node: BaseType): DOMRect {
+    if (!node) {
+      throw new Error('node must not be null');
+    }
+
+    if (typeof (node as Element).getBoundingClientRect === 'function') {
+      return (node as Element).getBoundingClientRect();
     } else if (node instanceof SVGGraphicsElement) { // check if node is svg element
       return node.getBBox();
     }
+
+    throw new Error('node must have "getBoundingClientRect" method or be an instance of "SVGGraphicsElement"');
   }
 
-  public isOverlapXAxis (l, r) {
+  public isOverlapXAxis(l: DOMRect, r: DOMRect) {
     const a  = {left: 0, right: 0};
     const b = {left: 0, right: 0};
     a.left = l.x - this.histogramParams.xLabelOverlapPadding;
@@ -483,9 +494,9 @@ export abstract class AbstractHistogram {
           value = allIntervals[i];
         }
       }
-      return timestampToInterval.get(value);
+      return timestampToInterval.get(value)!;
     } else {
-      const histogramParams = Object.assign({}, this.histogramParams);
+      const histogramParams = { ...this.histogramParams};
       histogramParams.numberFormatChar = '';
       return { value: +HistogramUtils.toString(bucketInterval, histogramParams, bucketInterval) };
     }
@@ -525,11 +536,13 @@ export abstract class AbstractHistogram {
   protected abstract getAxes(): ChartAxes | SwimlaneAxes;
 
   private createEmptyBrushCornerTooltips(): BrushCornerTooltips {
-    const emptyLeftCornerTooltip = { htmlContainer: null, content: '', xPosition: 0, yPosition: 0 };
-    const emptyRightCornerTooltip = { htmlContainer: null, content: '', xPosition: 0, yPosition: 0 };
+    const emptyLeftCornerTooltip = { htmlContainer: undefined, content: '', xPosition: 0, yPosition: 0 };
+    const emptyRightCornerTooltip = { htmlContainer: undefined, content: '', xPosition: 0, yPosition: 0 };
     return {
-      leftCornerTooltip: emptyLeftCornerTooltip, rightCornerTooltip: emptyRightCornerTooltip,
-      verticalCssVisibility: 'hidden', horizontalCssVisibility: 'hidden'
+      leftCornerTooltip: emptyLeftCornerTooltip,
+      rightCornerTooltip: emptyRightCornerTooltip,
+      verticalCssVisibility: 'hidden',
+      horizontalCssVisibility: 'hidden'
     };
   }
 }

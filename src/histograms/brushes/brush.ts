@@ -21,15 +21,14 @@ import { BrushBehavior, BrushSelection, D3BrushEvent } from 'd3-brush';
 import { ChartAxes, ChartDimensions, HistogramData, HistogramSVGG } from '../utils/HistogramUtils';
 
 export abstract class Brush {
-    public brushContext: HistogramSVGG;
-    public extent: BrushBehavior<HistogramData>;
+    public brushContext!: HistogramSVGG;
+    public extent?: BrushBehavior<HistogramData>;
     public isBrushed = false;
     public isBrushing = false;
 
     protected context: HistogramSVGG;
     protected dimensions: ChartDimensions;
     protected axes: ChartAxes;
-    protected handles;
 
     public constructor(context: HistogramSVGG, dimensions: ChartDimensions, axes: ChartAxes) {
         this.context = context;
@@ -57,7 +56,7 @@ export abstract class Brush {
     }
 
     public move([start, end]: number[]): this {
-        if (this.checkSelectionNotNaN([start, end])) {
+        if (this.checkSelectionNotNaN([start, end]) && this.extent) {
             this.brushContext.call(this.extent.move, [start, end]);
         }
         return this;
@@ -76,11 +75,13 @@ export abstract class Brush {
     public abstract getFillOpacity(): number;
 
     protected callBrushStart() {
-        this.extent.on('start', (event: D3BrushEvent<HistogramData>) => {
+        this.extent?.on('start', (event: D3BrushEvent<HistogramData>) => {
             this.onBrushStart();
             const selection = event.selection;
             this.isBrushed = false;
-            this.translateBrushHandles(selection);
+            if (selection) {
+                this.translateBrushHandles(selection);
+            }
         });
     }
 

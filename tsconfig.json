@@ -19,7 +19,8 @@
             "ES2022",
             "DOM",
             "DOM.Iterable"
-        ]
+        ],
+        "strict": true
     },
     "include": [
         "src/**/*"

@@ -40,7 +40,7 @@ export class Bucket {
 
     /** Calculated state. */
     private hovered = false;
-    private context: HistogramSVGG;
+    private context?: HistogramSVGG;
     /** This context is virtual. Buckets are not plotted on the histogram. */
     private virtual = true;
 
@@ -109,7 +109,7 @@ export class Bucket {
         };
         this.histogramParams.hoveredBucketEvent.next(xBucket);
         if (!this.virtual) {
-            this.context.style('fill', 'red');
+            this.context?.style('fill', 'red');
         }
     }
 
@@ -119,7 +119,7 @@ export class Bucket {
     public notifyLeave() {
         this.histogramParams.hoveredBucketEvent.next(undefined);
         if (!this.virtual) {
-            this.context.style('fill', 'black');
+            this.context?.style('fill', 'black');
         }
     }
 
@@ -151,8 +151,8 @@ export class BucketsVirtualContext {
      */
     public interact(hoveredKey: (string | number)[]) {
         const set = new Set(hoveredKey);
-        Array.from(this.bucketsMap.keys()).filter(k => !set.has(k)).forEach(k => this.bucketsMap.get(k).leave());
-        Array.from(this.bucketsMap.keys()).filter(k => set.has(k)).forEach(k => this.bucketsMap.get(k).hover());
+        Array.from(this.bucketsMap.keys()).filter(k => !set.has(k)).forEach(k => this.bucketsMap.get(k)?.leave());
+        Array.from(this.bucketsMap.keys()).filter(k => set.has(k)).forEach(k => this.bucketsMap.get(k)?.hover());
     }
 
     /**
@@ -160,6 +160,6 @@ export class BucketsVirtualContext {
      */
     public leaveAll(leftKeys: (string | number)[]) {
         const set = new Set(leftKeys);
-        Array.from(this.bucketsMap.keys()).filter(k => set.has(k)).forEach(k => this.bucketsMap.get(k).leave());
+        Array.from(this.bucketsMap.keys()).filter(k => set.has(k)).forEach(k => this.bucketsMap.get(k)?.leave());
     }
 }

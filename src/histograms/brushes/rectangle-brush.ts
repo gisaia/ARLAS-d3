@@ -18,12 +18,13 @@
  */
 
 import { BrushBehavior, BrushSelection, brushX } from 'd3-brush';
-import { HistogramData } from '../utils/HistogramUtils';
+import { HistogramData, RectangleSVG } from '../utils/HistogramUtils';
 import { Brush } from './brush';
 
 export class RectangleBrush extends Brush {
+    private handles!: RectangleSVG;
 
-    public handleHeight: number;
+    public handleHeight = 2.5;
     public handleWidth = 2.5;
 
     public setHandleHeight(handleHeightWeight: number): this {
@@ -74,7 +75,7 @@ export class RectangleBrush extends Brush {
     }
 
     protected drawHandles(): void {
-        const brushResizePath = (d) => (d.type === 'e') ? 0 : -this.handleWidth;
+        const brushResizePath = (d: any) => (d.type === 'e') ? 0 : -this.handleWidth;
         this.handles = this.brushContext.selectAll('.histogram__brush--handles')
             .data([{ type: 'w' }, { type: 'e' }])
             .enter().append('rect')

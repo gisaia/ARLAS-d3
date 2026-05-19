@@ -17,19 +17,23 @@
  * under the License.
  */
 
-import {
-  SelectedInputValues, SelectedOutputValues, ChartType, DataType, Position, Tooltip, MarginModel,
-  SwimlaneMode,
-  SwimlaneData,
-  HistogramData,
-  SwimlaneRepresentation,
-  SwimlaneOptions,
-  HistogramTooltip,
-  BucketInterval
-} from './utils/HistogramUtils';
 import { Subject } from 'rxjs';
 import { ColorGenerator } from '../utils/color-generator';
 import { XBucket } from './buckets/buckets';
+import {
+  BucketInterval,
+  ChartType, DataType,
+  HistogramData,
+  HistogramTooltip,
+  MarginModel,
+  Position,
+  SelectedInputValues, SelectedOutputValues,
+  SwimlaneData,
+  SwimlaneMode,
+  SwimlaneOptions,
+  SwimlaneRepresentation,
+  Tooltip
+} from './utils/HistogramUtils';
 
 export class HistogramParams {
 
@@ -46,7 +50,7 @@ export class HistogramParams {
   public dataUnit = '';
   public chartType: ChartType = ChartType.area;
   public moveDataByHalfInterval = false;
-  public bucketRange: number;
+  public bucketRange?: number;
   public bucketInterval: BucketInterval;
 
   /** Dimensions */
@@ -114,7 +118,7 @@ export class HistogramParams {
   // ########################## Outputs ##########################
 
   public valuesListChangedEvent = new Subject<SelectedOutputValues[]>();
-  public hoveredBucketEvent = new Subject<XBucket>();
+  public hoveredBucketEvent = new Subject<XBucket | undefined>();
   public selectedSwimlanesEvent = new Subject<Set<string>>();
   public tooltipEvent = new Subject<HistogramTooltip>();
 

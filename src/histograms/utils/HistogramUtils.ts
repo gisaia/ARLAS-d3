@@ -95,7 +95,7 @@ export interface BrushCornerTooltips {
 }
 
 export interface BrushTooltip {
-  htmlContainer: HTMLElement;
+  htmlContainer?: HTMLElement;
   xPosition: number;
   yPosition: number;
   content: string;
@@ -120,7 +120,9 @@ export interface SelectedInputValues {
 
 export type HistogramSVG = Selection<SVGElement, HistogramData, BaseType, HistogramData>;
 export type HistogramSVGG = Selection<SVGGElement, HistogramData, BaseType, HistogramData>;
+export type HistogramBarSVG = Selection<SVGRectElement, HistogramData, SVGGElement, HistogramData>;
 export type CircularSVG = Selection<SVGCircleElement, { type: string; }, SVGGElement, HistogramData>;
+export type RectangleSVG = Selection<SVGRectElement, { type: string; }, SVGGElement, HistogramData>;
 
 export type HistogramSVGRect = Selection<SVGRectElement, HistogramData, BaseType, HistogramData>;
 export type HistogramSVGClipPath = Selection<SVGClipPathElement, HistogramData, BaseType, HistogramData>;

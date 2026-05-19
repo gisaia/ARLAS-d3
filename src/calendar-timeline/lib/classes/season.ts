@@ -118,5 +118,6 @@ export class Season {
             case this.WINTER.name:
                 return this.WINTER;
         }
+        throw new Error(`Given name matches no Season. Got ${name}`);
     }
 }

@@ -23,7 +23,10 @@ import { BaseType, Selection, pointer, select } from 'd3-selection';
 import { AbstractHistogram, } from '../AbstractHistogram';
 import { Bucket, BucketsVirtualContext } from '../buckets/buckets';
 import {
-  DataType, FULLY_SELECTED_BARS, HistogramData, HistogramSVGG, HistogramSVGRect,
+  DataType, FULLY_SELECTED_BARS,
+  HistogramData,
+  HistogramSVGG,
+  HistogramSVGRect,
   HistogramTooltipYValue, HistogramUtils, LaneStats, NAN_COLOR, Position, SwimlaneAxes,
   SwimlaneData, SwimlaneOptions, SwimlaneRepresentation, SwimlaneStats, UNSELECTED_BARS, formatNumber
 } from '../utils/HistogramUtils';

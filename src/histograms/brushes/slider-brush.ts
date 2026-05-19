@@ -18,16 +18,18 @@
  */
 
 import { BrushBehavior, BrushSelection, brushX } from 'd3-brush';
-import { HistogramData, HistogramSVGG } from '../utils/HistogramUtils';
+import { BaseType, Selection } from 'd3-selection';
+import { CircularSVG, HistogramData } from '../utils/HistogramUtils';
 import { Brush } from './brush';
 
 export class SliderBrush extends Brush {
+    private handles!: CircularSVG;
 
-    public handleRadius: number;
-    public lineContext: HistogramSVGG;
+    public handleRadius = 5;
+    public lineContext!: Selection<SVGLineElement, HistogramData, BaseType, HistogramData>;
     private readonly strokeWidth = 1.5;
 
-    public setHandleRadius(handleRadius): this {
+    public setHandleRadius(handleRadius: number): this {
         this.handleRadius = handleRadius;
         return this;
     }
@@ -49,12 +51,10 @@ export class SliderBrush extends Brush {
     }
 
     public getExtent(): BrushBehavior<HistogramData> {
-        if (!this.extent) {
-            this.extent = brushX<HistogramData>().extent([
-                [0, 0],
-                [this.dimensions.width, this.dimensions.height]
-            ]);
-        }
+        this.extent ??= brushX<HistogramData>().extent([
+            [0, 0],
+            [this.dimensions.width, this.dimensions.height]
+        ]);
         return this.extent;
     }
 

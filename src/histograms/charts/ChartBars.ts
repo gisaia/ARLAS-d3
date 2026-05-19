@@ -20,12 +20,12 @@
 import { max, min } from 'd3-array';
 import { SelectionType } from '../HistogramParams';
 import {
-  ChartAxes,
-  getBarOptions,
-  HistogramData,
-  HistogramSVGG,
-  SELECTED_BARS_ZONE,
-  UNSELECTED_BARS, UNSELECTED_BARS_ZONE
+    ChartAxes,
+    getBarOptions,
+    HistogramData,
+    HistogramSVGG,
+    SELECTED_BARS_ZONE,
+    UNSELECTED_BARS, UNSELECTED_BARS_ZONE
 } from '../utils/HistogramUtils';
 import { AbstractChart } from './AbstractChart';
 
