@@ -1,5 +1,11 @@
 # Change Log
 
+## [v28.0.0](https://github.com/gisaia/ARLAS-d3/tree/v28.0.0) (2026-05-18)
+
+**Breaking changes:**
+
+- Use same tooltip mechanism for histograms and swimlanes [\#295](https://github.com/gisaia/ARLAS-d3/issues/295)
+
 ## [v12.2.0](https://github.com/gisaia/ARLAS-d3/tree/v12.2.0) (2025-09-08)
 
 **New stuff:**
