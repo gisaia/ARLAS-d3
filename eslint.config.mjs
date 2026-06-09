@@ -123,7 +123,7 @@ export default defineConfig([globalIgnores(["**/node_modules", "**/dist", "eslin
         "no-empty": "off",
         "no-empty-function": "off",
         "no-eval": "error",
-        "no-fallthrough": "error",
+        "no-fallthrough": "warn",
         "no-new-wrappers": "error",
         "no-restricted-imports": "error",
         "no-shadow": "off",

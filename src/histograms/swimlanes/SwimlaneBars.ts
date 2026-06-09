@@ -32,7 +32,11 @@ import { AbstractSwimlane } from './AbstractSwimlane';
 export class SwimlaneBars extends AbstractSwimlane {
 
   protected plotOneLane(laneData: Array<HistogramData>, indexOfLane: number): void {
-    const swimStats = this.histogramParams.swimlaneData!.stats;
+    if (!this.histogramParams.swimlaneData) {
+      throw new Error('No swimlane data was set');
+    }
+
+    const swimStats = this.histogramParams.swimlaneData.stats;
     const swimRepresentation = this.histogramParams.swimlaneRepresentation;
     const swimColors = this.histogramParams.paletteColors;
     const swimMode = this.histogramParams.swimlaneMode;
@@ -109,7 +113,11 @@ export class SwimlaneBars extends AbstractSwimlane {
    * @param index
    */
   private plotLevelTicks(laneData: Array<HistogramData>, opt: SwimlaneOptions, index: number) {
-    const swimStats: SwimlaneStats = this.histogramParams.swimlaneData!.stats;
+    if (!this.histogramParams.swimlaneData) {
+      throw new Error('No swimlane data was set');
+    }
+
+    const swimStats: SwimlaneStats = this.histogramParams.swimlaneData.stats;
     const swimRepresentation: SwimlaneRepresentation = this.histogramParams.swimlaneRepresentation;
     const swimHeight = this.histogramParams.swimlaneHeight * 0.9;
     this.context?.append('g').attr('class', 'histogram__swimlane-height')

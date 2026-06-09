@@ -23,7 +23,11 @@ import { AbstractSwimlane } from './AbstractSwimlane';
 export class SwimlaneCircles extends AbstractSwimlane {
 
   protected plotOneLane(data: Array<HistogramData>, indexOfLane: number): void {
-    const swimStats: SwimlaneStats = this.histogramParams.swimlaneData!.stats;
+    if (!this.histogramParams.swimlaneData) {
+      throw new Error('No swimlane data was set');
+    }
+
+    const swimStats: SwimlaneStats = this.histogramParams.swimlaneData.stats;
     const swimRepresentation: SwimlaneRepresentation = this.histogramParams.swimlaneRepresentation;
     const swimColors = this.histogramParams.paletteColors;
     const swimOptions = this.histogramParams.swimlaneOptions;

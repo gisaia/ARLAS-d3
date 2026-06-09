@@ -115,19 +115,22 @@ export class ChartBars extends AbstractChart {
         barsHeight = this.chartAxes.yDomain(0);
       }
     }
+
+    // Create a local variable to avoid non-null assertion
+    const chartAxes = this.chartAxes;
     (this.barsContext as HistogramBarSVG)
       ?.attr('y', (d) => {
         if (d.value >= 0) {
-          return this.chartAxes!.yDomain(d.value);
+          return chartAxes.yDomain(d.value);
         } else {
           if (this.yStartsFromMin) {
-            return this.chartAxes!.yDomain(maximum + maxOffset) + 1;
+            return chartAxes.yDomain(maximum + maxOffset) + 1;
           } else {
-            return this.chartAxes!.yDomain(0) + 1;
+            return chartAxes.yDomain(0) + 1;
           }
         }
       })
-      .attr('height', (d) => Math.abs(barsHeight - this.chartAxes!.yDomain(d.value)));
+      .attr('height', (d) => Math.abs(barsHeight - chartAxes.yDomain(d.value)));
 
     this.addStrippedPattern('no-data-stripes', this.NO_DATA_STRIPES_PATTERN, this.NO_DATA_STRIPES_SIZE, 'histogram__no-data-stripes');
 
@@ -151,7 +154,7 @@ export class ChartBars extends AbstractChart {
         .data(data.filter(d => this.isValueValid(d)))
         .enter().append('rect')
         .attr('class', UNSELECTED_BARS)
-        .attr('x', (d: HistogramData) => this.chartAxes!.xDomain(+d.key))
+        .attr('x', (d: HistogramData) => chartAxes.xDomain(+d.key))
         .attr('width', this.chartAxes.stepWidth * this.histogramParams.barWeight)
         .attr('y', (d: HistogramData) => 0.9 * this.chartDimensions.height)
         .attr('height', (d: HistogramData) => 0.1 * this.chartDimensions.height);

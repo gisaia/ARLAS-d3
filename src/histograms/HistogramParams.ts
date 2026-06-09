@@ -141,8 +141,8 @@ export class HistogramParams {
   public displaySvg = 'none';
   public dataLength = 0;
 
-  public startValue: string = '';
-  public endValue: string = '';
+  public startValue = '';
+  public endValue = '';
   public showTitle = true;
 
   public intervalSelectedMap = new Map<string, { values: SelectedOutputValues; x_position: number; }>();

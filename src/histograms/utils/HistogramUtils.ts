@@ -156,7 +156,7 @@ export interface ChartXAxes {
   xAxis: Axis<NumberValue>;
 }
 
-export interface SwimlaneAxes extends ChartXAxes { }
+export type SwimlaneAxes = ChartXAxes
 
 export function isChartAxes(axes: ChartAxes | SwimlaneAxes): axes is ChartAxes {
   return !!(axes as ChartAxes).yDomain;
@@ -640,21 +640,21 @@ export const BAR_OPTIONS = {
  * @param barOptions
  */
 export function getBarOptions(barOptions: Partial<BarOptions>): BarOptions {
-  const bar_weight = barOptions.bar_weight ?? BAR_OPTIONS.WEIGHT;
-  const head_band: BarHeadBand = {
+  const barWeight = barOptions.bar_weight ?? BAR_OPTIONS.WEIGHT;
+  const headBand: BarHeadBand = {
     selected_style: barOptions.head_band?.selected_style ?? HEAD_BAR.SELECTED_STYLE,
     unselected_style: barOptions.head_band?.unselected_style ?? HEAD_BAR.UNSELECTED_STYLE,
     selected_height: barOptions.head_band?.selected_height ?? HEAD_BAR.HEIGHT,
     unselected_height: barOptions.head_band?.unselected_height ?? HEAD_BAR.HEIGHT
   };
-  const selected_style: Style = {
+  const selectedStyle: Style = {
     fill: barOptions.selected_style?.fill ?? SELECTED_STYLE.fill,
     stroke: barOptions.selected_style?.stroke ?? SELECTED_STYLE.stroke,
     stroke_width: barOptions.selected_style?.stroke_width ?? SELECTED_STYLE.stroke_width,
     background_color: barOptions.selected_style?.background_color ?? SELECTED_STYLE.background_color,
     background_opacity: barOptions.selected_style?.background_opacity ?? SELECTED_STYLE.background_opacity
   };
-  const unselected_style: Style = {
+  const unselectedStyle: Style = {
     fill: barOptions.unselected_style?.fill ?? UNSELECTED_STYLE.fill,
     stroke: barOptions.unselected_style?.stroke ?? UNSELECTED_STYLE.stroke,
     stroke_width: barOptions.unselected_style?.stroke_width ?? UNSELECTED_STYLE.stroke_width,
@@ -662,5 +662,5 @@ export function getBarOptions(barOptions: Partial<BarOptions>): BarOptions {
     background_opacity: barOptions.unselected_style?.background_opacity ?? UNSELECTED_STYLE.background_opacity
   };
 
-  return { bar_weight, head_band, selected_style, unselected_style };
+  return { bar_weight: barWeight, head_band: headBand, selected_style: selectedStyle, unselected_style: unselectedStyle };
 }

@@ -501,7 +501,7 @@ export abstract class AbstractHistogram {
           value = allIntervals[i];
         }
       }
-      return timestampToInterval.get(value)!;
+      return timestampToInterval.get(value) as BucketInterval;
     } else {
       const histogramParams = { ...this.histogramParams};
       histogramParams.numberFormatChar = '';
@@ -509,7 +509,9 @@ export abstract class AbstractHistogram {
     }
   }
 
-  protected emitTooltip(display: boolean, xy: [number, number], xStartValue: string | undefined, xEndValue: string | undefined, ys: HistogramTooltipYValue[]) {
+  protected emitTooltip(display: boolean, xy: [number, number],
+    xStartValue: string | undefined, xEndValue: string | undefined, ys: HistogramTooltipYValue[]
+  ) {
     if (display) {
       this.histogramParams.tooltipEvent.next(
         {

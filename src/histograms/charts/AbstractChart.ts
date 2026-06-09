@@ -140,8 +140,12 @@ export abstract class AbstractChart extends AbstractHistogram {
 
 
   private onHoverBucket(data: Array<HistogramData>, event: MouseEvent) {
+    if (!this.chartAxes) {
+      return;
+    }
+
     const xy = pointer(event);
-    const xDomainValue = +this.chartAxes!.xDomain.invert(xy[0]);
+    const xDomainValue = +this.chartAxes.xDomain.invert(xy[0]);
     const dataInterval = this.histogramParams.bucketRange ?? 0;
     const hoveredBuckets = data.filter(b => +b.key <= xDomainValue && +b.key > xDomainValue - dataInterval);
     this.bucketsContext?.interact(hoveredBuckets.map(d => +d.key));
@@ -563,7 +567,7 @@ export abstract class AbstractChart extends AbstractHistogram {
     if (side === 'right') {
       translate = 'translate('.concat((this.chartDimensions.width + 1).toString()).concat(', 0)');
     }
-    let axisColor: string | undefined = undefined;
+    let axisColor: string | undefined;
     if (!!chartId && !!this.histogramParams.colorGenerator) {
       axisColor = this.histogramParams.colorGenerator.getColor(chartId);
     }
@@ -809,7 +813,11 @@ export abstract class AbstractChart extends AbstractHistogram {
   }
 
   protected getAppendedRectangle(start: Date | number, end: Date | number): HistogramSVGRect {
-    return this.clipPathContext!.append('rect')
+    if (!this.clipPathContext) {
+      throw new Error('No clip patch context available for getAppendedRectangle');
+    }
+
+    return this.clipPathContext.append('rect')
       .attr('id', 'clip-rect')
       .attr('x', this.chartAxes?.xDomain(start) ?? 0)
       .attr('y', '0')

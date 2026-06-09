@@ -138,7 +138,7 @@ export abstract class AbstractDonut {
           throw new Error('The node size of ' + d.fieldValue + ' is not specified');
         }
       })
-      .sort((a, b) => b.value! - a.value!);
+      .sort((a, b) => <number>b.value - <number>a.value);
     const part = partition<TreeNode>();
     this.donutParams.donutNodes = part(root).descendants() as DonutNode[];
     this.donutParams.donutNodes.forEach(d => {

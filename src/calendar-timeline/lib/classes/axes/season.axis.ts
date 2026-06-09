@@ -33,7 +33,7 @@ export class SeasonAxis extends Axis {
             if (d instanceof Date) {
                 return Season.getSeasonNameFromDate(d);
             }
-            return Season.getSeasonNameFromDate(new Date(d.valueOf()))
+            return Season.getSeasonNameFromDate(new Date(d.valueOf()));
         };
     }
 

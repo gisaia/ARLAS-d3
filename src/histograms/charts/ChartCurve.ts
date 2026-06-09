@@ -180,7 +180,7 @@ export class ChartCurve extends AbstractChart {
                     }
                 });
                 for (const d of dataArray) {
-                    this.plotChart(d, this.chartAxes.yDomain, true)
+                    this.plotChart(d, this.chartAxes.yDomain, true);
                 }
             }
             this.handleBucketsInteractions(data, extendedData, chartIdsToSides);
@@ -242,8 +242,8 @@ export class ChartCurve extends AbstractChart {
             .attr('r', () => 3)
             .attr('cx', (d) => axes.xDomain(+d.key))
             .attr('cy', (d) => {
-                if (chartIsToSides && chartIsToSides.size === 2 && d.chartId && chartIsToSides.get(d.chartId) === 'right') {
-                    return axes.yDomainRight!(d.value);
+                if (chartIsToSides && chartIsToSides.size === 2 && d.chartId && chartIsToSides.get(d.chartId) === 'right' && axes.yDomainRight) {
+                    return axes.yDomainRight(d.value);
                 } else if (chartIsToSides && chartIsToSides.size > 2 && d.normalizeValue) {
                     return axes.yDomain(d.normalizeValue);
                 } else {
@@ -420,12 +420,14 @@ export class ChartCurve extends AbstractChart {
         if (!this.chartAxes) {
             return;
         }
+        // Create a local variable to avoid non-null assertion
+        const chartAxes = this.chartAxes;
 
         const chartId = data[0].chartId;
         domain ??= this.chartAxes.yDomain;
         let retrieveData = (d: HistogramData) => domain(d.value);
         if (normalize) {
-            retrieveData = (d: HistogramData) => domain(d.normalizeValue!);
+            retrieveData = (d: HistogramData) => domain(d.normalizeValue as number);
         }
         const urlFixedSelection = 'url(#' + this.histogramParams.uid + ')';
         const urlCurrentSelection = 'url(#' + this.histogramParams.uid + '-cs-curve)';
@@ -438,7 +440,7 @@ export class ChartCurve extends AbstractChart {
             const curveType: CurveFactory = (this.histogramParams.isSmoothedCurve) ? curveMonotoneX : curveLinear;
             const a = line<HistogramData>()
                 .curve(curveType)
-                .x(d => this.chartAxes!.xDomain(+d.key))
+                .x(d => chartAxes.xDomain(+d.key))
                 .y(retrieveData);
             const validData = data.filter(b => this.isValueValid(b));
             /** Plots dashed curve linking valid buckets only */
@@ -448,7 +450,7 @@ export class ChartCurve extends AbstractChart {
                 .attr('class', 'histogram__curve-data')
                 .selectAll('dot').data(validData).enter().append('circle')
                 .attr('r', 1.1)
-                .attr('cx', (d) => this.chartAxes!.xDomain(+d.key))
+                .attr('cx', (d) => chartAxes.xDomain(+d.key))
                 .attr('cy', retrieveData)
                 .attr('class', 'histogram__chart--unselected--curve')
                 .style('opacity', 1);
@@ -463,7 +465,7 @@ export class ChartCurve extends AbstractChart {
                 .attr('class', 'histogram__curve-data')
                 .selectAll('dot').data(data).enter().append('circle')
                 .attr('r', chartId === this.histogramParams.mainChartId ? 2 : 4)
-                .attr('cx', (d) => this.chartAxes!.xDomain(+d.key))
+                .attr('cx', (d) => chartAxes.xDomain(+d.key))
                 .attr('cy', retrieveData)
                 .attr('class', 'histogram__chart--curve')
                 .style('opacity', 1);
@@ -472,9 +474,9 @@ export class ChartCurve extends AbstractChart {
         discontinuedData[1].forEach(part => {
             this.context?.append('g')
                 .append('rect')
-                .attr('x', this.chartAxes!.xDomain(part[0].key))
+                .attr('x', chartAxes.xDomain(part[0].key))
                 .attr('y', 0)
-                .attr('width', this.chartAxes!.xDomain(part[part.length - 1].key) - this.chartAxes!.xDomain(part[0].key))
+                .attr('width', chartAxes.xDomain(part[part.length - 1].key) - chartAxes.xDomain(part[0].key))
                 .attr('height', this.chartDimensions.height)
                 .attr('fill', 'url(#no-data-stripes)')
                 .attr('fill-opacity', 0.5);

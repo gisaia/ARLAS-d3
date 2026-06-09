@@ -41,6 +41,8 @@ export class ChartArea extends AbstractChart {
     if (!this.chartAxes) {
       return;
     }
+    // Create a local variable to avoid non-null assertion
+    const chartAxes = this.chartAxes;
 
     this.createClipperContext();
 
@@ -67,9 +69,9 @@ export class ChartArea extends AbstractChart {
     const curveType: CurveFactory = (this.histogramParams.isSmoothedCurve) ? curveMonotoneX : curveLinear;
     const a = area<HistogramData>()
       .curve(curveType)
-      .x(d => this.chartAxes!.xDomain(+d.key))
+      .x(d => chartAxes.xDomain(+d.key))
       .y0(areaYPositon)
-      .y1(d => this.chartAxes!.yDomain(d.value));
+      .y1(d => chartAxes.yDomain(d.value));
 
     const urlFixedSelection = 'url(#' + this.histogramParams.uid + ')';
     const urlCurrentSelection = 'url(#' + this.histogramParams.uid + '-cs-area)';
