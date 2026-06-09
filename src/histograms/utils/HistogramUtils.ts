@@ -18,14 +18,14 @@
  * under the License.
  */
 
-import { Axis, AxisDomain } from 'd3-axis';
+import { Axis } from 'd3-axis';
 import { format } from 'd3-format';
-import { ScaleLinear, ScaleTime } from 'd3-scale';
+import { NumberValue, ScaleLinear, ScaleTime } from 'd3-scale';
 import { BaseType, Selection } from 'd3-selection';
 import { timeFormat, utcFormat } from 'd3-time-format';
 import * as moment from 'moment';
 import tinycolor from 'tinycolor2';
-import { BarOptions, HistogramParams, Style } from '../HistogramParams';
+import { BarHeadBand, BarOptions, HistogramParams, Style } from '../HistogramParams';
 
 
 export const NAN_COLOR = '#d8d8d8';
@@ -95,7 +95,7 @@ export interface BrushCornerTooltips {
 }
 
 export interface BrushTooltip {
-  htmlContainer: HTMLElement;
+  htmlContainer?: HTMLElement;
   xPosition: number;
   yPosition: number;
   content: string;
@@ -119,60 +119,61 @@ export interface SelectedInputValues {
 }
 
 export type HistogramSVG = Selection<SVGElement, HistogramData, BaseType, HistogramData>;
-export type HistogramSVGG = Selection<SVGGElement, HistogramData, BaseType, HistogramData>;
+export type HistogramSVGG = Selection<SVGGElement, HistogramData, null, undefined>;
+export type HistogramBarSVG = Selection<SVGRectElement, HistogramData, SVGGElement, HistogramData>;
+export type HistogramCircleSVG = Selection<SVGCircleElement, HistogramData, SVGGElement, HistogramData>;
 export type CircularSVG = Selection<SVGCircleElement, { type: string; }, SVGGElement, HistogramData>;
+export type RectangleSVG = Selection<SVGRectElement, { type: string; }, SVGGElement, HistogramData>;
 
-export type HistogramSVGRect = Selection<SVGRectElement, HistogramData, BaseType, HistogramData>;
-export type HistogramSVGClipPath = Selection<SVGClipPathElement, HistogramData, BaseType, HistogramData>;
-export type HistogramSVGLine = Selection<SVGLineElement, HistogramData, BaseType, HistogramData>;
+export type HistogramSVGRect = Selection<SVGRectElement, HistogramData, null, undefined>;
+export type HistogramSVGClipPath = Selection<SVGClipPathElement, HistogramData, null, undefined>;
+export type HistogramSVGLine = Selection<SVGLineElement, HistogramData, null, undefined>;
+export type HistogramSVGText = Selection<SVGTextElement, HistogramData, null, undefined>;
 
 export interface ChartDimensions {
-  svg: HistogramSVG;
+  svg: Selection<SVGElement, HistogramData, null, undefined>;
   margin: MarginModel;
   width: number;
   height: number;
 }
 
-export interface ChartAxes {
-  xDomain: ScaleTime<number, number> | ScaleLinear<number, number>;
+export interface ChartAxes extends ChartXAxes {
   yDomain: ScaleLinear<number, number>;
   yDomainRight?: ScaleLinear<number, number>;
-  xTicksAxis: Axis<AxisDomain>;
-  xLabelsAxis: Axis<AxisDomain>;
-  yTicksAxis: Axis<AxisDomain>;
-  yLabelsAxis: Axis<AxisDomain>;
-  yTicksAxisRight?: Axis<AxisDomain>;
-  yLabelsAxisRight?: Axis<AxisDomain>;
-  stepWidth: number;
-  xAxis: Axis<AxisDomain>;
-  yAxis: Axis<AxisDomain>;
-  yAxisRight?: Axis<AxisDomain>;
-
+  yTicksAxis: Axis<NumberValue>;
+  yLabelsAxis: Axis<NumberValue>;
+  yTicksAxisRight?: Axis<NumberValue>;
+  yLabelsAxisRight?: Axis<NumberValue>;
+  yAxis: Axis<NumberValue>;
+  yAxisRight?: Axis<NumberValue>;
 }
 
-export interface SwimlaneAxes {
+export interface ChartXAxes {
   xDomain: ScaleTime<number, number> | ScaleLinear<number, number>;
-  xTicksAxis: Axis<AxisDomain>;
-  xLabelsAxis: Axis<AxisDomain>;
+  xTicksAxis: Axis<NumberValue>;
+  xLabelsAxis: Axis<NumberValue>;
   stepWidth: number;
-  xAxis: Axis<AxisDomain>;
+  xAxis: Axis<NumberValue>;
 }
+
+export interface SwimlaneAxes extends ChartXAxes { }
 
 export function isChartAxes(axes: ChartAxes | SwimlaneAxes): axes is ChartAxes {
   return !!(axes as ChartAxes).yDomain;
 }
 
 export interface LaneStats {
-  min?: number;
-  max?: number;
-  sum?: number;
-  count?: number;
+  min: number;
+  max: number;
+  sum: number;
+  count: number;
 }
 
 export interface SwimlaneStats {
   columnStats: Map<number, LaneStats>;
   globalStats: LaneStats;
   nbLanes: number;
+  // Is it always defined?
   minBorder?: number;
   maxBorder?: number;
   bucketLength?: number;
@@ -276,15 +277,11 @@ export class HistogramUtils {
   }
 
   public static parseSelectedValues(selectedValues: SelectedInputValues, dataType: DataType): SelectedOutputValues {
-    const parsedSelectedValues: SelectedOutputValues = { startvalue: null, endvalue: null };
     if (dataType === DataType.time) {
-      if ((typeof (<Date>selectedValues.startvalue).getMonth === 'function')) {
-        parsedSelectedValues.startvalue = new Date(<Date>selectedValues.startvalue);
-        parsedSelectedValues.endvalue = new Date(<Date>selectedValues.endvalue);
-      } else {
-        parsedSelectedValues.startvalue = new Date(<number>selectedValues.startvalue);
-        parsedSelectedValues.endvalue = new Date(<number>selectedValues.endvalue);
-      }
+      const parsedSelectedValues: SelectedOutputValues = {
+        startvalue: new Date(selectedValues.startvalue),
+        endvalue: new Date(selectedValues.endvalue)
+      };
       return parsedSelectedValues;
     } else {
       return selectedValues;
@@ -295,7 +292,7 @@ export class HistogramUtils {
     dataType: DataType): Map<string, Array<HistogramData>> {
     const swimlaneParsedDataMap = new Map<string, Array<HistogramData>>();
     swimlanesInputData.forEach((swimlane, key) => {
-      if (swimlane !== null && Array.isArray(swimlane) && swimlane.length > 0) {
+      if (Array.isArray(swimlane) && swimlane.length > 0) {
         swimlaneParsedDataMap.set(key, this.parseDataKey(swimlane, dataType));
       }
     });
@@ -310,9 +307,9 @@ export class HistogramUtils {
     return parsedData;
   }
 
-  public static getColor(zeroToOne: number, paletteColors: [number, number] | string): tinycolor.Instance {
+  public static getColor(zeroToOne: number, paletteColors?: [number, number] | string): tinycolor.Instance {
     // Linear interpolation between the cold and hot
-    if (paletteColors === null) {
+    if (!paletteColors) {
       const h0 = 259;
       const h1 = 12;
       const h = (h0) * (1 - zeroToOne) + (h1) * (zeroToOne);
@@ -391,7 +388,7 @@ export class HistogramUtils {
       !(bucket.value + '' === '-Infinity') : false;
   }
 
-  public static getFormatFromDateInterval(dateInterval): string {
+  public static getFormatFromDateInterval(dateInterval: number): string {
     const duration: moment.Duration = moment.duration(dateInterval);
     switch (true) {
       case duration.asYears() >= 1: {
@@ -450,7 +447,7 @@ export class HistogramUtils {
     return roundPrecision;
   }
 
-  public static round(value, precision): number {
+  public static round(value: number, precision: number): number {
     let multiplier;
     if (precision === 0) {
       return Math.round(value);
@@ -484,14 +481,14 @@ export class HistogramUtils {
     return scaled.toFixed(p) + ' ' + suffix;
   }
 
-  public static splitData(data: Array<HistogramData>): [Array<Array<HistogramData>>, Array<Array<HistogramData>>] {
-    const splittedData = new Array();
-    const wholes = new Array();
+  public static splitData(data: HistogramData[]): [HistogramData[][], HistogramData[][]] {
+    const splittedData = new Array<Array<HistogramData>>();
+    const wholes = new Array<Array<HistogramData>>();
     if (data && data.length > 0) {
       let isValid = this.isValueValid(data[0]);
       let stateChanged = false;
-      let localData = [];
-      let localWhole = [];
+      let localData = new Array<HistogramData>();
+      let localWhole = new Array<HistogramData>();
       data.forEach(d => {
         stateChanged = (isValid !== this.isValueValid(d));
         isValid = this.isValueValid(d);
@@ -530,10 +527,6 @@ export class HistogramUtils {
   }
 }
 
-export function roundToNearestMultiple(i, multiple) {
-  return ((i % multiple) > multiple / 2) ? i + multiple - i % multiple : i - i % multiple;
-}
-
 export enum SwimlaneMode {
   variableHeight = 'variableHeight',
   fixedHeight = 'fixedHeight',
@@ -566,15 +559,15 @@ export function positionToNumber(position: Position) {
   return position === Position.top ? 0 : 1;
 }
 
-export function formatNumber(x, formatChar = ' ', roundPrecision?: number): string {
-  if (!isNaN(+x)) {
+export function formatNumber(x: number | string, formatChar = ' ', roundPrecision?: number): string {
+  if (!Number.isNaN(+x)) {
     if (formatChar === NUMBER_FORMAT_CHAR) {
       formatChar = ' ';
     }
-    const trunc = Math.trunc(x);
+    const trunc = Math.trunc(+x);
     const integerFraction = (x + '').split('.');
     const spacedNumber = Math.abs(trunc).toString().replace(/\B(?=(\d{3})+(?!\d))/g, formatChar);
-    const spacedNumberString = x < 0 ? '-' + spacedNumber : spacedNumber;
+    const spacedNumberString = +x < 0 ? '-' + spacedNumber : spacedNumber;
     if (integerFraction.length === 2) {
       const fraction: string = integerFraction[1];
       let precision = 0;
@@ -592,7 +585,7 @@ export function formatNumber(x, formatChar = ' ', roundPrecision?: number): stri
       } else {
         precision = roundPrecision + 1;
       }
-      const roundedNumber = Math.round(x * Math.pow(10, precision)) /
+      const roundedNumber = Math.round(+x * Math.pow(10, precision)) /
         Math.pow(10, precision);
       const roundedIntergerFraction = (roundedNumber + '').split('.');
       if (roundedIntergerFraction.length === 2) {
@@ -604,12 +597,12 @@ export function formatNumber(x, formatChar = ' ', roundPrecision?: number): stri
       return spacedNumberString;
     }
   }
-  return x;
+  return x + '';
 }
 
 export const NUMBER_FORMAT_CHAR = 'NUMBER_FORMAT_CHAR';
 
-export const tickNumberFormat = (d, formatChar) => {
+export const tickNumberFormat = (d: NumberValue, formatChar: string) => {
   const y = format('')(d);
   return formatNumber(y, formatChar);
 };
@@ -641,60 +634,33 @@ export const BAR_OPTIONS = {
   BACKGROUND_COLOR: '#FFF'
 };
 
-export function getBarOptions(barOptions: BarOptions): BarOptions {
-  const returnedBarOptions: BarOptions = barOptions ? Object.assign({}, barOptions) : {};
-  if (returnedBarOptions.bar_weight === undefined) {
-    returnedBarOptions.bar_weight = BAR_OPTIONS.WEIGHT;
-  }
-  if (!returnedBarOptions.head_band) {
-    returnedBarOptions.head_band = {
-      selected_style: HEAD_BAR.SELECTED_STYLE,
-      unselected_style: HEAD_BAR.UNSELECTED_STYLE,
-      selected_height: HEAD_BAR.HEIGHT,
-      unselected_height: HEAD_BAR.HEIGHT
-    };
-  } else {
-    if (!returnedBarOptions.head_band.selected_style) {
-      returnedBarOptions.head_band.selected_style = HEAD_BAR.SELECTED_STYLE;
-    }
-    if (!returnedBarOptions.head_band.unselected_style) {
-      returnedBarOptions.head_band.unselected_style = HEAD_BAR.UNSELECTED_STYLE;
-    }
-    if (returnedBarOptions.head_band.selected_height === undefined) {
-      returnedBarOptions.head_band.selected_height = HEAD_BAR.HEIGHT;
-    }
-    if (returnedBarOptions.head_band.unselected_height === undefined) {
-      returnedBarOptions.head_band.unselected_height = HEAD_BAR.HEIGHT;
-    }
-  }
-  if (!returnedBarOptions.selected_style) {
-    returnedBarOptions.selected_style = SELECTED_STYLE;
-  } else {
-    returnedBarOptions.selected_style.fill = returnedBarOptions.selected_style.fill ?
-      returnedBarOptions.selected_style.fill : SELECTED_STYLE.fill;
-    returnedBarOptions.selected_style.stroke = returnedBarOptions.selected_style.stroke ?
-      returnedBarOptions.selected_style.stroke : SELECTED_STYLE.stroke;
-    returnedBarOptions.selected_style.background_color = returnedBarOptions.selected_style.background_color ?
-      returnedBarOptions.selected_style.background_color : SELECTED_STYLE.background_color;
-    returnedBarOptions.selected_style.stroke_width = returnedBarOptions.selected_style.stroke_width !== undefined ?
-      returnedBarOptions.selected_style.stroke_width : SELECTED_STYLE.stroke_width;
-    returnedBarOptions.selected_style.background_opacity = returnedBarOptions.selected_style.background_opacity !== undefined ?
-      returnedBarOptions.selected_style.background_opacity : SELECTED_STYLE.background_opacity;
-  }
-  if (!returnedBarOptions.unselected_style) {
-    returnedBarOptions.unselected_style = UNSELECTED_STYLE;
-  } else {
-    returnedBarOptions.unselected_style.fill = returnedBarOptions.unselected_style.fill ?
-      returnedBarOptions.unselected_style.fill : UNSELECTED_STYLE.fill;
-    returnedBarOptions.unselected_style.stroke = returnedBarOptions.unselected_style.stroke ?
-      returnedBarOptions.unselected_style.stroke : UNSELECTED_STYLE.stroke;
-    returnedBarOptions.unselected_style.background_color = returnedBarOptions.unselected_style.background_color ?
-      returnedBarOptions.unselected_style.background_color : UNSELECTED_STYLE.background_color;
-    returnedBarOptions.unselected_style.stroke_width = returnedBarOptions.unselected_style.stroke_width !== undefined ?
-      returnedBarOptions.unselected_style.stroke_width : UNSELECTED_STYLE.stroke_width;
-    returnedBarOptions.unselected_style.background_opacity = returnedBarOptions.unselected_style.background_opacity !== undefined ?
-      returnedBarOptions.unselected_style.background_opacity : UNSELECTED_STYLE.background_opacity;
-  }
+// TODO: do that for other options ? This is smart??
+/**
+ * Returns a complete BarOptions object using the default values
+ * @param barOptions
+ */
+export function getBarOptions(barOptions: Partial<BarOptions>): BarOptions {
+  const bar_weight = barOptions.bar_weight ?? BAR_OPTIONS.WEIGHT;
+  const head_band: BarHeadBand = {
+    selected_style: barOptions.head_band?.selected_style ?? HEAD_BAR.SELECTED_STYLE,
+    unselected_style: barOptions.head_band?.unselected_style ?? HEAD_BAR.UNSELECTED_STYLE,
+    selected_height: barOptions.head_band?.selected_height ?? HEAD_BAR.HEIGHT,
+    unselected_height: barOptions.head_band?.unselected_height ?? HEAD_BAR.HEIGHT
+  };
+  const selected_style: Style = {
+    fill: barOptions.selected_style?.fill ?? SELECTED_STYLE.fill,
+    stroke: barOptions.selected_style?.stroke ?? SELECTED_STYLE.stroke,
+    stroke_width: barOptions.selected_style?.stroke_width ?? SELECTED_STYLE.stroke_width,
+    background_color: barOptions.selected_style?.background_color ?? SELECTED_STYLE.background_color,
+    background_opacity: barOptions.selected_style?.background_opacity ?? SELECTED_STYLE.background_opacity
+  };
+  const unselected_style: Style = {
+    fill: barOptions.unselected_style?.fill ?? UNSELECTED_STYLE.fill,
+    stroke: barOptions.unselected_style?.stroke ?? UNSELECTED_STYLE.stroke,
+    stroke_width: barOptions.unselected_style?.stroke_width ?? UNSELECTED_STYLE.stroke_width,
+    background_color: barOptions.unselected_style?.background_color ?? UNSELECTED_STYLE.background_color,
+    background_opacity: barOptions.unselected_style?.background_opacity ?? UNSELECTED_STYLE.background_opacity
+  };
 
-  return returnedBarOptions;
+  return { bar_weight, head_band, selected_style, unselected_style };
 }

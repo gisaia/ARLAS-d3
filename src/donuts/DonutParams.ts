@@ -19,7 +19,7 @@
 
 import { Subject } from 'rxjs';
 import { ColorGenerator } from '../utils/color-generator';
-import { ARLASDonutTooltip, DonutNode, DonutTooltip, TreeNode } from './utils/DonutUtils';
+import { ARLASDonutTooltip, DonutNode, DonutTooltip, SimpleNode, TreeNode } from './utils/DonutUtils';
 
 export class DonutParams {
 
@@ -39,15 +39,14 @@ export class DonutParams {
   public opacity = 0.4;
 
   /**
-   * @description Css class name to use to customize a specific powerbar's style.
+   * @description Css class name to use to customize a specific donut's style.
    */
-  public customizedCssClass;
+  public customizedCssClass?: string;
 
   /**
    * @description List of selected nodes.
    */
-  public selectedArcsList: Array<Array<{ fieldName: string; fieldValue: string; }>> =
-    new Array<Array<{ fieldName: string; fieldValue: string; }>>();
+  public selectedArcsList = new Array<Array<SimpleNode>>();
 
   /**
    * @description Whether the donut is multi-selectable.
@@ -57,25 +56,24 @@ export class DonutParams {
   /**
    * @description Emits the list of selected nodes and the paths to their ultimate parent
    */
-  public selectedNodesEvent: Subject<Array<Array<{ fieldName: string; fieldValue: string; }>>> =
-    new Subject<Array<Array<{ fieldName: string; fieldValue: string; }>>>();
+  public selectedNodesEvent = new Subject<Array<Array<SimpleNode>>>();
 
   /**
    * @description Emits the hovered node and the path to it's parents.
    * The key of the map is the node's name and the value is its color on the donut.
    */
-  public hoveredNodesEvent: Subject<Map<string, string>> = new Subject<Map<string, string>>();
+  public hoveredNodesEvent = new Subject<Map<string, string>>();
 
   /**
    * @deprecated
    * @description Emits the tooltip of the hovered node.
    */
-  public hoveredNodeTooltipEvent: Subject<DonutTooltip> = new Subject<DonutTooltip>();
+  public hoveredNodeTooltipEvent = new Subject<DonutTooltip | null>();
 
   /**
    * @description Emits the tooltip of the hovered node.
    */
-  public tooltipEvent: Subject<ARLASDonutTooltip> = new Subject<ARLASDonutTooltip>();
+  public tooltipEvent = new Subject<ARLASDonutTooltip | null>();
 
   /**
    * @description Tooltip displayed when a node is hovered.
@@ -85,7 +83,7 @@ export class DonutParams {
   /**
    * @description D3 nodes diplayed on the donut.
    */
-  public donutNodes: Array<DonutNode>;
+  public donutNodes: Array<DonutNode> = [];
   /**
    * @description The SVG element that's the donut is built on.
    */
@@ -97,22 +95,29 @@ export class DonutParams {
   /**
    * @description  List of [key, color] couples that associates a hex color to each key
    */
-  public keysToColors: Array<[string, string]>;
+  public keysToColors: Array<[string, string]> = [];
   /**
    * @description Knowing that saturation scale is [0, 1], `colorsSaturationWeight` is a
    * factor (between 0 and 1) that tightens this scale to [(1-colorsSaturationWeight), 1].
    * Therefore colors saturation of donuts arcs will be within this tightened scale..
    */
-  public colorsSaturationWeight: number;
+  public colorsSaturationWeight = 1;
   /**
    * @description an object that implements ColorGenerator interface.
    */
-  public donutNodeColorizer: ColorGenerator;
+  public donutNodeColorizer?: ColorGenerator;
 
   public numberFormatChar = '';
 
   /** Dimensions */
-  public diameter: number;
-  public containerWidth: number;
+  public diameter?: number;
+  public containerWidth?: number;
 
+  public constructor(id: string, donutData: TreeNode, svg: SVGElement, container: HTMLElement, colorGenerator?: ColorGenerator) {
+    this.id = id;
+    this.donutData = donutData;
+    this.svgElement = svg;
+    this.donutContainer = container;
+    this.donutNodeColorizer = colorGenerator;
+  }
 }

@@ -17,12 +17,14 @@
  * under the License.
  */
 
-import { ColorGenerator } from '../../utils/color-generator';
-import { Selection, BaseType } from 'd3-selection';
 import { HierarchyRectangularNode } from 'd3-hierarchy';
+import { BaseType, Selection } from 'd3-selection';
+import { ColorGenerator } from '../../utils/color-generator';
+
+export type DonutContext = Selection<SVGGElement, TreeNode, BaseType, TreeNode>;
 
 export interface DonutDimensions {
-  svg: Selection<SVGElement, TreeNode, BaseType, TreeNode>;
+  svg: DonutContext;
   width: number;
   height: number;
   containerWidth: number;
@@ -38,13 +40,11 @@ export interface DonutTooltip {
   nodeColor: string;
 }
 
-export interface TreeNode {
+export interface TreeNode extends SimpleNode {
   id: string;
-  fieldName: string;
-  fieldValue: string;
-  size?: number;
-  metricValue?: number;
   isOther: boolean;
+  size: number;
+  metricValue?: number;
   children?: Array<TreeNode>;
   color?: string;
 }
@@ -81,9 +81,9 @@ export interface DonutTooltipContent {
 
 export class DonutUtils {
 
-  public static getNode(nodePath: Array<SimpleNode>, donutNodes: Array<DonutNode>): DonutNode {
+  public static getNode(nodePath: Array<SimpleNode>, donutNodes: Array<DonutNode>) {
     let count = nodePath.length - 1;
-    let nodeToSelect = null;
+    let nodeToSelect: DonutNode | null = null;
     for (let i = 0; i < donutNodes.length; i++) {
       if (donutNodes[i].data.fieldValue === nodePath[count].fieldValue &&
         donutNodes[i].data.fieldName === nodePath[count].fieldName) {
@@ -114,7 +114,7 @@ export class DonutUtils {
     return nodeToSelect;
   }
 
-  public static getNodeColor(d: DonutNode, donutNodeColorizer: ColorGenerator,
+  public static getNodeColor(d: DonutNode, donutNodeColorizer: ColorGenerator | undefined,
     keysToColors: Array<[string, string]>, colorsSaturationWeight: number): string {
     if (d.data.color) {
       return d.data.color;
@@ -131,21 +131,19 @@ export class DonutUtils {
     }
   }
 
-  public static getNodePathAsArray(n: DonutNode): Array<{ fieldName: string; fieldValue: string; }> {
-    const nodePathAsArray = new Array<{ fieldName: string; fieldValue: string; }>();
+  public static getNodePathAsArray(n: DonutNode): Array<SimpleNode> {
+    const nodePathAsArray = new Array<SimpleNode>();
     if (n.depth > 0) {
       nodePathAsArray.push({ fieldName: n.data.fieldName, fieldValue: n.data.fieldValue });
-      if (n.parent && n.parent.parent) {
-        while (n.parent.parent) {
-          n = <DonutNode>n.parent;
-          nodePathAsArray.push({ fieldName: n.data.fieldName, fieldValue: n.data.fieldValue });
-        }
+      while (n.parent?.parent) {
+        n = n.parent;
+        nodePathAsArray.push({ fieldName: n.data.fieldName, fieldValue: n.data.fieldValue });
       }
     }
     return nodePathAsArray;
   }
 
-  public static getNodeToolipAsArray(n: DonutNode, donutNodeColorizer: ColorGenerator,
+  public static getNodeToolipAsArray(n: DonutNode, donutNodeColorizer: ColorGenerator | undefined,
     keysToColors: Array<[string, string]>, colorsSaturationWeight: number) {
     const tooltipArray: DonutTooltipContent[] = [];
     if (n.depth > 0) {
@@ -160,21 +158,19 @@ export class DonutUtils {
         tooltipContent.percentage = (Math.round(num * 100) / 100).toString();
       }
       tooltipArray.push(tooltipContent);
-      if (n.parent && n.parent.parent) {
-        while (n.parent.parent) {
-          n = <DonutNode>n.parent;
-          const tc: DonutTooltipContent = {
-            field: n.data.fieldName,
-            value: n.data.fieldValue,
-            metric: n.data.size,
-            color: DonutUtils.getNodeColor(n, donutNodeColorizer, keysToColors, colorsSaturationWeight)
-          };
-          if (n.parent) {
-            const num = (n.data.size / n.parent.data.size * 100);
-            tc.percentage =   (Math.round(num * 100) / 100).toString();
-          }
-          tooltipArray.push(tc);
+      while (n.parent?.parent) {
+        n = n.parent;
+        const tc: DonutTooltipContent = {
+          field: n.data.fieldName,
+          value: n.data.fieldValue,
+          metric: n.data.size,
+          color: DonutUtils.getNodeColor(n, donutNodeColorizer, keysToColors, colorsSaturationWeight)
+        };
+        if (n.parent) {
+          const num = (n.data.size / n.parent.data.size * 100);
+          tc.percentage =   (Math.round(num * 100) / 100).toString();
         }
+        tooltipArray.push(tc);
       }
       return tooltipArray;
     }

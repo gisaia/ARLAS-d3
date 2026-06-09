@@ -25,7 +25,7 @@ export interface TimelineData {
     };
 }
 export interface TimelineTooltip {
-    data: TimelineData;
+    data?: TimelineData;
     stringDate: string;
     shown: boolean;
     position: number;

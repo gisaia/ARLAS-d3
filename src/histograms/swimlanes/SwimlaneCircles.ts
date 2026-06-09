@@ -17,17 +17,17 @@
  * under the License.
  */
 
+import { HistogramData, SwimlaneRepresentation, SwimlaneStats } from '../utils/HistogramUtils';
 import { AbstractSwimlane } from './AbstractSwimlane';
-import { HistogramData, SwimlaneStats, SwimlaneRepresentation } from '../utils/HistogramUtils';
 
 export class SwimlaneCircles extends AbstractSwimlane {
 
   protected plotOneLane(data: Array<HistogramData>, indexOfLane: number): void {
-    const swimStats: SwimlaneStats = this.histogramParams.swimlaneData.stats;
+    const swimStats: SwimlaneStats = this.histogramParams.swimlaneData!.stats;
     const swimRepresentation: SwimlaneRepresentation = this.histogramParams.swimlaneRepresentation;
     const swimColors = this.histogramParams.paletteColors;
     const swimOptions = this.histogramParams.swimlaneOptions;
-    this.barsContext = this.context.append('g')
+    this.barsContext = this.context?.append('g')
       .attr('class', 'histogram__swimlane').selectAll('dot').data(data).enter().append('circle')
       .attr('r', (d) => this.getBucketRadius(d, swimStats, swimRepresentation))
       .attr('cx', (d) => this.histogramParams.swimLaneLabelsWidth + this.swimlaneAxes.xDomain((+d.key)) +
@@ -46,7 +46,7 @@ export class SwimlaneCircles extends AbstractSwimlane {
     if (representation === SwimlaneRepresentation.global) {
       return Math.sqrt(Math.abs(bucketValue) / globalMax) * 3 / 5 * fixedCoefficient;
     } else {
-      const bucketSum = swimStats.columnStats.get(+bucket.key).sum;
+      const bucketSum = swimStats.columnStats.get(+bucket.key)?.sum ?? 0;
       if (bucketSum === 0) {
         return 0;
       } else {

@@ -17,19 +17,29 @@
  * under the License.
  */
 
-import {
-  SelectedInputValues, SelectedOutputValues, ChartType, DataType, Position, Tooltip, MarginModel,
-  SwimlaneMode,
-  SwimlaneData,
-  HistogramData,
-  SwimlaneRepresentation,
-  SwimlaneOptions,
-  HistogramTooltip,
-  BucketInterval
-} from './utils/HistogramUtils';
 import { Subject } from 'rxjs';
 import { ColorGenerator } from '../utils/color-generator';
 import { XBucket } from './buckets/buckets';
+import {
+  BucketInterval,
+  ChartType, DataType,
+  HistogramData,
+  HistogramTooltip,
+  HistogramUtils,
+  MarginModel,
+  Position,
+  SelectedInputValues, SelectedOutputValues,
+  SwimlaneData,
+  SwimlaneMode,
+  SwimlaneOptions,
+  SwimlaneRepresentation,
+  Tooltip
+} from './utils/HistogramUtils';
+
+export interface LegendValue {
+  key: string;
+  color: string;
+}
 
 export class HistogramParams {
 
@@ -40,18 +50,18 @@ export class HistogramParams {
   // ########################## Inputs ##########################
 
   /** Data */
-  public histogramData: Array<HistogramData>;
-  public swimlaneData: SwimlaneData;
-  public dataType: DataType = DataType.numeric;
+  public histogramData: Array<HistogramData> = [];
+  public swimlaneData?: SwimlaneData;
+  public dataType = DataType.numeric;
   public dataUnit = '';
-  public chartType: ChartType = ChartType.area;
+  public chartType = ChartType.area;
   public moveDataByHalfInterval = false;
-  public bucketRange: number;
-  public bucketInterval: BucketInterval;
+  public bucketRange?: number;
+  public bucketInterval?: BucketInterval;
 
   /** Dimensions */
-  public chartWidth: number = null;
-  public chartHeight: number = null;
+  public chartWidth = 0;
+  public chartHeight = 0;
 
   /** Axes and ticks */
   public xTicks = 5;
@@ -66,7 +76,7 @@ export class HistogramParams {
   public yAxisFromZero = false;
   public showStripes = true;
   public showHorizontalLines = true;
-  public ticksDateFormat: string = null;
+  public ticksDateFormat = '';
   public xAxisPosition: Position = Position.bottom;
   public descriptionPosition: Position = Position.bottom;
   // Add 2 pixel around each label to detect overlap.
@@ -76,14 +86,12 @@ export class HistogramParams {
 
   /** Desctiption */
   public chartTitle = '';
-  public valuesDateFormat: string = null;
+  public valuesDateFormat = '';
 
   /** Bars */
-  public paletteColors: [number, number] | string = null;
   public barWeight = 0.6;
   public multiselectable = false;
-
-  public barOptions: BarOptions;
+  public barOptions: Partial<BarOptions> = {};
 
   /** Area */
   public isSmoothedCurve = true;
@@ -94,9 +102,11 @@ export class HistogramParams {
   public handlesHeightWeight = 0.5;
   public handlesRadius = 3;
 
-  public intervalSelection: SelectedInputValues;
-  public intervalListSelection: SelectedInputValues[];
-  public topOffsetRemoveInterval: number;
+  // Only used to store a value => remove it
+  // public intervalSelection: SelectedInputValues;
+  public intervalListSelection: SelectedInputValues[] = [];
+  // Does nothing, to remove
+  // public topOffsetRemoveInterval: number;
   public isHistogramSelectable = true;
   public displayOnlyIntervalsWithData = false;
 
@@ -104,76 +114,82 @@ export class HistogramParams {
   public swimlaneBorderRadius = 3;
   public swimlaneMode: SwimlaneMode = SwimlaneMode.variableHeight;
   public swimlaneRepresentation: SwimlaneRepresentation = SwimlaneRepresentation.global;
-  public swimLaneLabelsWidth: number = null;
-  public swimlaneHeight: number = null;
-  public swimlaneOptions: SwimlaneOptions;
+  public swimLaneLabelsWidth = 100;
+  public swimlaneHeight = 0;
+  public swimlaneOptions: SwimlaneOptions = {};
   public selectedSwimlanes = new Set<string>();
+  public paletteColors?: [number, number] | string;
+  public legend = new Array<LegendValue>();
 
   public numberFormatChar = ' ';
 
   // ########################## Outputs ##########################
 
   public valuesListChangedEvent = new Subject<SelectedOutputValues[]>();
-  public hoveredBucketEvent = new Subject<XBucket>();
+  public hoveredBucketEvent = new Subject<XBucket | undefined>();
   public selectedSwimlanesEvent = new Subject<Set<string>>();
   public tooltipEvent = new Subject<HistogramTooltip>();
 
-  // ########################## Parameter binded with HTML ##########################
+  // ########################## Parameter bound with HTML ##########################
 
-  public histogramContainer: HTMLElement;
-  public svgNode: SVGElement;
+  public histogramContainer?: HTMLElement;
+  public svgNode?: SVGElement;
 
   public margin: MarginModel = { top: 4, right: 10, bottom: 20, left: 60 };
   public tooltip: Tooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
 
-  public legend;
   public displaySvg = 'none';
   public dataLength = 0;
 
-  public startValue: string = null;
-  public endValue: string = null;
+  public startValue: string = '';
+  public endValue: string = '';
   public showTitle = true;
 
   public intervalSelectedMap = new Map<string, { values: SelectedOutputValues; x_position: number; }>();
   public selectionListIntervalId: string[] = [];
 
-  public swimlaneDataDomain: Array<{ key: number; value: number; }>;
+  public swimlaneDataDomain: Array<{ key: number; value: number; }> = [];
 
   // ######################### Parameters set in the component ########################
   public hasDataChanged = false;
-  public uid: string;
+  public uid = HistogramUtils.generateUID();
   public displayHorizontal = 'hidden';
   public displayVertical = 'hidden';
-  public useUtc: boolean;
-  public colorGenerator: ColorGenerator;
+  public useUtc = false;
+  public colorGenerator?: ColorGenerator;
+
+  public constructor(id: string, mainChartId: string) {
+    this.id = id;
+    this.mainChartId = mainChartId;
+  }
 }
 
 export interface BarOptions {
-  selected_style?: Style;
-  unselected_style?: Style;
+  selected_style: Style;
+  unselected_style: Style;
   /** bar weight applied to bars width. ]0,1]. Not implemented */
-  bar_weight?: number;
+  bar_weight: number;
   /** Optional head band on a bar. */
-  head_band?: BarHeadBand;
+  head_band: BarHeadBand;
 }
 
 export interface BarHeadBand {
-  selected_style?: Style;
-  unselected_style?: Style;
-  selected_height?: number;
-  unselected_height?: number;
+  selected_style: Style;
+  unselected_style: Style;
+  selected_height: number;
+  unselected_height: number;
 }
 
 export interface Style {
   /** bars fill color. Not implemented */
-  fill?: string;
+  fill: string;
   /** bars stroke color. Not implemented */
-  stroke?: string;
+  stroke: string;
   /** bars stroke width in px. Not implemented */
-  stroke_width?: number;
+  stroke_width: number;
 
-  background_color?: string;
-  background_opacity?: number;
+  background_color: string;
+  background_opacity: number;
 }
 
 export enum SelectionType {

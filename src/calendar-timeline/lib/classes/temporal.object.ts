@@ -17,47 +17,41 @@
  * under the License.
  */
 import { Granularity } from '../enumerations/granularity.enum';
-import { Season } from './season';
 import { Axis } from './axes/axis';
 import { DrawableObjectColors } from './buckets/buckets';
 import { DrawableObject } from './drawable.object';
+import { Season } from './season';
 
 export class TemporalObject extends DrawableObject {
-    protected axis: Axis;
-    protected granularity: Granularity;
-    protected climatological: boolean;
-    protected colors: DrawableObjectColors;
+    protected axis!: Axis;
+    protected granularity!: Granularity;
+    protected climatological = false;
+    protected colors: DrawableObjectColors = {
+        stroke: '#4285f4',
+        fill: '#fff'
+    };
 
-    public setAxis(axis: Axis): TemporalObject {
+    public setAxis(axis: Axis): this {
         this.axis = axis;
         return this;
     }
 
-    public setGranularity(granularity: Granularity): TemporalObject {
+    public setGranularity(granularity: Granularity): this {
         this.granularity = granularity;
         this.setColors(granularity);
         return this;
     }
 
-    public setClimatological(climatological: boolean): TemporalObject {
+    public setClimatological(climatological: boolean): this {
         this.climatological = climatological;
         return this;
     }
 
-    protected setColors(granularity: Granularity): TemporalObject {
-        switch (granularity) {
-            case Granularity.day:
-                this.colors = {
-                    stroke: '#4285f4',
-                    fill: '#fff'
-                };
-                break;
-            default:
-                this.colors = {
-                    stroke: '#4285f4',
-                    fill: '#fff'
-                };
-        }
+    protected setColors(granularity: Granularity): this {
+        this.colors = {
+            stroke: '#4285f4',
+            fill: '#fff'
+        };
         return this;
     }
 

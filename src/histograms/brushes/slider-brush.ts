@@ -18,16 +18,17 @@
  */
 
 import { BrushBehavior, BrushSelection, brushX } from 'd3-brush';
-import { HistogramData, HistogramSVGG } from '../utils/HistogramUtils';
+import { CircularSVG, HistogramData, HistogramSVGLine } from '../utils/HistogramUtils';
 import { Brush } from './brush';
 
 export class SliderBrush extends Brush {
+    private handles!: CircularSVG;
 
-    public handleRadius: number;
-    public lineContext: HistogramSVGG;
+    public handleRadius = 5;
+    public lineContext!: HistogramSVGLine;
     private readonly strokeWidth = 1.5;
 
-    public setHandleRadius(handleRadius): this {
+    public setHandleRadius(handleRadius: number): this {
         this.handleRadius = handleRadius;
         return this;
     }
@@ -49,12 +50,10 @@ export class SliderBrush extends Brush {
     }
 
     public getExtent(): BrushBehavior<HistogramData> {
-        if (!this.extent) {
-            this.extent = brushX<HistogramData>().extent([
-                [0, 0],
-                [this.dimensions.width, this.dimensions.height]
-            ]);
-        }
+        this.extent ??= brushX<HistogramData>().extent([
+            [0, 0],
+            [this.dimensions.width, this.dimensions.height]
+        ]);
         return this.extent;
     }
 
@@ -62,8 +61,8 @@ export class SliderBrush extends Brush {
         return super.move([start, end]);
     }
 
-    public translateBrushHandles(selection: BrushSelection) {
-        if (selection !== null && this.checkSelectionNotNaN(selection)) {
+    public translateBrushHandles(selection: BrushSelection | null) {
+        if (selection && this.checkSelectionNotNaN(selection)) {
             this.handles.attr('display', null).attr('transform', (d, i) =>
                 'translate(' + [selection[i], 0] + ')');
             this.lineContext.selection()

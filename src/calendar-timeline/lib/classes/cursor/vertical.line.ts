@@ -16,25 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Bucket } from '../../interfaces/bucket';
-import { BaseType, Selection } from 'd3-selection';
 import { Subject } from 'rxjs';
+import { Bucket } from '../../interfaces/bucket';
+import { TimelineContext } from '../drawable.object';
 import { TemporalObject } from '../temporal.object';
-import { TimelineData } from '../../interfaces/timeline.data';
 
 export class VerticalLine extends TemporalObject {
 
     public hoveredBucket: Subject<Bucket> = new Subject();
 
-    private currentDate: Date;
+    private currentDate?: Date;
 
-    public constructor(context: Selection<SVGGElement, TimelineData, BaseType, TimelineData>) {
+    public constructor(context: TimelineContext) {
         super(context, VerticalLine.name.toString());
     }
 
     public plot(): void {
         super.plot();
-        this.element.append('line')
+        this.element?.append('line')
             .attr('x1', 0)
             .attr('x2', 0)
             .attr('y1', 0)
@@ -46,22 +45,22 @@ export class VerticalLine extends TemporalObject {
     }
 
     public show() {
-        this.element.style('display', 'block');
+        this.element?.style('display', 'block');
     }
 
     public hide() {
-        this.element.style('display', 'none');
+        this.element?.style('display', 'none');
     }
 
     public moveTo(p: number) {
         /** the cursor will always be displayed on the middle of the interval
-                 * Positions in between are not allowed
-                 */
+         * Positions in between are not allowed
+         */
         const date = this.round(this.axis.getDate(p));
         const position = this.axis.getPosition(date) +
             this.axis.getTickIntervalWidth() / 2;
         this.element
-            .select('line')
+            ?.select('line')
             .attr('transform', 'translate(' + (position + 1) + ',' + 0 + ')');
         if (!this.currentDate || this.currentDate.getTime() !== date.getTime()) {
             this.hoveredBucket.next({

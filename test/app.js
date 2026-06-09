@@ -54,7 +54,7 @@ const inputCharts = {
   "isSmoothedCurve": true
 }
 
-const histogramParams = new HistogramParams();
+const histogramParams = new HistogramParams('histogram', 'histogram');
 histogramParams.useUtc = true;
 for (const [key, value] of Object.entries(inputCharts)) {
   histogramParams[key] = value;
@@ -114,13 +114,13 @@ for (let i=0; i<10; i++) {
   timeHistogramData.push({ value: Math.random() * 300 - 100, key: new Date(startDate + i*dt), chartId: '1' });
 }
 
-const histogramBars = new ChartBars();
+const histogramBars = new ChartBars({...histogramParams});
 displayHistogram(histogramBars, 'containerBars', defaultHistogramData);
-const histogramCurve = new ChartCurve();
+const histogramCurve = new ChartCurve({...histogramParams});
 displayHistogram(histogramCurve, 'containerCurve', defaultHistogramData, true);
-const histogramArea = new ChartArea();
+const histogramArea = new ChartArea({...histogramParams});
 displayHistogram(histogramArea, 'containerArea', defaultHistogramData);
-const timeHistogramBars = new ChartCurve();
+const timeHistogramBars = new ChartCurve({...histogramParams});
 displayHistogram(timeHistogramBars, 'containerHistTime', timeHistogramData, false, DataType.time)
 
 function displayHistogram(histogram, containerName, data, selectionOverflow = false, dataType = DataType.numeric) {
@@ -129,7 +129,7 @@ function displayHistogram(histogram, containerName, data, selectionOverflow = fa
   histogram.histogramParams.multiselectable = true;
   histogram.histogramParams.chartWidth = null;
 
-  // histogram.histogramParams.selectionType = 'slider';
+  histogram.histogramParams.selectionType = 'slider';
   histogram.histogramParams.intervalSelectedMap = new Map();
   histogram.histogramParams.histogramContainer = document.getElementById(containerName)
   histogram.histogramParams.svgNode = document.getElementById(containerName).querySelector('svg');
@@ -227,8 +227,6 @@ function getMockData(granularity) {
 
 /** Swimlanes */
 
-const swimlane = new SwimlaneBars()
-
 const swimlaneInput = {
   "xTicks": 5,
   "yTicks": 2,
@@ -270,11 +268,12 @@ const swimlaneInput = {
   "swimlaneRepresentation": 0
 }
 
-const swimlaneParams = new HistogramParams();
+const swimlaneParams = new HistogramParams('swimlane', 'swimlane');
 for (const [key, value] of Object.entries(swimlaneInput)) {
   swimlaneParams[key] = value;
 }
 
+const swimlane = new SwimlaneBars(swimlaneParams)
 swimlane.histogramParams = swimlaneParams;
 swimlane.histogramParams.intervalSelectedMap = new Map();
 swimlane.histogramParams.histogramContainer = document.getElementById('containerSwimlane')
@@ -453,11 +452,12 @@ const donutData = {
   ]
 };
 
-const donut = new OneSelectionDonut();
-donut.donutParams = new DonutParams();
+const donutParams = new DonutParams('donut', donutData,
+  document.getElementById('containerDonut').querySelector('svg'),
+  document.getElementById('containerDonut')
+)
+
+const donut = new OneSelectionDonut(donutParams);
 donut.donutParams.diameter = 150;
-donut.donutParams.donutData = donutData;
-donut.donutParams.donutContainer = document.getElementById('containerDonut');
-donut.donutParams.svgElement = document.getElementById('containerDonut').querySelector('svg');
 donut.plot();
 donut.resize(document.getElementById('containerDonut'));

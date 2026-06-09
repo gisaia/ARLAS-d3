@@ -18,7 +18,7 @@
  */
 
 import { AbstractDonut } from './AbstractDonut';
-import { DonutNode, DonutUtils, TreeNode, SimpleNode } from './utils/DonutUtils';
+import { DonutNode, DonutUtils, SimpleNode, TreeNode } from './utils/DonutUtils';
 
 export class OneSelectionDonut extends AbstractDonut {
 
@@ -61,7 +61,7 @@ export class OneSelectionDonut extends AbstractDonut {
 
       if (!clickedNode.isSelected) {
         clickedNode.isSelected = true;
-        if (this.lastSelectedNode !== null) {
+        if (this.lastSelectedNode) {
           this.lastSelectedNode.isSelected = false;
         }
         this.donutParams.selectedArcsList = [DonutUtils.getNodePathAsArray(clickedNode)];
@@ -70,8 +70,10 @@ export class OneSelectionDonut extends AbstractDonut {
       } else {
         clickedNode.isSelected = false;
         this.donutParams.selectedArcsList = [];
-        this.lastSelectedNode.isSelected = false;
-        this.lastSelectedNode = null;
+        if (this.lastSelectedNode) {
+          this.lastSelectedNode.isSelected = false;
+        }
+        this.lastSelectedNode = undefined;
         this.tweenNode(this.donutParams.donutNodes[0], 750);
       }
       this.donutParams.selectedNodesEvent.next(this.donutParams.selectedArcsList);
@@ -79,8 +81,10 @@ export class OneSelectionDonut extends AbstractDonut {
       if (!clickedNode.isSelected && this.donutParams.selectedArcsList.length > 0) {
         clickedNode.isSelected = true;
         this.donutParams.selectedArcsList = [];
-        this.lastSelectedNode.isSelected = false;
-        this.lastSelectedNode = null;
+        if (this.lastSelectedNode) {
+          this.lastSelectedNode.isSelected = false;
+        }
+        this.lastSelectedNode = undefined;
         this.tweenNode(clickedNode, 750);
         this.donutParams.selectedNodesEvent.next(this.donutParams.selectedArcsList);
       }

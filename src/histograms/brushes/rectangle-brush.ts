@@ -18,12 +18,13 @@
  */
 
 import { BrushBehavior, BrushSelection, brushX } from 'd3-brush';
-import { HistogramData } from '../utils/HistogramUtils';
+import { HistogramData, RectangleSVG } from '../utils/HistogramUtils';
 import { Brush } from './brush';
 
 export class RectangleBrush extends Brush {
+    private handles!: RectangleSVG;
 
-    public handleHeight: number;
+    public handleHeight = 2.5;
     public handleWidth = 2.5;
 
     public setHandleHeight(handleHeightWeight: number): this {
@@ -49,9 +50,9 @@ export class RectangleBrush extends Brush {
         return this.handleWidth + 2;
     }
 
-    public translateBrushHandles(selection: BrushSelection) {
+    public translateBrushHandles(selection: BrushSelection | null) {
         const xTranslation = this.handleHeight - (this.dimensions.height - this.handleHeight) / 2;
-        if (selection !== null && this.checkSelectionNotNaN(selection)) {
+        if (selection && this.checkSelectionNotNaN(selection)) {
             this.handles.attr('display', null).attr('transform', (d, i) =>
                 'translate(' + [selection[i], -xTranslation] + ')');
         } else {
@@ -74,7 +75,7 @@ export class RectangleBrush extends Brush {
     }
 
     protected drawHandles(): void {
-        const brushResizePath = (d) => (d.type === 'e') ? 0 : -this.handleWidth;
+        const brushResizePath = (d: any) => (d.type === 'e') ? 0 : -this.handleWidth;
         this.handles = this.brushContext.selectAll('.histogram__brush--handles')
             .data([{ type: 'w' }, { type: 'e' }])
             .enter().append('rect')
