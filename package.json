@@ -54,7 +54,7 @@
     "globals": "^16.5.0",
     "license-check-and-add": "^4.0.5",
     "node": "^24.10.1",
-    "patch-package": "^6.4.7",
+    "patch-package": "^8.0.1",
     "tsc-alias": "^1.8.16",
     "typescript": "~5.9.3"
   },
