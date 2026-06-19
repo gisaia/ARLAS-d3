@@ -71,7 +71,7 @@ export abstract class AbstractChart extends AbstractHistogram {
   /** Maximum number of buckets that a chart can have */
   private readonly MAX_BUCKET_NUMBER = 1000;
 
-  public plot(inputData: Array<HistogramData>) {
+  public plot(inputData: HistogramData[]) {
     super.init();
     this.dataDomain = inputData;
     if (inputData && Array.isArray(inputData) && inputData.length > 0) {

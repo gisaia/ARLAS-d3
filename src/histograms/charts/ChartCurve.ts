@@ -51,7 +51,7 @@ export class ChartCurve extends AbstractChart {
             chartIdToData.forEach((values, id) => {
                 if (chartIdToData.size === 2) {
                     /** always put main chart id axis to the left */
-                    if (chartIds.has(this.histogramParams.mainChartId)) {
+                    if (this.histogramParams.mainChartId && chartIds.has(this.histogramParams.mainChartId)) {
                         if (id === this.histogramParams.mainChartId) {
                             chartIdsToSides.set(id, 'left');
                         } else {
@@ -75,7 +75,7 @@ export class ChartCurve extends AbstractChart {
                 }
             });
             /** add main chartId */
-            const chartData = chartIdToData.get(this.histogramParams.mainChartId);
+            const chartData = this.histogramParams.mainChartId ? chartIdToData.get(this.histogramParams.mainChartId) : undefined;
             if (chartData) {
                 dataArray.push(chartData);
             }

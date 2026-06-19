@@ -21,19 +21,8 @@ import { Subject } from 'rxjs';
 import { ColorGenerator } from '../utils/color-generator';
 import { XBucket } from './buckets/buckets';
 import {
-  BucketInterval,
-  ChartType, DataType,
-  HistogramData,
-  HistogramTooltip,
-  HistogramUtils,
-  MarginModel,
-  Position,
-  SelectedInputValues, SelectedOutputValues,
-  SwimlaneData,
-  SwimlaneMode,
-  SwimlaneOptions,
-  SwimlaneRepresentation,
-  Tooltip
+  BucketInterval, ChartType, DataType, HistogramData, HistogramTooltip, HistogramUtils, MarginModel, Position,
+  SelectedInputValues, SelectedOutputValues, SwimlaneData, SwimlaneMode, SwimlaneOptions, SwimlaneRepresentation, Tooltip
 } from './utils/HistogramUtils';
 
 export interface LegendValue {
@@ -45,7 +34,7 @@ export class HistogramParams {
 
   /** Id of the histogram */
   public id;
-  public mainChartId: string;
+  public mainChartId?: string;
 
   // ########################## Inputs ##########################
 
@@ -133,7 +122,7 @@ export class HistogramParams {
   // ########################## Parameter bound with HTML ##########################
 
   public histogramContainer?: HTMLElement;
-  public svgNode?: SVGElement;
+  public svgNode: SVGElement | null = null;
 
   public margin: MarginModel = { top: 4, right: 10, bottom: 20, left: 60 };
   public tooltip: Tooltip = { isShown: false, isRightSide: false, xPosition: 0, yPosition: 0, xContent: '', yContent: '' };
@@ -158,9 +147,8 @@ export class HistogramParams {
   public useUtc = false;
   public colorGenerator?: ColorGenerator;
 
-  public constructor(id: string, mainChartId: string) {
+  public constructor(id: string) {
     this.id = id;
-    this.mainChartId = mainChartId;
   }
 }
 
