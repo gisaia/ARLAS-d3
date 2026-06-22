@@ -375,7 +375,7 @@ export class ChartCurve extends AbstractChart {
      * @param fixedSelectionClipPath Clip path applied to the fixed selections.
      * @param currentSelectionClipPath Clip path applied to the current selections.
      */
-    private plotCurves(chartId: string, data: HistogramData[], line: Line<HistogramData>, dashed = false,
+    private plotCurves(chartId: string | undefined, data: HistogramData[], line: Line<HistogramData>, dashed = false,
         fixedSelectionClipPath: string, currentSelectionClipPath: string) {
         const validData = data.filter(b => this.isValueValid(b));
         this.context?.append('g').attr('class', 'histogram__curve-data')
@@ -433,10 +433,6 @@ export class ChartCurve extends AbstractChart {
         const urlCurrentSelection = 'url(#' + this.histogramParams.uid + '-cs-curve)';
         const discontinuedData = HistogramUtils.splitData(data);
         if (!!data && data.length > 1) {
-            if (!chartId) {
-                throw new Error('Data is missing a chartId');
-            }
-
             const curveType: CurveFactory = (this.histogramParams.isSmoothedCurve) ? curveMonotoneX : curveLinear;
             const a = line<HistogramData>()
                 .curve(curveType)
