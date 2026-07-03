@@ -9,7 +9,8 @@
     "build-release": "tsc -p tsconfig.json && tsc-alias && cp -r src/styles dist/ && cp -r patches dist/",
     "lint": "eslint . --ext .ts",
     "postinstall": "patch-package",
-    "license-check": "license-check-and-add check -f license-check-and-add.json"
+    "license-check": "license-check-and-add check -f license-check-and-add.json",
+    "test": "vitest run"
   },
   "repository": {
     "type": "git",
@@ -52,11 +53,13 @@
     "@typescript-eslint/parser": "^8.48.1",
     "eslint": "^9.39.1",
     "globals": "^16.5.0",
+    "jsdom": "^29.1.1",
     "license-check-and-add": "^4.0.5",
     "node": "^24.10.1",
     "patch-package": "^8.0.1",
     "tsc-alias": "^1.8.16",
-    "typescript": "~5.9.3"
+    "typescript": "~5.9.3",
+    "vitest": "^4.1.9"
   },
   "bugs": {
     "url": "https://github.com/gisaia/ARLAS-d3/issues"
