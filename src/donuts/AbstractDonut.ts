@@ -22,6 +22,7 @@ import { interpolate } from 'd3-interpolate';
 import { scaleLinear, ScaleLinear, ScalePower, scaleSqrt } from 'd3-scale';
 import { pointer, select } from 'd3-selection';
 import { arc, Arc, DefaultArcObject } from 'd3-shape';
+import 'd3-transition';
 import { DonutParams } from './DonutParams';
 import { DonutContext, DonutDimensions, DonutNode, DonutTooltip, DonutUtils, SimpleNode, TreeNode } from './utils/DonutUtils';
 
@@ -53,6 +54,7 @@ export abstract class AbstractDonut {
     this.createDonutArcs();
     this.structureDataToNodes();
     this.plotDonut();
+    this.styleNoValueNode();
   }
 
   /**
@@ -316,7 +318,6 @@ export abstract class AbstractDonut {
     } else {
       this.donutContext.selectAll('path').style('opacity', 1).style('stroke-width', '0.5px');
     }
-    this.styleNoValueNode();
   }
 
   /**

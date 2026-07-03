@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import { ChartCurve, HistogramParams, ChartBars, SwimlaneBars, ChartArea, OneSelectionDonut, DonutParams, DataType } from '../dist/index.js'
+import { ChartCurve, HistogramParams, ChartBars, SwimlaneBars, ChartArea, OneSelectionDonut, DonutParams, DataType, MultiSelectionDonut } from '../dist/index.js'
 import { Dimensions, Granularity, Margins, Timeline } from '../dist/index.js'
 
 
@@ -384,7 +384,7 @@ const donutData = {
     {
       fieldValue: 'sentinelle',
       fieldName: 'satellites',
-      size: 230,
+      size: 200,
       children : [
         {
           fieldValue: 'sentinelle1',
@@ -394,7 +394,7 @@ const donutData = {
         {
           fieldValue: 'sentinelle2',
           fieldName: 'mission',
-          size: 130
+          size: 100
         }
       ]
     },
@@ -455,9 +455,19 @@ const donutData = {
 const donutParams = new DonutParams('donut', donutData,
   document.getElementById('containerDonut').querySelector('svg'),
   document.getElementById('containerDonut')
-)
+);
 
 const donut = new OneSelectionDonut(donutParams);
 donut.donutParams.diameter = 150;
 donut.plot();
 donut.resize(document.getElementById('containerDonut'));
+
+const multiSelectableDonutParams = new DonutParams('donut', donutData,
+  document.getElementById('containerMultiSelectableDonut').querySelector('svg'),
+  document.getElementById('containerMultiSelectableDonut')
+);
+
+const multiSelectableDonut = new MultiSelectionDonut(multiSelectableDonutParams);
+multiSelectableDonut.donutParams.diameter = 150;
+multiSelectableDonut.plot();
+multiSelectableDonut.resize(document.getElementById('containerMultiSelectableDonut'));
