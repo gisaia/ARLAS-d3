@@ -99,6 +99,7 @@ export class SliderBrush extends Brush {
             .data([{ type: 'w' }, { type: 'e' }])
             .enter().append('circle')
             .attr('cursor', 'pointer')
+            .attr('class', 'histogram__brush--handles--circle')
             .style('z-index', '30000')
             .attr('r', this.handleRadius)
             .attr('cx', d => 0)

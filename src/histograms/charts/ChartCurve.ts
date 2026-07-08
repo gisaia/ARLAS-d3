@@ -120,11 +120,12 @@ export class ChartCurve extends AbstractChart {
                 // We add on Y axis on left
                 // No normalization
                 if (!!this.histogramParams.mainChartId && chartIdToData.has(this.histogramParams.mainChartId)) {
-                    this.createChartYRightAxes(dataArray[0]);
                     this.createChartYLeftAxes(dataArray[1], chartXAxes);
+                    this.createChartYRightAxes(dataArray[0]);
+
                 } else {
-                    this.createChartYRightAxes(dataArray[1]);
                     this.createChartYLeftAxes(dataArray[0], chartXAxes);
+                    this.createChartYRightAxes(dataArray[1]);
                 }
 
                 if (!this.chartAxes) {

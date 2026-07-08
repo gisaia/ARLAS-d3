@@ -79,6 +79,7 @@ export class RectangleBrush extends Brush {
         this.handles = this.brushContext.selectAll('.histogram__brush--handles')
             .data([{ type: 'w' }, { type: 'e' }])
             .enter().append('rect')
+            .attr('class', 'histogram__brush--handles--rect')
             .attr('stroke', '#5e5e5e')
             .attr('fill', '#5e5e5e')
             .attr('cursor', 'ew-resize')
