@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
-import { ChartType, SwimlaneBars, SwimlaneCircles, SwimlaneData, SwimlaneMode, SwimlaneRepresentation } from '../../dist';
 import { ChartOptions, createHistogramParams } from '../test/histogram.utils';
+import { SwimlaneBars } from './swimlanes/SwimlaneBars';
+import { SwimlaneCircles } from './swimlanes/SwimlaneCircles';
+import { ChartType, SwimlaneData, SwimlaneMode, SwimlaneRepresentation } from './utils/HistogramUtils';
 
 interface SwimlaneOptions extends ChartOptions {
   swimlaneRepresentation?: SwimlaneRepresentation;
