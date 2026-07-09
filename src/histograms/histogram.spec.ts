@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { HistogramParams, SelectionType } from './HistogramParams';
+import { ChartOptions, createHistogramParams, DEFAULT_HISTOGRAM_HEIGHT, DEFAULT_HISTOGRAM_WIDTH } from '../test/histogram.utils';
+import { SelectionType } from './HistogramParams';
 import { AbstractChart } from './charts/AbstractChart';
 import { ChartArea } from './charts/ChartArea';
 import { ChartBars } from './charts/ChartBars';
@@ -23,30 +24,8 @@ const DUAL_DATA: HistogramData[] = [
   { key: 2, value: 150, chartId: 'B' },
 ];
 
-function createHistogram(data: HistogramData[], chartType: ChartType, dataType = DataType.numeric, selectionType?: SelectionType, ticksDateFormat?: string) {
-  const container = document.createElement('div');
-  const svg = document.createElement('svg');
-  container.appendChild(svg);
-  const params = new HistogramParams('test');
-  params.svgNode = svg as any as SVGElement;
-  params.dataType = dataType;
-  params.chartType = chartType;
-
-  // Define the size of the container
-  Object.defineProperty(container, 'offsetWidth', { value: 800, configurable: true });
-  Object.defineProperty(container, 'offsetHeight', { value: 400, configurable: true });
-  params.chartWidth = 800;
-  params.chartHeight = 400;
-
-  if (selectionType) {
-    params.selectionType = selectionType;
-  }
-
-  if (ticksDateFormat) {
-    params.ticksDateFormat = ticksDateFormat;
-  }
-
-  params.hasDataChanged = true;
+function createHistogram(data: HistogramData[], chartType: ChartType, options: ChartOptions = {}) {
+  const { container, params, svg } = createHistogramParams(chartType, options);
   params.histogramData = data;
 
   let chart: AbstractChart;
@@ -75,16 +54,18 @@ describe('Histogram', () => {
 
     it('renders one rect per data point', () => {
       const { svg } = createHistogram(DATA, ChartType.bars);
-      const dataBars = svg.querySelector('.context .histogram__bars')!;
+      const dataBars = svg.querySelector('.context .histogram__bars') as Element;
+      expect(dataBars).toBeDefined();
       const bars = dataBars.querySelectorAll('rect');
       expect(bars).toHaveLength(5);
     });
 
     it('positions buckets in increasing x order', () => {
       const { svg } = createHistogram(DATA, ChartType.bars);
-      const dataBars = svg.querySelector('.context .histogram__bars')!;
+      const dataBars = svg.querySelector('.context .histogram__bars') as Element;
+      expect(dataBars).toBeDefined();
       const bars = dataBars.querySelectorAll('rect');
-      const xPositions = Array.from(bars).map(b => +(b.getAttribute('x')!));
+      const xPositions = Array.from(bars).map(b => +(b.getAttribute('x') as string));
       for (let i = 1; i < xPositions.length; i++) {
         expect(xPositions[i]).toBeGreaterThan(xPositions[i - 1]);
       }
@@ -122,7 +103,8 @@ describe('Histogram', () => {
   describe('Data plotted can be in curve, bars or area', () => {
     it('renders bars as SVG rect elements', () => {
       const { svg } = createHistogram(DATA, ChartType.bars);
-      const dataBars = svg.querySelector('.context .histogram__bars')!;
+      const dataBars = svg.querySelector('.context .histogram__bars') as Element;
+      expect(dataBars).toBeDefined();
       const bars = dataBars.querySelectorAll('rect');
       expect(bars).toHaveLength(DATA.length);
     });
@@ -148,10 +130,11 @@ describe('Histogram', () => {
       const hoverSpy = vi.spyOn(chart.histogramParams.hoveredBucketEvent, 'next');
       const tooltipSpy = vi.spyOn(chart.histogramParams.tooltipEvent, 'next');
 
-      const context = svg.querySelector('.context')!;
+      const context = svg.querySelector('.context') as Element;
       const axes = (chart as any).chartAxes;
       const pixelX = axes.xDomain(2);
 
+      expect(context).toBeDefined();
       context.dispatchEvent(new MouseEvent('mousemove', { clientX: pixelX, clientY: 200 }));
 
       expect(hoverSpy).toHaveBeenCalledWith({ start: 2, end: 3 });
@@ -163,9 +146,10 @@ describe('Histogram', () => {
       const { chart, svg } = createHistogram(DATA, ChartType.area);
       const hoverSpy = vi.spyOn(chart.histogramParams.hoveredBucketEvent, 'next');
 
-      const context = svg.querySelector('.context')!;
+      const context = svg.querySelector('.context') as Element;
       const axes = (chart as any).chartAxes;
 
+      expect(context).toBeDefined();
       context.dispatchEvent(new MouseEvent('mousemove', { clientX: axes.xDomain(2), clientY: 200 }));
       hoverSpy.mockClear();
 
@@ -177,17 +161,17 @@ describe('Histogram', () => {
 
   describe('Histogram has two handles', () => {
     it('renders two rectangular handles when selectionType is rectangle', () => {
-      const { svg } = createHistogram(DATA, ChartType.area, DataType.numeric, SelectionType.rectangle);
-      const brushGroup = svg.querySelector('g.brush')!;
-      expect(brushGroup).not.toBeNull();
+      const { svg } = createHistogram(DATA, ChartType.area, { selectionType: SelectionType.rectangle });
+      const brushGroup = svg.querySelector('g.brush') as Element;
+      expect(brushGroup).toBeDefined();
       const handles = brushGroup.querySelectorAll('rect.histogram__brush--handles--rect');
       expect(handles).toHaveLength(2);
     });
 
     it('renders two circular handles when selectionType is slider', () => {
-      const { svg } = createHistogram(DATA, ChartType.area, DataType.numeric, SelectionType.slider);
-      const sliderGroup = svg.querySelector('g.slider-brush')!;
-      expect(sliderGroup).not.toBeNull();
+      const { svg } = createHistogram(DATA, ChartType.area, { selectionType: SelectionType.slider });
+      const sliderGroup = svg.querySelector('g.slider-brush') as Element;
+      expect(sliderGroup).toBeDefined();
       const handles = sliderGroup.querySelectorAll('circle.histogram__brush--handles--circle');
       expect(handles).toHaveLength(2);
     });
@@ -198,7 +182,8 @@ describe('Histogram', () => {
       const { chart, svg } = createHistogram(DATA, ChartType.bars);
       chart.setSelectedInterval({ startvalue: 1, endvalue: 3 });
 
-      const dataBars = svg.querySelector('.context .histogram__bars')!;
+      const dataBars = svg.querySelector('.context .histogram__bars') as Element;
+      expect(dataBars).toBeDefined();
       expect(dataBars.querySelectorAll('rect.histogram__chart--bar__currentselection')).toHaveLength(2);
       expect(dataBars.querySelectorAll('rect.histogram__chart--bar')).toHaveLength(2);
       expect(dataBars.querySelectorAll('rect.histogram__chart--bar__partlyselected')).toHaveLength(1);
@@ -219,6 +204,7 @@ describe('Histogram', () => {
   });
 
   describe('Once a selection is made, an event is emitted', () => {
+    // Selection is done programatically as drag with jsdom can be flaky
     it('emits valuesListChangedEvent when a selection is made', () => {
       const { chart, params } = createHistogram(DATA, ChartType.bars);
       const nextSpy = vi.spyOn(params.valuesListChangedEvent, 'next');
@@ -242,11 +228,11 @@ describe('Histogram', () => {
         { key: 3000, value: 30 },
       ];
 
-      const { svg } = createHistogram(data, ChartType.bars, DataType.numeric);
+      const { svg } = createHistogram(data, ChartType.bars);
 
-      const labels = Array.from(svg.querySelector('.histogram__labels-axis')!.querySelectorAll('text'))
-        .map(t => t.textContent!);
-      expect(labels.some(l => /\d/.test(l) && l.includes(' '))).toBe(true);
+      const labels = Array.from(svg.querySelector('.histogram__labels-axis')?.querySelectorAll('text') ?? [])
+        .map(t => t.textContent);
+      expect(labels.length > 0 && labels.some(l => /\d/.test(l) && l.includes(' '))).toBe(true);
     });
 
     it('formats time x-axis tick labels as dates', () => {
@@ -256,11 +242,10 @@ describe('Histogram', () => {
         { key: new Date('2024-03-01'), value: 30 },
       ];
 
-      const { svg } = createHistogram(data, ChartType.bars, DataType.time, SelectionType.rectangle, '%B');
+      const { svg } = createHistogram(data, ChartType.bars, { dataType: DataType.time, ticksDateFormat: '%B' });
 
-      const labels = Array.from(
-        svg.querySelector('.histogram__labels-axis')!.querySelectorAll('text')
-      ).map(t => t.textContent!);
+      const labels = Array.from(svg.querySelector('.histogram__labels-axis')?.querySelectorAll('text') ?? [])
+        .map(t => t.textContent);
       expect(labels.filter(l => /^[A-Z][a-z]+$/.test(l)).length).toBeGreaterThanOrEqual(2);
     });
   });
@@ -273,8 +258,8 @@ describe('Histogram', () => {
       ];
       const { container, params, chart } = createHistogram(data, ChartType.bars);
 
-      expect(params.chartWidth).toBe(800);
-      expect(params.chartHeight).toBe(400);
+      expect(params.chartWidth).toBe(DEFAULT_HISTOGRAM_WIDTH);
+      expect(params.chartHeight).toBe(DEFAULT_HISTOGRAM_HEIGHT);
 
       // Change chart properties to allow for it to be resized
       (chart as any).isHeightFixed = false;

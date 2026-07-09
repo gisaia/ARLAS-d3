@@ -5,8 +5,8 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "build-dev": "tsc -p tsconfig.json --watch && cp -r src/styles dist/ && cp -r patches dist/",
-    "build-release": "tsc -p tsconfig.json && tsc-alias && cp -r src/styles dist/ && cp -r patches dist/",
+    "build-dev": "tsc -p tsconfig.build.json --watch && cp -r src/styles dist/ && cp -r patches dist/",
+    "build-release": "tsc -p tsconfig.build.json && tsc-alias && cp -r src/styles dist/ && cp -r patches dist/",
     "lint": "eslint . --ext .ts",
     "postinstall": "patch-package",
     "license-check": "license-check-and-add check -f license-check-and-add.json",

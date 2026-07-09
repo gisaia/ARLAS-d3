@@ -21,7 +21,7 @@ export default defineConfig([globalIgnores(["**/node_modules", "**/dist", "eslin
         sourceType: "module",
 
         parserOptions: {
-            project: "tsconfig.json",
+            project: "tsconfig.json"
         },
     },
 
