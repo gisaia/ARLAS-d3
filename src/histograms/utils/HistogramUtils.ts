@@ -634,7 +634,6 @@ export const BAR_OPTIONS = {
   BACKGROUND_COLOR: '#FFF'
 };
 
-// TODO: do that for other options ? This is smart??
 /**
  * Returns a complete BarOptions object using the default values
  * @param barOptions

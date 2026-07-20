@@ -57,7 +57,7 @@ describe('Histogram', () => {
       const dataBars = svg.querySelector('.context .histogram__bars') as Element;
       expect(dataBars).toBeDefined();
       const bars = dataBars.querySelectorAll('rect');
-      expect(bars).toHaveLength(5);
+      expect(bars).toHaveLength(DATA.length);
     });
 
     it('positions buckets in increasing x order', () => {
@@ -246,6 +246,7 @@ describe('Histogram', () => {
 
       const labels = Array.from(svg.querySelector('.histogram__labels-axis')?.querySelectorAll('text') ?? [])
         .map(t => t.textContent);
+      // Check that labels contain month written in the format March, October, ...
       expect(labels.filter(l => /^[A-Z][a-z]+$/.test(l)).length).toBeGreaterThanOrEqual(2);
     });
   });
