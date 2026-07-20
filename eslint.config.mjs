@@ -4,7 +4,7 @@ import globals from "globals";
 import tsParser from "@typescript-eslint/parser";
 import stylistic from '@stylistic/eslint-plugin'
 
-export default defineConfig([globalIgnores(["**/node_modules", "**/dist", "eslint.config.mjs", "test/app.js","test/webpack.config.js"]), {
+export default defineConfig([globalIgnores(["**/node_modules", "**/dist", "eslint.config.mjs", "test/app.js","test/webpack.config.js", "vitest.config.ts"]), {
     plugins: {
         "@typescript-eslint": typescriptEslint,
         "@stylistic": stylistic
@@ -21,7 +21,7 @@ export default defineConfig([globalIgnores(["**/node_modules", "**/dist", "eslin
         sourceType: "module",
 
         parserOptions: {
-            project: "tsconfig.json",
+            project: "tsconfig.json"
         },
     },
 
@@ -123,7 +123,7 @@ export default defineConfig([globalIgnores(["**/node_modules", "**/dist", "eslin
         "no-empty": "off",
         "no-empty-function": "off",
         "no-eval": "error",
-        "no-fallthrough": "error",
+        "no-fallthrough": "warn",
         "no-new-wrappers": "error",
         "no-restricted-imports": "error",
         "no-shadow": "off",

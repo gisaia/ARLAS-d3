@@ -17,40 +17,23 @@
  * under the License.
  */
 
-import { max, min } from 'd3-array';
 import { SelectionType } from '../HistogramParams';
 import {
-  ChartAxes,
-  getBarOptions,
-  HistogramData,
-  HistogramSVGG,
-  SELECTED_BARS_ZONE,
-  UNSELECTED_BARS, UNSELECTED_BARS_ZONE
+  ChartAxes, getBarOptions, HistogramBarSVG, HistogramData,
+  SELECTED_BARS_ZONE, UNSELECTED_BARS, UNSELECTED_BARS_ZONE
 } from '../utils/HistogramUtils';
 import { AbstractChart } from './AbstractChart';
 
 export class ChartBars extends AbstractChart {
 
-  private strippedBarsContext: HistogramSVGG;
-  private headBandsContext: HistogramSVGG;
-
-  public plot(inputData: Array<HistogramData>) {
-    super.plot(inputData);
-  }
-
-  public resize(histogramContainer: HTMLElement): void {
-    super.resize(histogramContainer);
-    this.plot(this.histogramParams.histogramData);
-    if (this.histogramParams.multiselectable) {
-      this.resizeSelectedIntervals(this.chartAxes);
-    }
-  }
+  private strippedBarsContext?: HistogramBarSVG;
+  private headBandsContext?: HistogramBarSVG;
 
   /** Plots headbands on the top of each bar. A headband is small rectangle (that forms a band)
    * on top of each bar. Those headbands are added for styling purposes */
   protected plotHeadBand(data: Array<HistogramData>, axes: ChartAxes, barWeight?: number) {
     const barWidth = barWeight ? axes.stepWidth * barWeight : axes.stepWidth * this.histogramParams.barWeight;
-    this.headBandsContext = this.context.append('g').attr('class', 'bars_head_bands').selectAll('.bar')
+    this.headBandsContext = this.context?.append('g').attr('class', 'bars_head_bands').selectAll('.bar')
       .data(data.filter(d => this.isValueValid(d)))
       .enter().append('rect')
       .attr('class', 'head_band')
@@ -78,7 +61,7 @@ export class ChartBars extends AbstractChart {
     const urlFixedSelection = 'url(#' + this.histogramParams.uid + ')';
     const urlCurrentSelection = 'url(#' + this.histogramParams.uid + '-cs-bars)';
     const barOptions = getBarOptions(this.histogramParams.barOptions);
-    this.context.append('g').append('rect')
+    this.context?.append('g').append('rect')
       .attr('class', UNSELECTED_BARS_ZONE)
       .attr('x', 0)
       .attr('width', this.chartDimensions.width)
@@ -86,7 +69,7 @@ export class ChartBars extends AbstractChart {
       .attr('height', this.chartDimensions.height)
       .attr('fill', barOptions.unselected_style.background_color)
       .attr('fill-opacity', barOptions.unselected_style.background_opacity);
-    this.context.append('g').attr('clip-path', urlCurrentSelection).append('rect')
+    this.context?.append('g').attr('clip-path', urlCurrentSelection).append('rect')
       .attr('class', SELECTED_BARS_ZONE)
       .attr('x', 0)
       .attr('width', this.chartDimensions.width)
@@ -94,7 +77,7 @@ export class ChartBars extends AbstractChart {
       .attr('height', this.chartDimensions.height)
       .attr('fill', barOptions.selected_style.background_color)
       .attr('fill-opacity', barOptions.selected_style.background_opacity);
-    this.context.append('g').attr('clip-path', urlFixedSelection).append('rect')
+    this.context?.append('g').attr('clip-path', urlFixedSelection).append('rect')
       .attr('class', SELECTED_BARS_ZONE)
       .attr('x', 0)
       .attr('width', this.chartDimensions.width)
@@ -105,11 +88,15 @@ export class ChartBars extends AbstractChart {
   }
 
   protected plotChart(data: Array<HistogramData>): void {
+    if (!this.chartAxes) {
+      return;
+    }
+
     this.plotBackground();
     this.plotBars(data, this.chartAxes);
     // todo stripes
-    const minimum = min(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MAX_VALUE);
-    const maximum = max(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MIN_VALUE);
+    const minimum = Math.min(...data.map(d => this.isValueValid(d) ? d.value : Number.MAX_VALUE));
+    const maximum = Math.max(...data.map(d => this.isValueValid(d) ? d.value : Number.MIN_VALUE));
     const minOffset = this.histogramParams.showStripes ? 0 : 0.1 * (maximum - minimum);
     const maxOffset = 0.05 * (maximum - minimum);
 
@@ -128,24 +115,27 @@ export class ChartBars extends AbstractChart {
         barsHeight = this.chartAxes.yDomain(0);
       }
     }
-    this.barsContext
-      .attr('y', (d) => {
+
+    // Create a local variable to avoid non-null assertion
+    const chartAxes = this.chartAxes;
+    (this.barsContext as HistogramBarSVG)
+      ?.attr('y', (d) => {
         if (d.value >= 0) {
-          return this.chartAxes.yDomain(d.value);
+          return chartAxes.yDomain(d.value);
         } else {
           if (this.yStartsFromMin) {
-            return this.chartAxes.yDomain(maximum + maxOffset) + 1;
+            return chartAxes.yDomain(maximum + maxOffset) + 1;
           } else {
-            return this.chartAxes.yDomain(0) + 1;
+            return chartAxes.yDomain(0) + 1;
           }
         }
       })
-      .attr('height', (d) => Math.abs(barsHeight - this.chartAxes.yDomain(d.value)));
+      .attr('height', (d) => Math.abs(barsHeight - chartAxes.yDomain(d.value)));
 
     this.addStrippedPattern('no-data-stripes', this.NO_DATA_STRIPES_PATTERN, this.NO_DATA_STRIPES_SIZE, 'histogram__no-data-stripes');
 
     this.noDatabarsContext
-      .attr('y', 0)
+      ?.attr('y', 0)
       .attr('height', (d) => this.chartDimensions.height)
       .attr('fill', 'url(#no-data-stripes)')
       .attr('fill-opacity', 0.5);
@@ -160,11 +150,11 @@ export class ChartBars extends AbstractChart {
         'histogram__stripped-currentselected-bar');
       this.addStrippedPattern('fully-selected-bars-' + id, this.START_Y_FROM_MIN_STRIPES_PATTERN, this.START_Y_FROM_MIN_STRIPES_SIZE,
         'histogram__stripped-fullyselected-bar');
-      this.strippedBarsContext = this.context.append('g').attr('class', 'histogram__bars').selectAll('.bar')
+      this.strippedBarsContext = this.context?.append('g').attr('class', 'histogram__bars').selectAll('.bar')
         .data(data.filter(d => this.isValueValid(d)))
         .enter().append('rect')
         .attr('class', UNSELECTED_BARS)
-        .attr('x', (d: HistogramData) => this.chartAxes.xDomain(+d.key))
+        .attr('x', (d: HistogramData) => chartAxes.xDomain(+d.key))
         .attr('width', this.chartAxes.stepWidth * this.histogramParams.barWeight)
         .attr('y', (d: HistogramData) => 0.9 * this.chartDimensions.height)
         .attr('height', (d: HistogramData) => 0.1 * this.chartDimensions.height);
@@ -174,6 +164,10 @@ export class ChartBars extends AbstractChart {
 
   protected createChartAxes(data: Array<HistogramData>): void {
     super.createChartAxes(data);
+
+    if (!this.chartAxes) {
+      return;
+    }
 
     this.chartAxes.stepWidth = 0;
     if (data.length > 1) {
@@ -202,7 +196,7 @@ export class ChartBars extends AbstractChart {
 
   protected applyStyleOnSelection(): void {
     this.applyStyleOnClipper();
-    this.applyStyleOnSelectedBars(this.barsContext);
+    this.applyStyleOnSelectedBars(this.barsContext as HistogramBarSVG);
     if (this.yStartsFromMin && this.histogramParams.showStripes) {
       // APPLY STYLE ON STRIPPED BARS ACCORDING TO SELECTION TYPE : CURRENT, PARTLY, FULLY SELECTED BARS
       this.applyStyleOnStrippedSelectedBars(this.strippedBarsContext);
@@ -219,7 +213,7 @@ export class ChartBars extends AbstractChart {
   protected drawTooltipCursor(data: Array<HistogramData>, axes: ChartAxes) {
     const barWidth = axes.stepWidth;
     const barsHeight = this.chartDimensions.height;
-    this.tooltipCursorContext.selectAll('.bar')
+    this.tooltipCursorContext?.selectAll('.bar')
       .data(data.filter(d => this.isValueValid(d)))
       .enter().append('rect')
       .attr('x', (d) => axes.xDomain(+d.key))
@@ -233,12 +227,12 @@ export class ChartBars extends AbstractChart {
    * @override For bars charts, removes the rectangle behind the hovered bucket of the histogram
    */
   protected clearTooltipCursor(): void {
-    this.tooltipCursorContext.selectAll('rect').remove();
+    this.tooltipCursorContext?.selectAll('rect').remove();
   }
 
-  protected applyStyleOnHeadBand(headBandContext: HistogramSVGG): void {
+  protected applyStyleOnHeadBand(headBandContext?: HistogramBarSVG): void {
     if (headBandContext) {
-      if (this.histogramParams.barOptions) {
+      if (Object.keys(this.histogramParams.barOptions).length > 0) {
         const barsHeight = (this.yStartsFromMin && this.histogramParams.showStripes) ?
           (0.9 * this.chartDimensions.height) : this.chartDimensions.height;
         const barOptions = getBarOptions(this.histogramParams.barOptions);
@@ -255,38 +249,39 @@ export class ChartBars extends AbstractChart {
           .attr('fill', selectedFill)
           .attr('stroke', selectedStroke)
           .attr('stroke-width', selectedStrokeWidth)
-          .attr('height', (d) => Math.min(selectedHeadBandHeight, barsHeight - this.chartAxes.yDomain(d.value)));
+          .attr('height', (d) => Math.min(selectedHeadBandHeight, this.chartAxes ? barsHeight - this.chartAxes.yDomain(d.value) : barsHeight));
 
         headBandContext.filter((d) => +d.key >= +this.selectionInterval.startvalue
         && +d.key + this.histogramParams.barWeight * this.dataInterval <= +this.selectionInterval.endvalue)
           .attr('fill', selectedFill)
           .attr('stroke', selectedStroke)
           .attr('stroke-width', selectedStrokeWidth)
-          .attr('height', (d) => Math.min(selectedHeadBandHeight, barsHeight - this.chartAxes.yDomain(d.value)));
+          .attr('height', (d) => Math.min(selectedHeadBandHeight, this.chartAxes ? barsHeight - this.chartAxes.yDomain(d.value) : barsHeight));
 
         headBandContext.filter((d) => (+d.key < +this.selectionInterval.startvalue || +d.key > +this.selectionInterval.endvalue)
         && (!this.selectedBars.has(+d.key)))
           .attr('fill', unselectedFill)
           .attr('stroke', unselectedStroke)
           .attr('stroke-width', unselectedStrokeWidth)
-          .attr('height', (d) => Math.min(unselectedHeadBandHeight, barsHeight - this.chartAxes.yDomain(d.value)));
+          .attr('height', (d) => Math.min(unselectedHeadBandHeight, this.chartAxes ? barsHeight - this.chartAxes.yDomain(d.value) : barsHeight));
 
         headBandContext.filter((d) => +d.key < +this.selectionInterval.startvalue && (!this.selectedBars.has(+d.key))
         && +d.key + this.histogramParams.barWeight * this.dataInterval > +this.selectionInterval.startvalue)
           .attr('fill', selectedFill)
           .attr('stroke', selectedStroke)
           .attr('stroke-width', selectedStrokeWidth)
-          .attr('height', (d) => Math.min(selectedHeadBandHeight, barsHeight - this.chartAxes.yDomain(d.value)));
+          .attr('height', (d) => Math.min(selectedHeadBandHeight, this.chartAxes ? barsHeight - this.chartAxes.yDomain(d.value) : barsHeight));
 
         headBandContext.filter((d) => +d.key <= +this.selectionInterval.endvalue && (!this.selectedBars.has(+d.key))
         && +d.key + this.histogramParams.barWeight * this.dataInterval > +this.selectionInterval.endvalue)
           .attr('fill', selectedFill)
           .attr('stroke', selectedStroke)
           .attr('stroke-width', selectedStrokeWidth)
-          .attr('height', (d) => Math.min(selectedHeadBandHeight, barsHeight - this.chartAxes.yDomain(d.value)));
+          .attr('height', (d) => Math.min(selectedHeadBandHeight, this.chartAxes ? barsHeight - this.chartAxes.yDomain(d.value) : barsHeight));
       } else {
-        const maximum = max(this.histogramParams.histogramData, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MIN_VALUE);
-        const minimum = min(this.histogramParams.histogramData, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MAX_VALUE);
+        const maximum = Math.max(...this.histogramParams.histogramData.map(d => this.isValueValid(d) ? d.value : Number.MIN_VALUE));
+        const minimum = Math.min(...this.histogramParams.histogramData.map(d => this.isValueValid(d) ? d.value : Number.MAX_VALUE));
+
         headBandContext.filter((d) => this.selectedBars.has(+d.key))
           .attr('class', (d => this.getHeadBandCssName('fullyselected', d, minimum, maximum)));
 
@@ -308,7 +303,12 @@ export class ChartBars extends AbstractChart {
       }
     }
   }
-  protected applyStyleOnStrippedSelectedBars(barsContext: HistogramSVGG): void {
+
+  protected applyStyleOnStrippedSelectedBars(barsContext?: HistogramBarSVG): void {
+    if (!barsContext) {
+      return;
+    }
+
     barsContext.filter((d) => this.selectedBars.has(+d.key)).attr('fill', 'url(#fully-selected-bars-' + this.histogramParams.uid + ')');
     barsContext.filter((d) => +d.key >= +this.selectionInterval.startvalue
     && +d.key + this.histogramParams.barWeight * this.dataInterval <= +this.selectionInterval.endvalue)
@@ -327,11 +327,11 @@ export class ChartBars extends AbstractChart {
   }
 
   protected getStartPosition(data: Array<HistogramData>, index: number): number {
-    return this.chartAxes.xDomain(data[index].key);
+    return this.chartAxes ? this.chartAxes.xDomain(data[index].key) : 0;
   }
 
   protected getEndPosition(data: Array<HistogramData>, index: number): number {
-    return this.chartAxes.xDomain(data[index].key) + this.chartAxes.stepWidth * this.histogramParams.barWeight;
+    return this.chartAxes ? this.chartAxes.xDomain(data[index].key) + this.chartAxes.stepWidth * this.histogramParams.barWeight : 0;
   }
 
   protected setTooltipXposition(xPosition: number): number {
@@ -369,15 +369,15 @@ export class ChartBars extends AbstractChart {
   }
 
   private createClipperContext() {
-    if (!this.checkDomainInitialized()) {
+    if (!this.chartAxes || !this.checkDomainInitialized()) {
       return;
     }
 
-    this.clipPathContext = this.context.append('defs').append('clipPath')
+    this.clipPathContext = this.context?.append('defs').append('clipPath')
       .attr('id', this.histogramParams.uid);
-    this.currentClipPathContext = this.context.append('defs').append('clipPath')
+    this.currentClipPathContext = this.context?.append('defs').append('clipPath')
       .attr('id', this.histogramParams.uid + '-cs-bars');
-    this.rectangleCurrentClipper = this.currentClipPathContext.append('rect')
+    this.rectangleCurrentClipper = this.currentClipPathContext?.append('rect')
       .attr('id', 'clip-rect')
       .attr('x', this.chartAxes.xDomain(this.selectionInterval.startvalue))
       .attr('y', '0')

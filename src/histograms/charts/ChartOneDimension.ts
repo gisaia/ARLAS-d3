@@ -20,23 +20,19 @@
 
 import { axisBottom } from 'd3-axis';
 import { SelectionType } from '../HistogramParams';
-import { ChartAxes, HistogramData, HistogramUtils, Position } from '../utils/HistogramUtils';
+import { ChartAxes, HistogramBarSVG, HistogramData, HistogramUtils, Position } from '../utils/HistogramUtils';
 import { AbstractChart } from './AbstractChart';
 
 export class ChartOneDimension extends AbstractChart {
 
-  public resize(histogramContainer: HTMLElement): void {
-    super.resize(histogramContainer);
-    this.plot(<Array<HistogramData>>this.histogramParams.histogramData);
-    if (this.histogramParams.multiselectable) {
-      this.resizeSelectedIntervals(this.chartAxes);
-    }
-  }
-
   protected plotChart(data: Array<HistogramData>): void {
+    if (!this.chartAxes) {
+      return;
+    }
+
     this.plotBars(data, this.chartAxes);
-    this.barsContext
-      .attr('height', (d) => this.chartDimensions.height)
+    (this.barsContext as HistogramBarSVG)
+      ?.attr('height', (d) => this.chartDimensions.height)
       .style('fill', (d) => HistogramUtils.getColor(d.value, this.histogramParams.paletteColors).toHexString())
       .style('stroke', (d) => HistogramUtils.getColor(d.value, this.histogramParams.paletteColors).toHexString())
       .style('opacity', '0.8');
@@ -46,12 +42,15 @@ export class ChartOneDimension extends AbstractChart {
     this.histogramParams.chartHeight = 8 + this.histogramParams.margin.top + this.histogramParams.margin.bottom;
     this.yDimension = 0;
     this.histogramParams.barWeight = 1;
-    this.histogramParams.topOffsetRemoveInterval = -5;
     super.initializeChartDimensions();
   }
 
   protected createChartAxes(data: Array<HistogramData>): void {
     super.createChartAxes(data);
+
+    if (!this.chartAxes) {
+      return;
+    }
 
     this.chartAxes.stepWidth = 0;
     if (data.length > 1) {
@@ -80,15 +79,15 @@ export class ChartOneDimension extends AbstractChart {
   }
 
   protected applyStyleOnSelection() {
-    this.applyStyleOnSelectedBars(this.barsContext);
+    this.applyStyleOnSelectedBars(this.barsContext as HistogramBarSVG);
   }
 
   protected getStartPosition(data: Array<HistogramData>, index: number): number {
-    return this.chartAxes.xDomain(data[index].key);
+    return this.chartAxes ? this.chartAxes.xDomain(data[index].key) : 0;
   }
 
   protected getEndPosition(data: Array<HistogramData>, index: number): number {
-    return this.chartAxes.xDomain(data[index].key) + this.chartAxes.stepWidth * this.histogramParams.barWeight;
+    return this.chartAxes ? this.chartAxes.xDomain(data[index].key) + this.chartAxes.stepWidth * this.histogramParams.barWeight : 0;
   }
 
   protected setTooltipXposition(xPosition: number): number {

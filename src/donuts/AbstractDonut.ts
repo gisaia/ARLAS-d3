@@ -17,29 +17,31 @@
  * under the License.
  */
 
-import { DonutParams } from './DonutParams';
-import { DonutNode, DonutDimensions, DonutUtils, TreeNode, DonutTooltip, SimpleNode } from './utils/DonutUtils';
-import { scaleLinear, scaleSqrt, ScaleLinear, ScalePower } from 'd3-scale';
-import { arc, Arc, DefaultArcObject } from 'd3-shape';
-import { select, pointer, BaseType, Selection } from 'd3-selection';
-import { hierarchy, partition, HierarchyNode } from 'd3-hierarchy';
+import { hierarchy, partition } from 'd3-hierarchy';
 import { interpolate } from 'd3-interpolate';
+import { scaleLinear, ScaleLinear, ScalePower, scaleSqrt } from 'd3-scale';
+import { pointer, select } from 'd3-selection';
+import { arc, Arc, DefaultArcObject } from 'd3-shape';
+import 'd3-transition';
+import { DonutParams } from './DonutParams';
+import { DonutContext, DonutDimensions, DonutNode, DonutTooltip, DonutUtils, SimpleNode, TreeNode } from './utils/DonutUtils';
 
 export const NO_VALUE = 'No value';
 
 export abstract class AbstractDonut {
   public donutParams: DonutParams;
-  public donutDimensions: DonutDimensions;
-  protected donutContext: Selection<SVGElement, TreeNode, BaseType, TreeNode>;
-  // protected svgNode: any;
-  protected lastSelectedNode: DonutNode = null;
-  protected arc: Arc<AbstractDonut, DefaultArcObject>;
-  protected x: ScaleLinear<number, number>;
-  protected y: ScalePower<number, number>;
-  protected donutTooltip: DonutTooltip = {
-    xPosition: null, yPosition: null, nodeName: null, nodeParents: null,
-    nodeCount: null, nodeColor: null
-  };
+  public donutDimensions!: DonutDimensions;
+
+  protected donutContext!: DonutContext;
+  protected lastSelectedNode?: DonutNode;
+  protected arc!: Arc<AbstractDonut, DefaultArcObject>;
+  protected x!: ScaleLinear<number, number>;
+  protected y!: ScalePower<number, number>;
+  protected donutTooltip = {} as DonutTooltip;
+
+  public constructor(donutParams: DonutParams) {
+    this.donutParams = donutParams;
+  }
 
   /**
    * @description Plots the donut
@@ -52,6 +54,7 @@ export abstract class AbstractDonut {
     this.createDonutArcs();
     this.structureDataToNodes();
     this.plotDonut();
+    this.styleNoValueNode();
   }
 
   /**
@@ -102,31 +105,34 @@ export abstract class AbstractDonut {
       .attr('class', 'donut__svg')
       .attr('width', width)
       .attr('height', height);
-    this.donutDimensions = { svg, width, containerWidth, height, radius };
+    this.donutDimensions = { svg: svg as unknown as DonutContext, width, containerWidth, height, radius };
   }
 
   /**
    * @description Transforms input data to d3 nodes
    */
   protected structureDataToNodes(): void {
-    const sumSize = this.donutParams.donutData.children.map(c => c.size).reduce((val, acc) => acc + val, 0);
-    if (this.donutParams.donutData.size && sumSize < this.donutParams.donutData.size) {
-      const fieldName = this.donutParams.donutData.children[0]?.fieldName;
-      this.donutParams.donutData.children.push({
-        id: fieldName + NO_VALUE.replace(' ', ''),
-        fieldName: fieldName,
-        fieldValue: NO_VALUE,
-        size: this.donutParams.donutData.size - sumSize,
-        metricValue: this.donutParams.donutData.size - sumSize,
-        isOther: true,
-        children: [],
-        color: '#ffffff'
-      });
+    if (this.donutParams.donutData.children) {
+      const sumSize = this.donutParams.donutData.children.map(c => c.size).reduce((val, acc) => acc + val, 0);
+      if (this.donutParams.donutData.size && sumSize < this.donutParams.donutData.size) {
+        const fieldName = this.donutParams.donutData.children?.[0]?.fieldName;
+        this.donutParams.donutData.children.push({
+          id: fieldName + NO_VALUE.replace(' ', ''),
+          fieldName: fieldName,
+          fieldValue: NO_VALUE,
+          size: this.donutParams.donutData.size - sumSize,
+          metricValue: this.donutParams.donutData.size - sumSize,
+          isOther: true,
+          children: [],
+          color: '#ffffff'
+        });
+      }
     }
-    const root: HierarchyNode<TreeNode> = hierarchy(this.donutParams.donutData)
+
+    const root = hierarchy(this.donutParams.donutData)
       .sum(d => {
         if (d.size !== undefined && d.size !== null) {
-          if (d.children !== undefined && d.children !== null && d.children.length > 0) {
+          if (d.children && d.children.length > 0) {
             return d.size - d.children?.map(node => node.size ? node.size : 0).reduce((val, acc) => acc + val);
           }
           return d.size;
@@ -134,9 +140,9 @@ export abstract class AbstractDonut {
           throw new Error('The node size of ' + d.fieldValue + ' is not specified');
         }
       })
-      .sort((a, b) => b.value - a.value);
-    const part = partition();
-    this.donutParams.donutNodes = <Array<DonutNode>>part(root).descendants();
+      .sort((a, b) => <number>b.value - <number>a.value);
+    const part = partition<TreeNode>();
+    this.donutParams.donutNodes = part(root).descendants() as DonutNode[];
     this.donutParams.donutNodes.forEach(d => {
       d.isSelected = false;
       d.startAngle = d.x0;
@@ -155,7 +161,8 @@ export abstract class AbstractDonut {
       .attr('class', 'donut__arc--container')
       .attr('transform', 'translate(' + this.donutDimensions.width / 2 + ',' + this.donutDimensions.height / 2 + ')')
       .on('mouseleave', () => this.onMouseLeavesContext());
-    const path = this.donutContext.selectAll('path')
+
+    this.donutContext.selectAll('path')
       .data(this.donutParams.donutNodes)
       .enter().append('path')
       .attr('class', 'donut__arc')
@@ -177,8 +184,8 @@ export abstract class AbstractDonut {
     let hasSelectedChild = false;
     if (clickedNode.children !== undefined) {
       clickedNode.children.every(child => {
-        hasSelectedChild = (<DonutNode>child).isSelected;
-        return !(<DonutNode>child).isSelected;
+        hasSelectedChild = child.isSelected;
+        return !child.isSelected;
       });
     }
     if (!hasSelectedChild) {
@@ -203,8 +210,10 @@ export abstract class AbstractDonut {
         break;
       }
     }
-    this.donutParams.selectedArcsList.splice(nodeIndex, 1);
-    this.removeAllSimilarNodesOfSameRing(nodeAsPath);
+    if (nodeIndex !== null && nodeAsPath) {
+      this.donutParams.selectedArcsList.splice(nodeIndex, 1);
+      this.removeAllSimilarNodesOfSameRing(nodeAsPath);
+    }
   }
 
   /**
@@ -213,7 +222,7 @@ export abstract class AbstractDonut {
   */
   protected removeHigherNodes(clickedNode: DonutNode): void {
     const nodeAsArray = DonutUtils.getNodePathAsArray(clickedNode);
-    const listOfHigherNodesToRemove = [];
+    const listOfHigherNodesToRemove = new Array<number>();
     while (nodeAsArray.length > 1) {
       nodeAsArray.shift();
       const higherNode = DonutUtils.getNode(nodeAsArray, this.donutParams.donutNodes);
@@ -235,7 +244,7 @@ export abstract class AbstractDonut {
    * @description Removes the unexisting nodes in the donut from the selectedArcsList
    */
   protected removeUnExistingNodes(): void {
-    const listUnExistingNodesToRemove = [];
+    const listUnExistingNodesToRemove = new Array<number>();
     this.donutParams.selectedArcsList.forEach(a => {
       if (DonutUtils.getNode(a, this.donutParams.donutNodes) === null) {
         listUnExistingNodesToRemove.push(this.donutParams.selectedArcsList.indexOf(a));
@@ -309,7 +318,6 @@ export abstract class AbstractDonut {
     } else {
       this.donutContext.selectAll('path').style('opacity', 1).style('stroke-width', '0.5px');
     }
-    this.styleNoValueNode();
   }
 
   /**
@@ -339,8 +347,8 @@ export abstract class AbstractDonut {
           this.x.domain(xd(t)); this.y.domain(yd(t)).range(yr(t));
         };
       })
-      .selectAll('path')
-      .attrTween('d', (d: DefaultArcObject) => (() => this.arc(d)));
+      .selectAll<SVGGElement, DefaultArcObject>('path')
+      .attrTween('d', (d: DefaultArcObject) => (() => this.arc(d) ?? ''));
   }
 
   protected onMouseOver(event: MouseEvent, hoveredNode: DonutNode): void {
@@ -353,6 +361,7 @@ export abstract class AbstractDonut {
       .filter((node) => hoveredNodeAncestors.indexOf(node) >= 0)
       .style('opacity', 1);
     const arcColorMap = new Map<string, string>();
+
     this.donutTooltip.nodeParents = new Array<string>();
     hoveredNodeAncestors.forEach(node => {
       arcColorMap.set(node.data.fieldName, DonutUtils.getNodeColor(node, this.donutParams.donutNodeColorizer,
@@ -361,7 +370,7 @@ export abstract class AbstractDonut {
     });
     this.donutParams.hoveredNodesEvent.next(arcColorMap);
     this.donutTooltip.nodeName = hoveredNode.data.fieldValue;
-    this.donutTooltip.nodeCount = hoveredNode.value;
+    this.donutTooltip.nodeCount = hoveredNode.value ?? 0;
     this.donutTooltip.nodeColor = DonutUtils.getNodeColor(hoveredNode, this.donutParams.donutNodeColorizer,
       this.donutParams.keysToColors, this.donutParams.colorsSaturationWeight);
   }
@@ -385,7 +394,7 @@ export abstract class AbstractDonut {
     );
   }
 
-  protected setTooltipPosition(event) {
+  protected setTooltipPosition(event: PointerEvent) {
     const xPosition = this.donutDimensions.containerWidth / 2 + pointer(event)[0];
     if (xPosition > this.donutDimensions.containerWidth / 2) {
       this.donutParams.tooltip.isRightSide = true;
@@ -403,7 +412,7 @@ export abstract class AbstractDonut {
     }
   }
 
-  protected abstract hoverNode(hoveredNode: DonutNode);
-  protected abstract unhoverNodesButNotSelected();
+  protected abstract hoverNode(hoveredNode: DonutNode): void;
+  protected abstract unhoverNodesButNotSelected(): void;
   protected abstract onClick(event: PointerEvent, clickedNode: DonutNode): void;
 }

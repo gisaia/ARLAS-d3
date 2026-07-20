@@ -17,29 +17,12 @@
  * under the License.
  */
 
-import { AbstractChart } from './AbstractChart';
-import {
-  ChartAxes,
-  HistogramData,
-  HistogramUtils
-} from '../utils/HistogramUtils';
-import { curveLinear, CurveFactory, curveMonotoneX, area } from 'd3-shape';
-import { min, max } from 'd3-array';
+import { area, CurveFactory, curveLinear, curveMonotoneX } from 'd3-shape';
 import { SelectionType } from '../HistogramParams';
+import { ChartAxes, HistogramData, HistogramUtils } from '../utils/HistogramUtils';
+import { AbstractChart } from './AbstractChart';
 
 export class ChartArea extends AbstractChart {
-
-  public plot(inputData: Array<HistogramData>) {
-    super.plot(inputData);
-  }
-
-  public resize(histogramContainer: HTMLElement): void {
-    super.resize(histogramContainer);
-    this.plot(this.histogramParams.histogramData);
-    if (this.histogramParams.multiselectable) {
-      this.resizeSelectedIntervals(this.chartAxes);
-    }
-  }
 
   protected moveDataByHalfInterval(data: Array<HistogramData>): Array<HistogramData> {
     const movedData: HistogramData[] = [];
@@ -55,10 +38,16 @@ export class ChartArea extends AbstractChart {
   }
 
   protected plotChart(data: Array<HistogramData>): void {
+    if (!this.chartAxes) {
+      return;
+    }
+    // Create a local variable to avoid non-null assertion
+    const chartAxes = this.chartAxes;
+
     this.createClipperContext();
 
-    const minimum = min(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MAX_VALUE);
-    const maximum = max(data, (d: HistogramData) => this.isValueValid(d) ? d.value : Number.MIN_VALUE);
+    const minimum = Math.min(...data.map(d => this.isValueValid(d) ? d.value : Number.MAX_VALUE));
+    const maximum = Math.max(...data.map(d => this.isValueValid(d) ? d.value : Number.MIN_VALUE));
     const minOffset = this.histogramParams.showStripes ? 0 : 0.1 * (maximum - minimum);
     const maxOffset = 0.05 * (maximum - minimum);
     let areaYPositon = this.chartDimensions.height;
@@ -80,9 +69,9 @@ export class ChartArea extends AbstractChart {
     const curveType: CurveFactory = (this.histogramParams.isSmoothedCurve) ? curveMonotoneX : curveLinear;
     const a = area<HistogramData>()
       .curve(curveType)
-      .x(d => this.chartAxes.xDomain(+d.key))
+      .x(d => chartAxes.xDomain(+d.key))
       .y0(areaYPositon)
-      .y1(d => this.chartAxes.yDomain(d.value));
+      .y1(d => chartAxes.yDomain(d.value));
 
     const urlFixedSelection = 'url(#' + this.histogramParams.uid + ')';
     const urlCurrentSelection = 'url(#' + this.histogramParams.uid + '-cs-area)';
@@ -90,7 +79,7 @@ export class ChartArea extends AbstractChart {
     // CODE FROM ChartCurve
     const chartIdToData = new Map<string, HistogramData[]>();
     // Reduce data by charId
-    const chartIds = new Set(data.map(item => item.chartId));
+    const chartIds = new Set(data.map(item => item.chartId).filter(id => id !== undefined));
     // Put each data by chartId in a map
     chartIds.forEach(id => chartIdToData.set(id, data.filter(d => d.chartId === id)));
     // If the map is empty, add a default key with the unique chart data
@@ -98,10 +87,14 @@ export class ChartArea extends AbstractChart {
       chartIdToData.set('default', data);
     }
 
-    chartIdToData.forEach(part => {
+    if (!this.context) {
+      throw new Error('Unable to plot chart, no context is set');
+    }
+
+    for (const part of chartIdToData.values()) {
       const discontinuedData = HistogramUtils.splitData(part);
 
-      discontinuedData[0].forEach(chartData => {
+      for (const chartData of discontinuedData[0]) {
         this.context.append('g').attr('class', 'histogram__area-data')
           .append('path')
           .datum(chartData)
@@ -155,7 +148,8 @@ export class ChartArea extends AbstractChart {
             .attr('fill', 'url(#current-area-' + id + ')');
         }
         this.addStrippedPattern('no-data-stripes', this.NO_DATA_STRIPES_PATTERN, this.NO_DATA_STRIPES_SIZE, 'histogram__no-data-stripes');
-        discontinuedData[1].forEach(part => {
+
+        for (const part of discontinuedData[1]) {
           this.context.append('g')
             .append('rect')
             .attr('x', this.chartAxes.xDomain(+part[0].key))
@@ -164,9 +158,9 @@ export class ChartArea extends AbstractChart {
             .attr('height', this.chartDimensions.height)
             .attr('fill', 'url(#no-data-stripes)')
             .attr('fill-opacity', 0.5);
-        });
-      });
-    });
+        }
+      };
+    };
   }
 
   protected drawChartAxes(chartAxes: ChartAxes, leftOffset: number): void {
@@ -175,10 +169,10 @@ export class ChartArea extends AbstractChart {
   }
 
   protected onSelectionClick(): void {
-    this.brush.brushContext.on('click', () => {
-      if (!this.brush.isBrushed && this.rectangleCurrentClipper !== null) {
+    this.brush?.brushContext.on('click', () => {
+      if (!this.brush?.isBrushed && this.rectangleCurrentClipper) {
         this.rectangleCurrentClipper.remove();
-        this.rectangleCurrentClipper = null;
+        this.rectangleCurrentClipper = undefined;
       }
     });
   }
@@ -204,11 +198,11 @@ export class ChartArea extends AbstractChart {
   }
 
   protected getStartPosition(data: Array<HistogramData>, index: number): number {
-    return this.chartAxes.xDomain(data[index].key) - 10;
+    return (this.chartAxes?.xDomain(data[index].key) ?? 0) - 10;
   }
 
   protected getEndPosition(data: Array<HistogramData>, index: number): number {
-    return this.chartAxes.xDomain(data[index].key) + 10;
+    return (this.chartAxes?.xDomain(data[index].key) ?? 0) + 10;
   }
 
   /**
@@ -218,7 +212,7 @@ export class ChartArea extends AbstractChart {
    * @param axes
    */
   protected drawTooltipCursor(data: Array<HistogramData>, axes: ChartAxes, chartIsToSides?: Map<string, string>) {
-    this.tooltipCursorContext.selectAll('.bar')
+    this.tooltipCursorContext?.selectAll('.bar')
       .data(data.filter(d => this.isValueValid(d)))
       .enter().append('line')
       .attr('x1', (d) => axes.xDomain(+d.key))
@@ -226,7 +220,7 @@ export class ChartArea extends AbstractChart {
       .attr('y1', 1)
       .attr('y2', () => this.chartDimensions.height)
       .attr('class', 'histogram__tooltip_cursor_line');
-    this.context.append('g').attr('class', 'histogram__area_circle_container').selectAll('dot')
+    this.context?.append('g').attr('class', 'histogram__area_circle_container').selectAll('dot')
       .data(data.filter(d => this.isValueValid(d)))
       .enter().append('circle')
       .attr('r', () => 3)
@@ -240,8 +234,8 @@ export class ChartArea extends AbstractChart {
    * @override For areas charts, removes the line behind the hovered bucket of the histogram + removes the circle on the hovered bucket
    */
   protected clearTooltipCursor(): void {
-    this.tooltipCursorContext.selectAll('line').remove();
-    this.context.selectAll('g.histogram__area_circle_container').remove();
+    this.tooltipCursorContext?.selectAll('line').remove();
+    this.context?.selectAll('g.histogram__area_circle_container').remove();
   }
 
 
@@ -268,15 +262,15 @@ export class ChartArea extends AbstractChart {
   }
 
   private createClipperContext() {
-    if (!this.checkDomainInitialized()) {
+    if (!this.chartAxes || !this.checkDomainInitialized()) {
       return;
     }
 
-    this.clipPathContext = this.context.append('defs').append('clipPath')
+    this.clipPathContext = this.context?.append('defs').append('clipPath')
       .attr('id', this.histogramParams.uid);
-    this.currentClipPathContext = this.context.append('defs').append('clipPath')
+    this.currentClipPathContext = this.context?.append('defs').append('clipPath')
       .attr('id', this.histogramParams.uid + '-cs-area');
-    this.rectangleCurrentClipper = this.currentClipPathContext.append('rect')
+    this.rectangleCurrentClipper = this.currentClipPathContext?.append('rect')
       .attr('id', 'clip-rect')
       .attr('x', this.chartAxes.xDomain(this.selectionInterval.startvalue))
       .attr('y', '0')
