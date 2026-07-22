@@ -452,7 +452,7 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
       const labelRectContext = this.labelsContext.append('rect')
         .attr('width', this.histogramParams.swimLaneLabelsWidth - 5)
         .attr('height', this.histogramParams.swimlaneHeight)
-        .attr('fill', '#FFFFFF')
+        .attr('fill', 'inherit')
         .attr('transform', 'translate(0,' + (this.histogramParams.swimlaneHeight * (i)) + ')')
         .style('cursor', 'pointer');
       this.labelsRectContextList.push({ name: key, context: labelRectContext });
