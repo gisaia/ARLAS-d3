@@ -127,7 +127,7 @@ export class DonutUtils {
         return this.getHexColorFromString(d.data.fieldValue + ':' + d.data.fieldName);
       }
     } else {
-      return '#fff';
+      return 'inherit';
     }
   }
 
