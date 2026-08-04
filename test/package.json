@@ -7,8 +7,8 @@
     "build": "webpack -o ./dist/"
   },
   "devDependencies": {
-    "webpack": "^5.98.0",
+    "webpack": "^5.109.2",
     "webpack-cli": "^5.0.0",
-    "webpack-dev-server": "^4.11.1"
+    "webpack-dev-server": "^6.0.0"
   }
 }
