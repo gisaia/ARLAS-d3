@@ -90,7 +90,7 @@ function testDonut(DonutClass: typeof MultiSelectionDonut | typeof OneSelectionD
 
         it('should plot missing data in root with dashes', () => {
             const donut = createDonut(INCOMPLETE_ARC_DONUT_DATA);
-            const arcs = donut.donutParams.donutContainer.querySelectorAll<SVGPathElement>('.donut__arc');
+            const arcs = donut.donutParams.donutContainer.querySelectorAll<SVGPathElement>('.donut__arc--no-value');
 
             const noValueArc = Array.from(arcs).find(a => a.style.strokeDasharray !== '');
             expect(noValueArc).toBeDefined();
