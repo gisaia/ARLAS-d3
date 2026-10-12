@@ -16,20 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { BaseType, Selection } from 'd3-selection';
+import { TimelineContext } from '../drawable.object';
 import { Buckets } from './buckets';
-import { TimelineData } from '../../interfaces/timeline.data';
 
 export class CircleBuckets extends Buckets {
 
-    public constructor(context: Selection<SVGGElement, TimelineData, BaseType, TimelineData>) {
+    public constructor(context: TimelineContext) {
         super(context);
     }
 
     public plot() {
         super.plot();
         this.element
-            .attr('transform', 'translate(1, 3)')
+            ?.attr('transform', 'translate(1, 3)')
             .selectAll('dot')
             .data(this.dates)
             .enter()

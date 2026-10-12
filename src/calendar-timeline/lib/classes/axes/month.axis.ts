@@ -16,14 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Axis } from './axis';
-import { timeMonth } from 'd3-time';
 import { NumberValue } from 'd3-scale';
+import { timeMonth } from 'd3-time';
+import { TimelineContext } from '../drawable.object';
+import { Axis } from './axis';
 
 export class MonthAxis extends Axis {
     private readonly MONTH_IN_MILLISECONDS = 30 * 24 * 60 * 60 * 1000;
 
-    public constructor(context) {
+    public constructor(context: TimelineContext) {
         super(context, MonthAxis.name.toString());
         this.setTickSize(20);
         this.tickFormat = (d: Date | NumberValue, idx: number) => {
@@ -40,10 +41,9 @@ export class MonthAxis extends Axis {
 
     public plot() {
         super.plot();
-        this.element.selectAll('path').style('stroke', '#fff');
-        this.element.selectAll('line').style('stroke', '#888');
-        this.element
-            .selectAll('text')
+        this.element?.selectAll('path').style('stroke', '#fff');
+        this.element?.selectAll('line').style('stroke', '#888');
+        this.element?.selectAll('text')
             .attr('text-anchor', 'start')
             .style('font-size', `${this.textFontSize}px`)
             .attr('transform', d => `translate(${this.getTickIntervalWidth() / 2 +

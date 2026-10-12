@@ -16,23 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Axis } from './axis';
 import { timeYear } from 'd3-time';
+import { TimelineContext } from '../drawable.object';
+import { Axis } from './axis';
 
 export class YearAxis extends Axis {
     private readonly YEAR_IN_MILLISECONDS = 365 * 24 * 60 * 60 * 1000;
 
-    public constructor(context) {
+    public constructor(context: TimelineContext) {
         super(context, YearAxis.name.toString());
         this.setTickSize(20);
     }
 
     public plot() {
         super.plot();
-        this.element.selectAll('path').style('stroke', '#fff');
-        this.element.selectAll('line').style('stroke', '#888');
-        this.element
-            .selectAll('text')
+        this.element?.selectAll('path').style('stroke', '#fff');
+        this.element?.selectAll('line').style('stroke', '#888');
+        this.element?.selectAll('text')
             .attr('text-anchor', 'middle')
             .style('font-size', `${this.textFontSize}px`)
             .attr('transform', d => `translate(${this.getTickIntervalWidth() / 2}, 20)`)

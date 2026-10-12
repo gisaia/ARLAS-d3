@@ -16,23 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Axis } from './axis';
-import { timeYear } from 'd3-time';
-import { symbol } from 'd3-shape';
 import { NumberValue } from 'd3-scale';
+import { symbol, SymbolType } from 'd3-shape';
+import { timeYear } from 'd3-time';
 import { Dimensions } from '../dimensions/dimensions';
+import { TimelineContext } from '../drawable.object';
+import { Axis } from './axis';
 
 export class YearIndicatorAxis extends Axis {
     private readonly YEAR_IN_MILLISECONDS = 365 * 24 * 60 * 60 * 1000;
 
-    public constructor(context) {
+    public constructor(context: TimelineContext) {
         super(context, YearIndicatorAxis.name.toString());
     }
 
     public plot() {
         super.plot();
         const arrowSize = 12;
-        const customSymbolArrow = {
+        const customSymbolArrow: SymbolType = {
             draw: (context, s) => {
                 context.moveTo(0, 0);
                 context.lineTo(s / 2, s);
@@ -43,7 +44,7 @@ export class YearIndicatorAxis extends Axis {
         const customArrow = symbol().type(customSymbolArrow).size(arrowSize);
 
         this.element
-            .append('svg:defs').append('svg:marker')
+            ?.append('svg:defs').append('svg:marker')
             .attr('id', (_d) => 'arrow_end')
             .attr('refX', arrowSize / 2)
             .attr('refY', arrowSize)
@@ -53,7 +54,7 @@ export class YearIndicatorAxis extends Axis {
             .attr('d', customArrow)
             .style('fill', '#888');
         this.element
-            .append('svg:defs').append('svg:marker')
+            ?.append('svg:defs').append('svg:marker')
             .attr('id', (_d) => 'arrow_start')
             .attr('refX', arrowSize / 2)
             .attr('refY', arrowSize)
@@ -64,17 +65,17 @@ export class YearIndicatorAxis extends Axis {
             .attr('d', customArrow)
             .style('fill', '#888');
 
-        this.element.selectAll('path').style('stroke', '#fff');
+        this.element?.selectAll('path').style('stroke', '#fff');
 
-        this.element.selectAll('line').style('stroke', '#888')
+        this.element?.selectAll('line').style('stroke', '#888')
                                       .attr('transform', 'rotate(-90)')
                                       .attr('marker-start', (_d) => 'url(#arrow_start)')
                                       .attr('marker-end', (_d) => `url(#arrow_end)`);
         const endDomain = this.domain.clamp(true)(Infinity);
         const minSpaceText = this.textFontSize * 2.5 + arrowSize;
 
-        this.element.selectAll('text')
-                    .attr('transform', (d: Date | NumberValue, i) => {
+        this.element?.selectAll<SVGGElement, Date | NumberValue>('text')
+                    .attr('transform', (d: Date | NumberValue, i: number) => {
                         // If the interval does not start on screen
                         if (this.domain(d) < Math.abs(this.axisXOffset)) {
                             // Translate either between the start of the visible window and the end of the tick
@@ -97,7 +98,7 @@ export class YearIndicatorAxis extends Axis {
                         return 'visible';
                     });
 
-        this.element.selectAll('g')
+        this.element?.selectAll<SVGGElement, Date | NumberValue>('g')
                     .filter((d: Date | NumberValue, i) => {
                         // If there is not enough space for the text and the arrow
                         // or if the space available to display (between start of window and end of tick) the first tick is not enough

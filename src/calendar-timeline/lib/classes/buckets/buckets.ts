@@ -16,9 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { BaseType, Selection } from 'd3-selection';
-import { TemporalObject } from '../temporal.object';
 import { TimelineData } from '../../interfaces/timeline.data';
+import { TimelineContext } from '../drawable.object';
+import { TemporalObject } from '../temporal.object';
 
 export interface DrawableObjectColors {
     stroke: string;
@@ -28,7 +28,7 @@ export class Buckets extends TemporalObject {
     protected data: Array<TimelineData> = [];
     protected dates: Array<Date> = [];
 
-    public constructor(context: Selection<SVGGElement, TimelineData, BaseType, TimelineData>) {
+    public constructor(context: TimelineContext) {
         super(context, Buckets.name.toString());
     }
 

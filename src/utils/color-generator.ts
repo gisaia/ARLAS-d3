@@ -17,5 +17,5 @@
  * under the License.
  */
 export interface ColorGenerator {
-    getColor(key: string, keysToColors?: Array<[string, string]>, colorsSaturationWeight?): string;
+    getColor(key: string, keysToColors?: Array<[string, string]>, colorsSaturationWeight?: number): string;
 }

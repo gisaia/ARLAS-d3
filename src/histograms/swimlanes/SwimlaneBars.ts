@@ -18,6 +18,7 @@
  */
 
 import {
+  HistogramBarSVG,
   HistogramData, HistogramUtils, SwimlaneMode,
   SwimlaneOptions,
   SwimlaneRepresentation,
@@ -31,15 +32,19 @@ import { AbstractSwimlane } from './AbstractSwimlane';
 export class SwimlaneBars extends AbstractSwimlane {
 
   protected plotOneLane(laneData: Array<HistogramData>, indexOfLane: number): void {
-    const swimStats: SwimlaneStats = this.histogramParams.swimlaneData.stats;
-    const swimRepresentation: SwimlaneRepresentation = this.histogramParams.swimlaneRepresentation;
+    if (!this.histogramParams.swimlaneData) {
+      throw new Error('No swimlane data was set');
+    }
+
+    const swimStats = this.histogramParams.swimlaneData.stats;
+    const swimRepresentation = this.histogramParams.swimlaneRepresentation;
     const swimColors = this.histogramParams.paletteColors;
     const swimMode = this.histogramParams.swimlaneMode;
     const swimHeight = this.histogramParams.swimlaneHeight * 0.9;
     const swimOptions = this.histogramParams.swimlaneOptions;
     this.plotBars(laneData, this.swimlaneAxes, this.swimlaneBarsWeight);
-    this.barsContext
-      .attr('rx', this.histogramParams.swimlaneBorderRadius)
+    (this.barsContext as HistogramBarSVG)
+      ?.attr('rx', this.histogramParams.swimlaneBorderRadius)
       .attr('ry', this.histogramParams.swimlaneBorderRadius)
       .attr('y', this.histogramParams.swimlaneHeight * (indexOfLane))
       .attr('height', (d) => this.getBucketHeight(d, swimStats, swimRepresentation, swimMode, swimHeight))
@@ -81,7 +86,7 @@ export class SwimlaneBars extends AbstractSwimlane {
           }
           return Math.abs(value) / globalMax * laneHeight;
         } else {
-          const bucketSum = swimStats.columnStats.get(+bucket.key).sum;
+          const bucketSum = swimStats.columnStats.get(+bucket.key)?.sum ?? 0;
           if (bucketSum === 0) {
             return 0;
           } else {
@@ -108,10 +113,14 @@ export class SwimlaneBars extends AbstractSwimlane {
    * @param index
    */
   private plotLevelTicks(laneData: Array<HistogramData>, opt: SwimlaneOptions, index: number) {
+    if (!this.histogramParams.swimlaneData) {
+      throw new Error('No swimlane data was set');
+    }
+
     const swimStats: SwimlaneStats = this.histogramParams.swimlaneData.stats;
     const swimRepresentation: SwimlaneRepresentation = this.histogramParams.swimlaneRepresentation;
     const swimHeight = this.histogramParams.swimlaneHeight * 0.9;
-    this.context.append('g').attr('class', 'histogram__swimlane-height')
+    this.context?.append('g').attr('class', 'histogram__swimlane-height')
       .selectAll('path')
       .data(laneData)
       .enter().append('line')

@@ -74,7 +74,7 @@ export class Gauge {
             .attr('rx', d => this.cursorRadius);
     }
 
-    private rounded_rect(x, y, w, h, r, tl, tr, bl, br) {
+    private rounded_rect(x: number, y: number, w: number, h: number, r: number, tl: boolean, tr: boolean, bl: boolean, br: boolean) {
         let retval;
         retval = 'M' + (x + r) + ',' + y;
         retval += 'h' + (w - 2 * r);

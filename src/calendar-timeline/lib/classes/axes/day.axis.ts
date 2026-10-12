@@ -16,21 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Axis } from './axis';
 import { timeDay } from 'd3-time';
+import { TimelineContext } from '../drawable.object';
+import { Axis } from './axis';
 
 export class DayAxis extends Axis {
     private readonly DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
 
-    public constructor(context) {
+    public constructor(context: TimelineContext) {
         super(context, DayAxis.name.toString());
     }
 
     public plot() {
         super.plot();
-        this.element.selectAll('path').style('stroke', '#fff');
-        this.element.selectAll('line').style('stroke', '#888');
-        this.element.selectAll('text').remove();
+        this.element?.selectAll('path').style('stroke', '#fff');
+        this.element?.selectAll('line').style('stroke', '#888');
+        this.element?.selectAll('text').remove();
     }
 
     public setTickIntervalWidth(t: number): this {

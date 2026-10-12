@@ -32,7 +32,7 @@ import { CircleBuckets } from './lib/classes/buckets/circle.buckets';
 import { Cursor } from './lib/classes/cursor/cursor';
 import { VerticalLine } from './lib/classes/cursor/vertical.line';
 import { Dimensions } from './lib/classes/dimensions/dimensions';
-import { DrawableObject } from './lib/classes/drawable.object';
+import { DrawableObject, TimelineContext } from './lib/classes/drawable.object';
 import { Season } from './lib/classes/season';
 import { Granularity } from './lib/enumerations/granularity.enum';
 import { Bucket } from './lib/interfaces/bucket';
@@ -40,25 +40,25 @@ import { TimelineData, TimelineTooltip } from './lib/interfaces/timeline.data';
 
 export class Timeline extends DrawableObject {
 
-    private granularity: Granularity;
-    private climatological: boolean;
-    public boundDates: Date[];
+    private granularity = Granularity.year;
+    private climatological = false;
+    public boundDates = new Array<Date>();
     private axis: AxesCollection;
     private buckets: BucketsCollection;
     private cursor: Cursor;
     private verticalLine: VerticalLine;
     private data: TimelineData[] = [];
-    private cursorDate: Date;
+    private cursorDate?: Date;
 
     public hoveredData: Subject<TimelineTooltip> = new Subject();
     public selectedData: Subject<TimelineData> = new Subject();
 
-    public constructor(svg) {
-        super(select(svg), Timeline.name.toString());
+    public constructor(svg: SVGGElement) {
+        super(select(svg) as any, Timeline.name.toString());
 
         this.axis = new AxesCollection(this.context, this.dimensions);
         this.buckets = new BucketsCollection(this.context);
-        this.cursor = new Cursor(this.context, this.granularity);
+        this.cursor = new Cursor(this.context);
         this.verticalLine = new VerticalLine(this.context);
 
         this.context.on('click', (e) => this.onClick(e));
@@ -97,23 +97,23 @@ export class Timeline extends DrawableObject {
 
     }
 
-    public setGranularity(granularity: Granularity): Timeline {
+    public setGranularity(granularity: Granularity): this {
         this.granularity = granularity;
         this.cursor.setCursorOffset(granularity);
         return this;
     }
 
-    public setBoundDates(dates: Date[]): Timeline {
+    public setBoundDates(dates: Date[]): this {
         this.boundDates = dates;
         return this;
     }
 
-    public setClimatological(climatological: boolean): Timeline {
+    public setClimatological(climatological: boolean): this {
         this.climatological = climatological;
         return this;
     }
 
-    public setData(data): Timeline {
+    public setData(data: TimelineData[]): this {
         this.data = data;
         return this;
     }
@@ -163,7 +163,6 @@ export class Timeline extends DrawableObject {
     public onMouseleave(e: PointerEvent): void {
         this.verticalLine.hide();
         this.hoveredData.next({
-            data: null,
             stringDate: '',
             position: 0,
             shown: false,
@@ -188,6 +187,8 @@ export class Timeline extends DrawableObject {
                 } else {
                     return `${d.toLocaleString('en', { month: 'short' })} ${year}`;
                 }
+            case Granularity.climatological_season:
+                climatological = true;
             case Granularity.season:
                 if (climatological) {
                     return Season.getSeasonNameFromDate(d);
@@ -196,6 +197,7 @@ export class Timeline extends DrawableObject {
                     const yearComplement = season === Season.WINTER.toString() ? `/${year + 1}` : '';
                     return `${Season.getSeasonNameFromDate(d)} ${year}${yearComplement}`;
                 }
+            case Granularity.climatological_year:
             case Granularity.year:
                 return `${year}`;
         }
@@ -203,12 +205,12 @@ export class Timeline extends DrawableObject {
 }
 
 export class AxesCollection {
-    private axis: Axis;
+    private axis?: Axis;
     private annexedAxes: Axis[] = [];
-    private context;
+    private context: TimelineContext;
     private dimensions: Dimensions;
 
-    public constructor(context, dimensions: Dimensions) {
+    public constructor(context: TimelineContext, dimensions: Dimensions) {
         this.context = context;
         this.dimensions = dimensions;
     }
@@ -221,12 +223,11 @@ export class AxesCollection {
     public update(granularity: Granularity, boundsDate: Date[], climatological: boolean): Axis {
         if (this.axis) {
             this.axis.remove();
-            this.axis = null;
+            this.axis = undefined;
         }
         if (!!this.annexedAxes) {
             this.annexedAxes.forEach(a => {
                 a.remove();
-                a = null;
             });
             this.annexedAxes = [];
         }
@@ -341,22 +342,25 @@ export class AxesCollection {
     }
 
     public get(): Axis {
+        if (!this.axis) {
+            throw new Error('No axis defined yet');
+        }
         return this.axis;
     }
 }
 
 export class BucketsCollection {
-    private buckets: Buckets;
-    private context;
+    private buckets?: Buckets;
+    private context: TimelineContext;
 
-    public constructor(context) {
+    public constructor(context: TimelineContext) {
         this.context = context;
     }
 
     public update(granularity: Granularity, climatological: boolean): Buckets {
         if (this.buckets) {
             this.buckets.remove();
-            this.buckets = null;
+            this.buckets = undefined;
         }
         switch (granularity) {
             case Granularity.day:
@@ -372,11 +376,14 @@ export class BucketsCollection {
                 this.buckets = new BandBuckets(this.context);
                 break;
         }
-        return this.get().setClimatological(climatological).setGranularity(granularity) as Buckets;
+        return this.get().setClimatological(climatological).setGranularity(granularity);
 
     }
 
     public get(): Buckets {
+        if (!this.buckets) {
+            throw new Error('No buckets defined yet');
+        }
         return this.buckets;
     }
 

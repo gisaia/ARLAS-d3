@@ -16,20 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Axis } from './axis';
 import { timeWeek } from 'd3-time';
+import { TimelineContext } from '../drawable.object';
+import { Axis } from './axis';
 
 export class WeekAxis extends Axis {
-    public constructor(context) {
+    public constructor(context: TimelineContext) {
         super(context, WeekAxis.name.toString());
         this.setTickSize(45);
     }
 
     public plot() {
         super.plot();
-        this.element.selectAll('path').style('stroke', '#fff');
-        this.element.selectAll('line').style('stroke', '#888');
-        this.element.selectAll('text').attr('transform', 'translate(25, -15)');
+        this.element?.selectAll('path').style('stroke', '#fff');
+        this.element?.selectAll('line').style('stroke', '#888');
+        this.element?.selectAll('text').attr('transform', 'translate(25, -15)');
 
     }
 

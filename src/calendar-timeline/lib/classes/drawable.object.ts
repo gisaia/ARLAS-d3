@@ -16,20 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Selection, BaseType } from 'd3-selection';
-import { Dimensions } from './dimensions/dimensions';
+import { BaseType, Selection } from 'd3-selection';
 import { TimelineData } from '../interfaces/timeline.data';
+import { Dimensions } from './dimensions/dimensions';
+
+export type TimelineContext = Selection<SVGGElement, TimelineData, BaseType, TimelineData>;
 
 export class DrawableObject {
     /** the `element` contains the drawing of this current object */
-    protected element: Selection<SVGGElement, TimelineData, BaseType, TimelineData>;
+    protected element?: TimelineContext;
     /** the context is the parent element to which the current element is appended */
-    protected context: Selection<SVGGElement, TimelineData, BaseType, TimelineData>;
-    protected dimensions: Dimensions;
+    protected context: TimelineContext;
+    protected dimensions = new Dimensions(0, 0);
 
     private readonly name: string;
 
-    public constructor(context: Selection<SVGGElement, TimelineData, BaseType, TimelineData>, name: string) {
+    public constructor(context: TimelineContext, name: string) {
         this.context = context;
         this.name = name;
     }
@@ -44,20 +46,18 @@ export class DrawableObject {
     public remove() {
         if (this.element) {
             this.element.remove();
-            this.element = null;
+            this.element = undefined;
         }
     }
 
     public setDimensions(dimensions: Dimensions): this {
-        if (!dimensions.equals(this.dimensions)) {
+        if (!this.dimensions || !dimensions.equals(this.dimensions)) {
             // todo : redraw
         }
         this.dimensions = dimensions;
         return this;
     }
 
-    public onClick(e): void {
+    public onClick(e: PointerEvent): void {
     }
-
-
 }
