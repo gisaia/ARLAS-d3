@@ -70,6 +70,7 @@ export abstract class AbstractChart extends AbstractHistogram {
 
   /** Maximum number of buckets that a chart can have */
   private readonly MAX_BUCKET_NUMBER = 1000;
+  private readonly DEFAULT_Y_POS_SPACING = 4;
 
   public plot(inputData: HistogramData[]) {
     super.init();
@@ -221,7 +222,7 @@ export abstract class AbstractChart extends AbstractHistogram {
   protected setBrushHorizontalTooltipsYPositions() {
     if (this.brush) {
       if (this.histogramParams.xAxisPosition === Position.bottom) {
-        this.brushCornerTooltips.leftCornerTooltip.yPosition = this.chartDimensions.height + this.brush.size() + 10;
+        this.brushCornerTooltips.leftCornerTooltip.yPosition = this.chartDimensions.height + this.brush.size() + this.DEFAULT_Y_POS_SPACING;
       } else {
         this.brushCornerTooltips.leftCornerTooltip.yPosition = -3;
       }
