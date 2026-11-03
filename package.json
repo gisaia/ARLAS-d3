@@ -64,5 +64,8 @@
   "bugs": {
     "url": "https://github.com/gisaia/ARLAS-d3/issues"
   },
+  "overrides": {
+    "minimatch": "11.0.3"
+  },
   "homepage": "https://github.com/gisaia/ARLAS-d3"
 }
