@@ -157,10 +157,10 @@ export class Timeline extends DrawableObject {
         this.selectedData.next(this.buckets.get().getTimelineData(date));
     }
 
-    public onMouseenter(e: PointerEvent): void {
+    public onMouseenter(e: MouseEvent): void {
         this.verticalLine.show();
     }
-    public onMouseleave(e: PointerEvent): void {
+    public onMouseleave(e: MouseEvent): void {
         this.verticalLine.hide();
         this.hoveredData.next({
             stringDate: '',
@@ -170,7 +170,7 @@ export class Timeline extends DrawableObject {
         });
     }
 
-    public onMousemove(e: PointerEvent): void {
+    public onMousemove(e: MouseEvent): void {
         this.verticalLine.moveTo(e.offsetX);
     }
 

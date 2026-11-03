@@ -51,6 +51,14 @@ $ npm run build-release
 
 The build artifacts will be generated in the `dist/` directory. 
 
+## Update patch
+
+To update the patch on `d3-time-format`, run:
+
+```bash
+npx patch-package d3-time-format --exclude='nothing'
+```
+
 ## Contributing
 
 Please read [CONTRIBUTING.md](https://github.com/gisaia/ARLAS-d3/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.

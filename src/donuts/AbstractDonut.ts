@@ -396,7 +396,7 @@ export abstract class AbstractDonut {
     );
   }
 
-  protected setTooltipPosition(event: PointerEvent) {
+  protected setTooltipPosition(event: MouseEvent) {
     const xPosition = this.donutDimensions.containerWidth / 2 + pointer(event)[0];
     if (xPosition > this.donutDimensions.containerWidth / 2) {
       this.donutParams.tooltip.isRightSide = true;

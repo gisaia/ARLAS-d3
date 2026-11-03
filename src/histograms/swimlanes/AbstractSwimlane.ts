@@ -211,9 +211,10 @@ export abstract class AbstractSwimlane extends AbstractHistogram {
     }
 
     this.swimlaneContextList.forEach(swimlaneContext => {
-      swimlaneContext.context.on('click', () => {
+      const fct = () => {
         this.setSelectedSwimlanes(swimlaneContext);
-      });
+      };
+      swimlaneContext.context.on('click', fct as any);
     });
   }
 

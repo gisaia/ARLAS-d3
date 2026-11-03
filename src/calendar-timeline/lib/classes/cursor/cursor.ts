@@ -128,18 +128,16 @@ export class Cursor extends TemporalObject {
         }
     }
 
-    public onMouseenter(e: PointerEvent): void {
+    public onMouseenter(e: MouseEvent): void {
         e.stopPropagation();
         this.verticalLine?.hide();
     }
-    public onMouseleave(e: PointerEvent): void {
+    public onMouseleave(e: MouseEvent): void {
         e.stopPropagation();
         this.verticalLine?.show();
     }
 
-    public onMousemove(e: PointerEvent): void {
-
-    }
+    public onMousemove(e: MouseEvent): void {}
 
 
     public setVerticalLine(verticalLine: VerticalLine): this {
