@@ -1,5 +1,7 @@
 # Change Log
 
+## [v29.0.2](https://github.com/gisaia/ARLAS-d3/tree/v29.0.2) (2026-11-03)
+
 ## [v29.0.1](https://github.com/gisaia/ARLAS-d3/tree/v29.0.1) (2026-11-03)
 
 ## [v29.0.0](https://github.com/gisaia/ARLAS-d3/tree/v29.0.0) (2026-10-12)
